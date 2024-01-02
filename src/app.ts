@@ -7,8 +7,8 @@ import cors from 'cors'
 // .env
 import { config } from 'dotenv'
 // mongosose
-import mongoose from 'mongoose'
 import router from './routers'
+import MongoConnect from './Database/mongo.connect'
 
 config()
 
@@ -21,6 +21,10 @@ app.use(helmet())
 app.use(compression())
 app.use(cors())
 app.use(morgan('dev'))
+app.use(express.json())
+
+//Connect -> Database -> Mongo
+MongoConnect.Connect()
 
 app.use('', router)
 

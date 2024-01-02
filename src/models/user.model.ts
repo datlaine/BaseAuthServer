@@ -1,11 +1,16 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model, Document } from 'mongoose'
 
 const DOCUMENT_NAME = 'User'
 const COLLECTION_NAME = 'users'
 
-const userSchema = new Schema(
+export interface UserDocument extends Document {
+      email: string
+      password: string
+}
+
+const userSchema = new Schema<UserDocument>(
       {
-            username: {
+            email: {
                   type: String,
                   require: true
             },
@@ -17,6 +22,6 @@ const userSchema = new Schema(
       { timestamps: true, collection: COLLECTION_NAME }
 )
 
-const userModel = model(DOCUMENT_NAME, userSchema)
+const userModel = model<UserDocument>(DOCUMENT_NAME, userSchema)
 
 export default userModel
