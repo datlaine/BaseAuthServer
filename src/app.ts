@@ -32,6 +32,4 @@ app.listen(8080, () => {
       console.log('Server is runing')
 })
 
-// database - mongoose - connect
-
 export default app

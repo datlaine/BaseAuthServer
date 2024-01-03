@@ -1,6 +1,6 @@
 import { Response } from 'express'
 
-type ResponseCustom = {
+interface IResponseSuccess {
       code: number
       reasonCode: string
       metadata: any
@@ -11,7 +11,7 @@ class ResponseSuccess {
       reasonCode: string
       metadata: any
 
-      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: ResponseCustom) {
+      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: IResponseSuccess) {
             ;(this.code = code), (this.reasonCode = reasonCode)
             this.metadata = metadata
       }
@@ -22,7 +22,7 @@ class ResponseSuccess {
 }
 
 class CREATE extends ResponseSuccess {
-      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: ResponseCustom) {
+      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: IResponseSuccess) {
             super({ code, reasonCode, metadata })
       }
 
@@ -31,4 +31,4 @@ class CREATE extends ResponseSuccess {
       }
 }
 
-export { CREATE, ResponseSuccess, ResponseCustom }
+export { CREATE, ResponseSuccess, IResponseSuccess }

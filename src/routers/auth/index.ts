@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import AuthController from '~/controllers/authController'
+import { asyncHandler } from '~/helpers/asyncHandler'
 
 const authRouter = Router()
 
@@ -11,6 +12,6 @@ authRouter.get('/login', AuthController.login)
 
 authRouter.post('/logout', AuthController.logout)
 
-authRouter.post('/register', AuthController.register)
+authRouter.post('/register', asyncHandler(AuthController.register))
 
 export default authRouter

@@ -1,4 +1,4 @@
-import mongoose, { Mongoose, mongo } from 'mongoose'
+import mongoose, { Mongoose } from 'mongoose'
 
 import { config } from 'dotenv'
 config()
