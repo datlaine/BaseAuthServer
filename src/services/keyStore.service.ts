@@ -38,6 +38,8 @@ class KeyStoreService {
 
             return (await keyStore).toObject()
       }
+
+      static async updateKey() {}
 }
 
 export default KeyStoreService

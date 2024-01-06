@@ -1,6 +1,7 @@
 import userModel, { UserDocument } from '~/models/user.model'
 import bcrypt from 'bcrypt'
 import mongoose, { Types } from 'mongoose'
+import { BadRequestError, NotFoundError } from '~/Core/response.error'
 
 type UserInfo = {
       email: string
@@ -22,9 +23,7 @@ class UserService {
       }
 
       static async findUserById({ _id }: { _id: string }) {
-            const user = await userModel.findOne({ _id }).lean()
-
-            if (!user) throw Error('Not found user')
+            const user = await userModel.findOne({ _id: new mongoose.Types.ObjectId(_id) }).lean()
             return user
       }
 }

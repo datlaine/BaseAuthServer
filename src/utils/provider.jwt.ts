@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export interface JwtPayload {
+export interface IJwtPayload {
       email: string
       _id: string
 }
@@ -16,7 +16,7 @@ export interface IToken {
 }
 
 class ProviderJWT {
-      static createPairToken({ payload, key }: { payload: JwtPayload; key: IKeySecret }): IToken | unknown {
+      static createPairToken({ payload, key }: { payload: IJwtPayload; key: IKeySecret }): IToken | unknown {
             try {
                   const access_token = jwt.sign(payload, key.public_key, { expiresIn: '2d' })
                   const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })

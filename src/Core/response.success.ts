@@ -1,18 +1,19 @@
 import { Response } from 'express'
+import { reasonCode, statusCode } from './httpStatusCode'
 
 interface IResponseSuccess {
-      code: number
-      reasonCode: string
-      metadata: any
+      code?: number
+      message?: string
+      metadata?: any
 }
 
 class ResponseSuccess {
       code: number
-      reasonCode: string
+      message: string
       metadata: any
 
-      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: IResponseSuccess) {
-            ;(this.code = code), (this.reasonCode = reasonCode)
+      constructor({ code = 200, message = 'Success', metadata = {} }: IResponseSuccess) {
+            ;(this.code = code), (this.message = message)
             this.metadata = metadata
       }
 
@@ -22,8 +23,8 @@ class ResponseSuccess {
 }
 
 class CREATE extends ResponseSuccess {
-      constructor({ code = 200, reasonCode = 'Success', metadata = {} }: IResponseSuccess) {
-            super({ code, reasonCode, metadata })
+      constructor({ code = statusCode.CREATED, message = reasonCode.CREATED, metadata = {} }: IResponseSuccess) {
+            super({ code, message, metadata })
       }
 
       send(res: Response) {
@@ -31,4 +32,14 @@ class CREATE extends ResponseSuccess {
       }
 }
 
-export { CREATE, ResponseSuccess, IResponseSuccess }
+class OK extends ResponseSuccess {
+      constructor({ code = statusCode.OK, message = reasonCode.OK, metadata = {} }: IResponseSuccess) {
+            super({ code, message, metadata })
+      }
+
+      send(res: Response) {
+            return super.send(res)
+      }
+}
+
+export { CREATE, ResponseSuccess, OK, IResponseSuccess }
