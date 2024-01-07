@@ -10,14 +10,14 @@ type UserInfo = {
 
 class UserService {
       static async createUser({ email, password }: UserInfo) {
-            const hashPassword = await bcrypt.hash(password, 8)
-            const user = await userModel.create({ email, password: hashPassword })
+            const user = await userModel.create({ email, password })
 
             if (!user) throw Error('Tạo user thất bại')
             return user // object
       }
 
       static async findUserByEmail({ email }: Pick<UserInfo, 'email'>) {
+            console.log(email)
             const foundEmail = await userModel.findOne({ email }).lean()
             return foundEmail ? foundEmail : null
       }

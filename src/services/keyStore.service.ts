@@ -40,6 +40,17 @@ class KeyStoreService {
       }
 
       static async updateKey() {}
+
+      static async deleteKeyStore({ user_id }: Pick<IKeyStore, 'user_id'>) {
+            const del = await keyStoreModel.deleteOne({ user_id })
+            console.log('del', del)
+            return del
+      }
+
+      static async findKeyByRf({ refresh_token }: Pick<IKeyStore, 'refresh_token'>) {
+            const foundKey = await keyStoreModel.findOne({ refresh_token })
+            return foundKey ? foundKey : null
+      }
 }
 
 export default KeyStoreService

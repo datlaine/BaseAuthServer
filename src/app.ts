@@ -11,6 +11,7 @@ import { config } from 'dotenv'
 import router from './routers'
 import MongoConnect from './Database/mongo.connect'
 import { reasonCode, statusCode } from './Core/httpStatusCode'
+import Convert from './utils/convert'
 
 config()
 
@@ -21,7 +22,7 @@ const app = express()
 //midlewares
 app.use(helmet())
 app.use(compression())
-app.use(cors())
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
@@ -37,6 +38,7 @@ interface IError {
       message?: string
       stack?: string
       detail?: string
+      error: any
 }
 
 app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
@@ -44,10 +46,10 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       const code = error.code ? error.code : statusCode.INTERNAL_SERVER_ERROR
       const message = error.message ? error.message : reasonCode.INTERNAL_SERVER_ERROR
       const detail = error.detail ? error.detail : null
-      return res.json({ code, message, detail })
+      return res.status(code).send({ code, message, detail, error: Convert.convertPlantObject(error as object) })
 }) as ErrorRequestHandler)
 
-app.listen(8080, () => {
+app.listen(4000, () => {
       console.log('Server is runing')
 })
 

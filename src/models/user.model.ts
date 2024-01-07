@@ -16,6 +16,7 @@ export const userSchema = new Schema<UserDocument>(
             },
             password: {
                   type: String,
+                  maxlength: 60,
                   require: true
             }
       },

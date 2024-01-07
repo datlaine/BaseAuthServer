@@ -14,8 +14,19 @@ class AuthController {
       }
 
       static async login(req: IRequestCustom, res: Response, next: NextFunction) {
-            const { user, keyStore, refresh_token = null } = req
-            new OK({ metadata: await AuthService.login({ user, keyStore, refresh_token } as IRequestCustom, req, res) }).send(res)
+            // const { user, keyStore, refresh_token = null } = req
+            new OK({ metadata: await AuthService.login(req, res) }).send(res)
+      }
+
+      static async refresh_token(req: IRequestCustom, res: Response) {
+            new OK({ metadata: await AuthService.refresh_token(req, res) }).send(res)
+      }
+
+      static async getMe(req: Request, res: Response) {
+            const { _id } = req.body
+            const cook = req.cookies['refresh_token']
+            console.log('cookies', cook)
+            return res.json({ _id })
       }
 }
 

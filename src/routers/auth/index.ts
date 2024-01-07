@@ -10,9 +10,11 @@ authRouter.get('', (req: Request, res: Response, next: NextFunction) => {
 })
 
 authRouter.post('/register', asyncHandler(AuthController.register))
-authRouter.use(authentication)
 authRouter.post('/login', asyncHandler(AuthController.login))
+authRouter.use(authentication)
+authRouter.post('/getMe', AuthController.getMe)
+
 authRouter.post('/logout', AuthController.logout)
-authRouter.post('refresh_token', () => console.log('OK'))
+authRouter.post('/rf', AuthController.refresh_token)
 
 export default authRouter
