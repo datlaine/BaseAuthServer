@@ -23,7 +23,7 @@ class UserService {
       }
 
       static async findUserById({ _id }: { _id: string }) {
-            const user = await userModel.findOne({ _id: new mongoose.Types.ObjectId(_id) }).lean()
+            const user = await userModel.findOne({ _id: new mongoose.Types.ObjectId(_id) })
             return user
       }
 }

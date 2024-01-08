@@ -9,8 +9,8 @@ class AuthController {
             new CREATE({ metadata: await AuthService.register(req, res) }).send(res)
       }
 
-      static logout = (req: Request, res: Response, next: NextFunction) => {
-            return res.json('Logout Controller')
+      static async logout(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AuthService.logout(req, res) }).send(res)
       }
 
       static async login(req: IRequestCustom, res: Response, next: NextFunction) {

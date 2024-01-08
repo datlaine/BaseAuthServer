@@ -11,11 +11,7 @@ export class ResponseError extends Error {
       code: number
       message: string
       detail: string | null
-      constructor({
-            code = statusCode.INTERNAL_SERVER_ERROR,
-            message = reasonCode.INTERNAL_SERVER_ERROR,
-            detail = null
-      }: IResponseError) {
+      constructor({ code = statusCode.INTERNAL_SERVER_ERROR, message = reasonCode.INTERNAL_SERVER_ERROR, detail = null }: IResponseError) {
             super(message)
             this.code = code
             this.message = message
@@ -30,11 +26,7 @@ export class BadRequestError extends ResponseError {
 }
 
 export class AuthFailedError extends ResponseError {
-      constructor({
-            code = statusCode.UNAUTHORIZED,
-            message = reasonCode.UNAUTHORIZED,
-            detail = null
-      }: IResponseError) {
+      constructor({ code = statusCode.UNAUTHORIZED, message = reasonCode.UNAUTHORIZED, detail = null }: IResponseError) {
             super({ code, message, detail })
       }
 }

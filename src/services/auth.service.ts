@@ -11,7 +11,7 @@ import bcrypt from 'bcrypt'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { UserDocument } from '~/models/user.model'
 import ProviderBcrypt from '~/utils/bcrypt.util'
-import { isObjectIdOrHexString } from 'mongoose'
+import mongoose, { isObjectIdOrHexString } from 'mongoose'
 class AuthService {
       //REGISTER
       static async register(req: Request, res: Response) {
@@ -63,20 +63,20 @@ class AuthService {
       static async login(req: IRequestCustom, res: Response) {
             const { email, password } = req.body
             // found email
-            const foundEmail = await UserService.findUserByEmail({ email })
-            if (!foundEmail) throw new NotFoundError({ detail: 'Not found Email' })
+            const foundUser = await UserService.findUserByEmail({ email })
+            if (!foundUser) throw new NotFoundError({ detail: 'Not found Email' })
             // match email with user._id
 
             // compare pass
 
-            const comparePass = await bcrypt.compareSync(password, foundEmail.password)
+            const comparePass = await bcrypt.compareSync(password, foundUser.password)
             if (!comparePass) throw new AuthFailedError({ detail: 'Pw wrg' })
 
-            const keyStore = await KeyStoreService.findKeyByUserId({ user_id: foundEmail._id })
+            const keyStore = await KeyStoreService.findKeyByUserId({ user_id: foundUser._id })
             if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
 
             const { access_token, refresh_token: new_rf } = ProviderJWT.createPairToken({
-                  payload: { _id: foundEmail._id, email: foundEmail.email },
+                  payload: { _id: foundUser._id, email: foundUser.email },
                   key: { private_key: keyStore?.private_key as string, public_key: keyStore?.public_key as string }
             }) as IToken
 
@@ -90,14 +90,14 @@ class AuthService {
                               throw new AuthFailedError({ detail: 'Token da duoc su dung' })
                         }
                         await keyStoreModel?.findOneAndUpdate(
-                              { user_id: foundEmail._id },
+                              { user_id: foundUser._id },
                               { $set: { refresh_token: new_rf }, $addToSet: { refresh_token_used: refresh_token } }
                         )
                   }
 
                   res.cookie('refresh_token', new_rf)
                   return {
-                        user: SelectData.omit(Convert.convertPlantObject(foundEmail as object), [
+                        user: SelectData.omit(Convert.convertPlantObject(foundUser as object), [
                               'password',
                               'createdAt',
                               'updatedAt',
@@ -111,27 +111,42 @@ class AuthService {
                   //                         throw new AuthFailedError({})
                   //                   }
             }
+            res.cookie('refresh_token', new_rf)
 
             return {
-                  user: SelectData.omit(Convert.convertPlantObject(foundEmail as object), ['password', 'createdAt', 'updatedAt', '__v']),
+                  user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
                   access_token
             }
       }
 
+      // logout
+
+      static async logout(req: IRequestCustom, res: Response) {
+            const { keyStore, user } = req
+            await KeyStoreService.deleteKeyStore({ user_id: (user as UserDocument).id })
+            res.clearCookie('refresh_token')
+
+            return 'Logout ok'
+      }
+
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
-
-            console.log('check ref', refresh_token, keyStore?.refresh_token)
-            if (refresh_token === keyStore?.refresh_token && !keyStore?.refresh_token_used.includes(refresh_token as string)) {
+            console.log('user', user)
+            // console.log('check ref', refresh_token, keyStore?.refresh_token)
+            if (!keyStore?.refresh_token_used.includes(refresh_token as string)) {
                   const { access_token, refresh_token: newRf } = (await ProviderJWT.createPairToken({
                         payload: { email: user?.email as string, _id: user?._id },
                         key: { public_key: (keyStore as IKeyStoreDoc).public_key, private_key: (keyStore as IKeyStoreDoc).private_key }
                   })) as IToken
-                  await keyStoreModel.findOneAndUpdate(
-                        { user: user?._id },
-                        { $addToSet: { refresh_token_used: refresh_token }, $set: { refresh_token: newRf, access_token } }
+                  const update = await keyStoreModel.findOneAndUpdate(
+                        { user_id: user?._id },
+                        { $addToSet: { refresh_token_used: refresh_token }, $set: { refresh_token: newRf, access_token } },
+                        { upsert: true, new: true }
                   )
-                  return { token: access_token }
+
+                  console.log('update_rf', update)
+                  res.cookie('refresh_token', newRf)
+                  return { token: access_token, rf: newRf, user }
             }
             throw new AuthFailedError({ detail: 'Rf token not vaild' })
       }

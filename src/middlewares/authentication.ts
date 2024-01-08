@@ -7,7 +7,7 @@ import { userSchema } from '~/models/user.model'
 import { keyStoreSchema } from '~/models/keyStore.model'
 import { IJwtPayload } from '~/utils/provider.jwt'
 import { asyncHandler } from '~/helpers/asyncHandler'
-import { AuthFailedError, BadRequestError, NotFoundError } from '~/Core/response.error'
+import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError } from '~/Core/response.error'
 interface IHEADER {
       CLIENT_ID: string
       AUTHORIZATION: string
@@ -39,39 +39,42 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       console.log('clientId', !client_id)
       if (!client_id) {
             console.log('point')
-            throw new AuthFailedError({})
+            res.clearCookie('refresh_token')
+            throw new ForbiddenError({})
       }
 
       const access_token = req.headers[HEADER.AUTHORIZATION] as string
       // eslint-disable-next-line no-extra-boolean-cast
-      if (!access_token) throw new AuthFailedError({})
+      if (!access_token) throw new ForbiddenError({})
 
       // tim user
       const user = await UserService.findUserById({ _id: client_id as string })
       if (!user) throw new NotFoundError({ detail: 'Not found user' })
+
       // tim key
       const keyStore = await KeyStoreService.findKeyByUserId({ user_id: user._id })
       if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
       console.log('params', user, keyStore)
       // case: refresh_token
+
       if (req?.cookies['refresh_token']) {
             console.log()
 
             const refresh_token = req.cookies['refresh_token'] as string
             console.log('rf', refresh_token === keyStore.refresh_token, refresh_token, keyStore.refresh_token)
-            if (refresh_token !== keyStore.refresh_token) {
-                  // req.user = user
-                  // req.keyStore = keyStore
-                  // console.log('prev')
-                  // return next()
-                  console.log('checkMatch', refresh_token + '  ' + keyStore.refresh_token)
-                  throw new AuthFailedError({ detail: 'rf not find' })
-            }
+            // if (refresh_token !== keyStore.refresh_token) {
+            //       // req.user = user
+            //       // req.keyStore = keyStore
+            //       // console.log('prev')
+            //       // return next()
+            //       console.log('checkMatch', refresh_token + '  ' + keyStore.refresh_token)
+            //       throw new AuthFailedError({ detail: 'rf is not valid' })
+            // }
             console.log('next')
             jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                   if (error) {
                         console.log('co loi', client_id, refresh_token, keyStore)
-                        req.user = user
+                        // req.user = user
 
                         return next(error)
                   }
