@@ -12,7 +12,7 @@ authRouter.get('', (req: Request, res: Response, next: NextFunction) => {
 authRouter.post('/register', asyncHandler(AuthController.register))
 authRouter.post('/login', asyncHandler(AuthController.login))
 authRouter.use(authentication)
-authRouter.post('/getMe', AuthController.getMe)
+// authRouter.post('/getMe', AuthController.getMe)
 
 authRouter.post('/logout', AuthController.logout)
 authRouter.post('/rf', AuthController.refresh_token)

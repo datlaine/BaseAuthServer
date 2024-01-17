@@ -35,15 +35,16 @@ export interface IRequestCustom extends Request {
 // type IParamsAuthentication = {}
 
 export const authentication = asyncHandler(async (req: IRequestCustom, res: Response, next: NextFunction) => {
-      const client_id = req.headers[HEADER.CLIENT_ID] as string
-      console.log('clientId', !client_id)
+      console.log(req.headers)
+      const client_id = req.headers[HEADER.CLIENT_ID]
+      console.log('clientId', client_id)
       if (!client_id) {
             console.log('point')
             res.clearCookie('refresh_token')
             throw new ForbiddenError({})
       }
 
-      const access_token = req.headers[HEADER.AUTHORIZATION] as string
+      let access_token = req.headers[HEADER.AUTHORIZATION] as string
       // eslint-disable-next-line no-extra-boolean-cast
       if (!access_token) throw new ForbiddenError({})
 
@@ -76,7 +77,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                         console.log('co loi', client_id, refresh_token, keyStore)
                         // req.user = user
 
-                        return next(error)
+                        return next(new ForbiddenError({ detail: 'rf expires' }))
                   }
                   // console.log('decode::', decode)
                   const decodeType = decode as IJwtPayload
@@ -92,6 +93,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
 
       // case authentication thông thường
       if (access_token) {
+            access_token = access_token.split(' ')[1]
             console.log('at')
             jwt.verify(access_token, keyStore.public_key, (error, decode) => {
                   if (error) return next(new AuthFailedError({ detail: 'Token expires' }))

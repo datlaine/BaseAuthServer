@@ -22,11 +22,8 @@ class AuthController {
             new OK({ metadata: await AuthService.refresh_token(req, res) }).send(res)
       }
 
-      static async getMe(req: Request, res: Response) {
-            const { _id } = req.body
-            const cook = req.cookies['refresh_token']
-            console.log('cookies', cook)
-            return res.json({ _id })
+      static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>, res: Response, next: NextFunction) {
+            new OK({ metadata: await AuthService.loginWithGoogle(req) }).send(res)
       }
 }
 

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import UserService from './user.service'
 import SelectData from '~/utils/SelectData'
 import Convert from '~/utils/convert'
@@ -6,25 +6,25 @@ import { randomBytes } from 'crypto'
 import ProviderJWT, { IToken } from '~/utils/provider.jwt'
 import keyStoreModel, { IKeyStoreDoc } from '~/models/keyStore.model'
 import KeyStoreService from './keyStore.service'
-import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '~/Core/response.error'
+import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError, ResponseError } from '~/Core/response.error'
 import bcrypt from 'bcrypt'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { UserDocument } from '~/models/user.model'
 import ProviderBcrypt from '~/utils/bcrypt.util'
 import mongoose, { isObjectIdOrHexString } from 'mongoose'
+import { OK } from '~/Core/response.success'
+import { getGoogleUser, getOautGoogleToken } from '~/utils/google.oauth'
 class AuthService {
       //REGISTER
       static async register(req: Request, res: Response) {
             // req.body --> email, password
             const { email, password } = req.body
-            console.log(password)
             //check email trong database
             const foundEmail = await UserService.findUserByEmail({ email })
-            console.log(foundEmail)
+            console.log('email', foundEmail)
             if (foundEmail) throw new BadRequestError({ detail: 'Email đã được đăng kí' })
 
             //hash pass
-            const salt = await bcrypt.genSalt(10)
 
             const hashPassword = await bcrypt.hash(password, 10)
             if (!hashPassword) throw new ResponseError({ detail: 'Hash failed' })
@@ -53,8 +53,7 @@ class AuthService {
             //return cho class Response ở controller
             return {
                   user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
-                  access_token,
-                  refresh_token
+                  access_token
             }
       }
 
@@ -149,6 +148,25 @@ class AuthService {
                   return { token: access_token, rf: newRf, user }
             }
             throw new AuthFailedError({ detail: 'Rf token not vaild' })
+      }
+
+      static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {
+            // console.log('query', req.query.code)
+            // return req.query.code
+            const { code } = req.query
+            const token = await getOautGoogleToken(code)
+            // eslint-disable-next-line prettier/prettier
+            const { id_token, access_token } = token
+            const googleUser: any = await getGoogleUser({ id_token, access_token })
+            // console.log(googleUser)
+            const user = googleUser.data
+            if ('verified_email' in googleUser) {
+                  if (!googleUser.verified_email) {
+                        new ForbiddenError({ detail: 'block' })
+                  }
+            }
+
+            return { image: user.picture, name: user.name }
       }
 }
 

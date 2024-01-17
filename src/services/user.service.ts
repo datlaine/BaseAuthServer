@@ -19,7 +19,7 @@ class UserService {
       static async findUserByEmail({ email }: Pick<UserInfo, 'email'>) {
             console.log(email)
             const foundEmail = await userModel.findOne({ email }).lean()
-            return foundEmail ? foundEmail : null
+            return foundEmail
       }
 
       static async findUserById({ _id }: { _id: string }) {
