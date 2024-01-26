@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import { config } from 'dotenv'
 import AuthController from '~/controllers/authController'
 import accountRouter from './account'
+import productRouter from './product'
 config()
 const router = Router()
 
@@ -14,7 +15,7 @@ router.get('/getData', (req, res, next) => {
       res.json({ data: ['1', '2', '3', '4'] })
 })
 router.use('/v1/api/account', accountRouter)
-
+router.use('/v1/api/product', productRouter)
 router.get('/api/oauth/google', AuthController.loginWithGoogle)
 
 export default router

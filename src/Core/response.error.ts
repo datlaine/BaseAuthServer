@@ -20,7 +20,7 @@ export class ResponseError extends Error {
 }
 
 export class BadRequestError extends ResponseError {
-      constructor({ code = statusCode.BAD_REQUEST, message = reasonCode.BAD_GATEWAY, detail = null }: IResponseError) {
+      constructor({ code = statusCode.BAD_REQUEST, message = reasonCode.BAD_REQUEST, detail = null }: IResponseError) {
             super({ code, message, detail })
       }
 }

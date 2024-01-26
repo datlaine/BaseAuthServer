@@ -8,14 +8,30 @@ class AccountController {
             new OK({ metadata: await AccountService.getMe(req) }).send(res)
       }
 
-      static async updateAvatar() {}
+      static async updateAvatar(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.updateAvatar(req) }).send(res)
+      }
 
       static async updateEmail() {}
 
-      static async updatePassword() {}
+      static async updatePassword(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.updatePassword(req) }).send(res)
+      }
 
       static async updateInfo(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await AccountService.updateInfo(req) }).send(res)
+      }
+
+      static async getAllAvatar(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.getAllAvatar(req) }).send(res)
+      }
+
+      static async deleteAvatarUsed(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.deleteAvatarUsed(req) }).send(res)
+      }
+
+      static async deleteAvatar(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.deleteAvatar(req) }).send(res)
       }
 }
 

@@ -1,17 +1,22 @@
-import { Request, Router } from 'express'
+import { Router } from 'express'
+import { upload } from '~/configs/cloundinary.config'
 import AccountController from '~/controllers/account.controller'
-import AuthController from '~/controllers/authController'
 import { asyncHandler } from '~/helpers/asyncHandler'
 import authentication from '~/middlewares/authentication'
-import AccountService from '~/services/account.service'
 
 //update-image -> ok
 //update-image/:user_id => ok
 //req.params la 1 object
+
 const accountRouter = Router()
 accountRouter.use(authentication)
-accountRouter.get('/getme', asyncHandler(AccountController.getMe))
-accountRouter.get('/update-avatar/:user_id')
+accountRouter.post('/getme', asyncHandler(AccountController.getMe))
 accountRouter.post('/update-info', asyncHandler(AccountController.updateInfo))
+accountRouter.post('/update-password', asyncHandler(AccountController.updatePassword))
+
+accountRouter.post('/update-avatar', upload.single('file'), asyncHandler(AccountController.updateAvatar))
+accountRouter.get('/getAllAvatar', asyncHandler(AccountController.getAllAvatar))
+accountRouter.post('/deleteAvatarUsed', asyncHandler(AccountController.deleteAvatarUsed))
+accountRouter.post('/deleteAvatar', asyncHandler(AccountController.deleteAvatar))
 
 export default accountRouter

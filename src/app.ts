@@ -12,6 +12,7 @@ import router from './routers'
 import MongoConnect from './Database/mongo.connect'
 import { reasonCode, statusCode } from './Core/httpStatusCode'
 import Convert from './utils/convert'
+import bodyParser from 'body-parser'
 
 config()
 
@@ -26,6 +27,8 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 //Connect -> Database -> Mongo
 MongoConnect.Connect()
@@ -42,7 +45,7 @@ interface IError {
 }
 
 app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
-      console.log('errroHandle', JSON.parse(JSON.stringify(error.stack)))
+      console.log('errroHandle', JSON.parse(JSON.stringify(error.stack || 'Not')))
       const code = error.code ? error.code : statusCode.INTERNAL_SERVER_ERROR
       const message = error.message ? error.message : reasonCode.INTERNAL_SERVER_ERROR
       const detail = error.detail ? error.detail : null

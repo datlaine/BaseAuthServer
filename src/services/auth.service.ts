@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import UserService from './user.service'
 import SelectData from '~/utils/SelectData'
 import Convert from '~/utils/convert'
@@ -10,9 +10,6 @@ import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError, Respon
 import bcrypt from 'bcrypt'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { UserDocument } from '~/models/user.model'
-import ProviderBcrypt from '~/utils/bcrypt.util'
-import mongoose, { isObjectIdOrHexString } from 'mongoose'
-import { OK } from '~/Core/response.success'
 import { getGoogleUser, getOautGoogleToken } from '~/utils/google.oauth'
 class AuthService {
       //REGISTER
@@ -31,13 +28,13 @@ class AuthService {
 
             // tạo account user
             const createUser = await UserService.createUser({ email, password: hashPassword })
-            const { email: emailUser, _id } = createUser
+            const { email: emailUser, _id, roles } = createUser
             // {public_key, private_key}
             const public_key = randomBytes(64).toString('hex')
             const private_key = randomBytes(64).toString('hex')
 
             const { access_token, refresh_token } = (await ProviderJWT.createPairToken({
-                  payload: { email: emailUser, _id },
+                  payload: { email: emailUser, _id, roles },
                   key: { public_key, private_key }
             })) as IToken
 
@@ -75,7 +72,7 @@ class AuthService {
             if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
 
             const { access_token, refresh_token: new_rf } = ProviderJWT.createPairToken({
-                  payload: { _id: foundUser._id, email: foundUser.email },
+                  payload: { _id: foundUser._id, email: foundUser.email, roles: foundUser.roles },
                   key: { private_key: keyStore?.private_key as string, public_key: keyStore?.public_key as string }
             }) as IToken
 
@@ -86,7 +83,8 @@ class AuthService {
                   // neu hop le thi thu hoi
                   if (refresh_token === keyStore.refresh_token) {
                         if (keyStore.refresh_token_used.includes(refresh_token)) {
-                              throw new AuthFailedError({ detail: 'Token da duoc su dung' })
+                              // throw new AuthFailedError({ detail: 'Token da duoc su dung' })
+                              res.clearCookie('refresh-token')
                         }
                         await keyStoreModel?.findOneAndUpdate(
                               { user_id: foundUser._id },
@@ -104,11 +102,6 @@ class AuthService {
                         ]),
                         access_token // rf: new_rf
                   }
-                  // else {
-                  //                         const foundKeyRf = await KeyStoreService.findKeyByRf({ refresh_token })
-                  //                         if (foundKeyRf) await KeyStoreService.deleteKeyStore({ user_id: foundKeyRf.user_id.toString() })
-                  //                         throw new AuthFailedError({})
-                  //                   }
             }
             res.cookie('refresh_token', new_rf)
 
@@ -130,24 +123,22 @@ class AuthService {
 
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
-            console.log('user', user)
-            // console.log('check ref', refresh_token, keyStore?.refresh_token)
             if (!keyStore?.refresh_token_used.includes(refresh_token as string)) {
                   const { access_token, refresh_token: newRf } = (await ProviderJWT.createPairToken({
-                        payload: { email: user?.email as string, _id: user?._id },
+                        payload: { email: user?.email as string, _id: user?._id, roles: user?.roles as string[] },
                         key: { public_key: (keyStore as IKeyStoreDoc).public_key, private_key: (keyStore as IKeyStoreDoc).private_key }
                   })) as IToken
-                  const update = await keyStoreModel.findOneAndUpdate(
-                        { user_id: user?._id },
-                        { $addToSet: { refresh_token_used: refresh_token }, $set: { refresh_token: newRf, access_token } },
-                        { upsert: true, new: true }
-                  )
+                  const update = await keyStoreModel
+                        .findOneAndUpdate(
+                              { user_id: user?._id },
+                              { $addToSet: { refresh_token_used: refresh_token }, $set: { refresh_token: newRf, access_token } },
+                              { upsert: true, new: true }
+                        )
+                        .lean()
 
-                  console.log('update_rf', update)
                   res.cookie('refresh_token', newRf)
                   return { token: access_token, rf: newRf, user }
             }
-            throw new AuthFailedError({ detail: 'Rf token not vaild' })
       }
 
       static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {

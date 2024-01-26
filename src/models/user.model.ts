@@ -3,6 +3,11 @@ import { Schema, model, Document } from 'mongoose'
 const DOCUMENT_NAME = 'User'
 const COLLECTION_NAME = 'users'
 
+interface IAvaterUsed extends Document {
+      public_id: string
+      secure_url: string
+}
+
 export interface UserDocument extends Document {
       email: string
       password: string
@@ -10,11 +15,25 @@ export interface UserDocument extends Document {
       nickName: string
       verify_email?: boolean
       bob?: Date
+      roles: string[]
       avartar_url_default: string
-      avatar_used: string[]
-      sercel_url?: string
+      avatar: {
+            secure_url?: string
+            public_id: string
+            date_update: Date
+      }
+      avatar_used: {
+            secure_url: string
+            public_id: string
+            date_update: Date
+      }[]
       gender: string
 }
+
+export const avatarUsedSchema = new Schema<IAvaterUsed>({
+      public_id: { type: String },
+      secure_url: { type: String }
+})
 
 export const userSchema = new Schema<UserDocument>(
       {
@@ -31,17 +50,25 @@ export const userSchema = new Schema<UserDocument>(
             nickName: { type: String },
             verify_email: { type: Boolean, default: false },
             bob: { type: Date, default: null },
+            roles: { type: [String], enum: ['user', 'shop', 'admin'], default: ['user'] },
             gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Male' },
-            sercel_url: {
-                  type: String,
-                  default: 'https://res.cloudinary.com/demonodejs/image/upload/v1705389477/static/o5gxkgehijtg9auirdje.jpg'
+            avatar: {
+                  secure_url: String,
+                  public_id: String,
+                  date_update: Date
             },
             avartar_url_default: {
                   type: String,
                   default: 'https://res.cloudinary.com/demonodejs/image/upload/v1705389477/static/o5gxkgehijtg9auirdje.jpg'
             },
             avatar_used: {
-                  type: [String],
+                  type: [
+                        {
+                              secure_url: String,
+                              public_id: String,
+                              date_update: Date
+                        }
+                  ],
                   default: []
             }
       },
