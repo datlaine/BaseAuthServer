@@ -1,4 +1,4 @@
-import { Router, Request } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import authRouter from './auth'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
@@ -16,6 +16,12 @@ router.get('/getData', (req, res, next) => {
 })
 router.use('/v1/api/account', accountRouter)
 router.use('/v1/api/product', productRouter)
+router.get('/v1/api/test', (req: Request<unknown, unknown, unknown, { page: string; name: string }>, res: Response, next: NextFunction) => {
+      const query = req.query.page
+      const name = req.query.name
+      return res.json({ query, name })
+})
+
 router.get('/api/oauth/google', AuthController.loginWithGoogle)
 
 export default router

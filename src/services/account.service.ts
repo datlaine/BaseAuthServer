@@ -9,6 +9,7 @@ import path from 'path'
 import cloudinary from '~/configs/cloundinary.config'
 import { config } from 'dotenv'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
+import AccountRepository from '~/repositories/account.repositort'
 
 config()
 class AccountService {
@@ -80,14 +81,15 @@ class AccountService {
       static async deleteAvatarUsed(req: IRequestCustom) {
             const user = req.user
             const public_id = req.body.public_id
-            const result = await cloudinary.uploader.destroy(user?.avatar.public_id as string)
+            const result = await cloudinary.uploader.destroy(public_id)
             console.log({ result })
+            const objAvatarUsed = await AccountRepository.findSecureUrlWithPublicId(public_id)
             const update = await userModel.findOneAndUpdate(
                   {
                         _id: user?._id
                   },
                   {
-                        $pull: { avatar_used: { public_id } }
+                        $pull: { avatar_used: { public_id, secure_url: objAvatarUsed?.avatar.secure_url } }
                   },
                   { new: true, upsert: true }
             )

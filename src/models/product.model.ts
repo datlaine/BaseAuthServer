@@ -7,7 +7,10 @@ export interface IProductDoc extends Document {
       user_id: Types.ObjectId
       product_name: string
       product_price: number
-      product_thumb_image: string
+      product_thumb_image: {
+            secure_url?: string
+            public_id: string
+      }
 }
 
 export const productSchema = new Schema<IProductDoc>(
@@ -19,7 +22,13 @@ export const productSchema = new Schema<IProductDoc>(
             },
             product_name: { type: String, default: 'none', required: true },
             product_price: { type: Number, default: 0, required: true },
-            product_thumb_image: { type: String, default: 'none', required: true }
+            product_thumb_image: {
+                  type: {
+                        secure_url: String,
+                        public_id: String
+                  },
+                  required: true
+            }
       },
       { timestamps: true, collection: COLLECTION_NAME }
 )

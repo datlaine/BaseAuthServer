@@ -8,5 +8,7 @@ const productRouter = Router()
 productRouter.use(authentication)
 productRouter.post('/upload-product-thumb', upload.single('image'), asyncHandler(ProductController.uploadProductThumb))
 productRouter.post('/upload-product-full', asyncHandler(ProductController.uploadProductFull))
+productRouter.get('/shop-product-all', asyncHandler(ProductController.getAllProduct))
+productRouter.post('/delete-product-thumb', asyncHandler(ProductController.deleteProductThumb))
 
 export default productRouter
