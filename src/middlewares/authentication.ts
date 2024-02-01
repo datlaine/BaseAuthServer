@@ -54,34 +54,38 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
       // case: refresh_token
 
-      console.log(req.originalUrl === '/v1/api/auth/rf')
-      if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
-            const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
-            // if (refresh_token !== keyStore.refresh_token) {
-            //       // req.user = user
-            //       // req.keyStore = keyStore
-            //       // console.log('prev')
-            //       // return next()
-            //       console.log('checkMatch', refresh_token + '  ' + keyStore.refresh_token)
-            //       throw new AuthFailedError({ detail: 'rf is not valid' })
-            // }
-            jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
-                  if (error) {
-                        // req.user = user
-                        return next(new ForbiddenError({ detail: 'Refresh failed' }))
-                  }
-                  // console.log('decode::', decode)
-                  const decodeType = decode as IJwtPayload
-                  if (decodeType._id !== client_id) throw new AuthFailedError({})
-                  req.user = user
-                  req.keyStore = keyStore
-                  req.refresh_token = refresh_token
-            })
-            return next()
-            // if (!decode) throw new BadRequestError({})
-            // if (decode._id !== client_id) throw new BadRequestError({})
-      }
+      if (req.originalUrl === '/v1/api/auth/rf') {
+            if (!req?.cookies['refresh_token']) {
+                  return next(new ForbiddenError({ detail: 'Khong co token' }))
+            }
 
+            if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
+                  const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
+                  // if (refresh_token !== keyStore.refresh_token) {
+                  //       // req.user = user
+                  //       // req.keyStore = keyStore
+                  //       // console.log('prev')
+                  //       // return next()
+                  //       console.log('checkMatch', refresh_token + '  ' + keyStore.refresh_token)
+                  //       throw new AuthFailedError({ detail: 'rf is not valid' })
+                  // }
+                  jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
+                        if (error) {
+                              // req.user = user
+                              return next(new ForbiddenError({ detail: 'Token khong dung' }))
+                        }
+                        // console.log('decode::', decode)
+                        const decodeType = decode as IJwtPayload
+                        if (decodeType._id !== client_id) throw new AuthFailedError({})
+                        req.user = user
+                        req.keyStore = keyStore
+                        req.refresh_token = refresh_token
+                  })
+                  return next()
+                  // if (!decode) throw new BadRequestError({})
+                  // if (decode._id !== client_id) throw new BadRequestError({})
+            }
+      }
       // case authentication thông thường
       if (access_token) {
             const token = access_token.split(' ')[1]

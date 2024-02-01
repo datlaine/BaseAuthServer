@@ -13,6 +13,9 @@ import MongoConnect from './Database/mongo.connect'
 import { reasonCode, statusCode } from './Core/httpStatusCode'
 import Convert from './utils/convert'
 import bodyParser from 'body-parser'
+import productModel from './models/product.model'
+import { Types } from 'mongoose'
+import { ProductBook, ProductFactory } from './services/product.factory'
 
 config()
 
