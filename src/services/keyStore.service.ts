@@ -12,8 +12,7 @@ interface IKeyStore {
 class KeyStoreService {
       static async findKeyByUserId({ user_id }: { user_id: string }) {
             const foundKey = await keyStoreModel.findOne({ user_id }).lean()
-            if (!foundKey) throw Error('User_id not match key')
-            return foundKey
+            return foundKey ? foundKey : null
       }
 
       static async createKeyStoreUser({

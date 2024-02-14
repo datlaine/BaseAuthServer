@@ -38,8 +38,8 @@ export interface IRequestCustom extends Request {
 export const authentication = asyncHandler(async (req: IRequestCustom, res: Response, next: NextFunction) => {
       const client_id = req.headers[HEADER.CLIENT_ID]
       if (!client_id) {
-            res.clearCookie('refresh_token')
-            throw new ForbiddenError({})
+            // res.clearCookie('refresh_token')
+            throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn' })
       }
       const access_token = req.headers[HEADER.AUTHORIZATION] as string
       // eslint-disable-next-line no-extra-boolean-cast
@@ -47,32 +47,27 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
 
       // tim user
       const user = await UserService.findUserById({ _id: client_id as string })
-      if (!user) throw new BadRequestError({ detail: 'Not found user' })
+      if (!user) throw new ForbiddenError({ detail: 'Không tìm thấy tài khoản' })
 
       // tim key
       const keyStore = await KeyStoreService.findKeyByUserId({ user_id: user._id })
-      if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
+      if (!keyStore) throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn' })
+
       // case: refresh_token
 
       if (req.originalUrl === '/v1/api/auth/rf') {
+            console.log({ refresf: req?.cookies['refresh_token'] })
             if (!req?.cookies['refresh_token']) {
-                  return next(new ForbiddenError({ detail: 'Khong co token' }))
+                  return next(new ForbiddenError({ detail: 'Token không đúng' }))
             }
 
             if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
                   const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
-                  // if (refresh_token !== keyStore.refresh_token) {
-                  //       // req.user = user
-                  //       // req.keyStore = keyStore
-                  //       // console.log('prev')
-                  //       // return next()
-                  //       console.log('checkMatch', refresh_token + '  ' + keyStore.refresh_token)
-                  //       throw new AuthFailedError({ detail: 'rf is not valid' })
-                  // }
+
                   jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
-                              return next(new ForbiddenError({ detail: 'Token khong dung' }))
+                              return next(new ForbiddenError({ detail: 'Token không đúng' }))
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload
@@ -82,8 +77,6 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                         req.refresh_token = refresh_token
                   })
                   return next()
-                  // if (!decode) throw new BadRequestError({})
-                  // if (decode._id !== client_id) throw new BadRequestError({})
             }
       }
       // case authentication thông thường
@@ -93,7 +86,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             console.log('at')
             jwt.verify(token, keyStore.public_key, (error, decode) => {
                   if (error) {
-                        return next(new AuthFailedError({ detail: 'Token expires' }))
+                        return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
                   // console.log('decode::', decode)
                   const decodeType = decode as IJwtPayload

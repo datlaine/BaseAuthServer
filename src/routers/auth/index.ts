@@ -15,6 +15,6 @@ authRouter.use(authentication)
 // authRouter.post('/getMe', AuthController.getMe)
 
 authRouter.post('/logout', AuthController.logout)
-authRouter.post('/rf', AuthController.refresh_token)
+authRouter.post('/rf', asyncHandler(AuthController.refresh_token))
 
 export default authRouter

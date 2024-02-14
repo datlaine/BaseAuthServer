@@ -20,12 +20,13 @@ class AccountService {
       }
       static async updateInfo(req: IRequestCustom) {
             const user = req.user
-            console.log(req.body.birth)
             const update = await userModel.findOneAndUpdate(
                   { _id: user?._id },
                   { $set: { bob: req.body.birth, gender: req.body.gender, fullName: req.body.fullName, nickName: req.body.nickName } },
                   { new: true, upsert: true }
             )
+
+            console.log({ update })
             return {
                   user: update
             }
@@ -82,7 +83,6 @@ class AccountService {
             const user = req.user
             const public_id = req.body.public_id
             const result = await cloudinary.uploader.destroy(public_id)
-            console.log({ result })
             const objAvatarUsed = await AccountRepository.findSecureUrlWithPublicId(public_id)
             const update = await userModel.findOneAndUpdate(
                   {

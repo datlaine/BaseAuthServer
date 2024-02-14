@@ -52,7 +52,7 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       const code = error.code ? error.code : statusCode.INTERNAL_SERVER_ERROR
       const message = error.message ? error.message : reasonCode.INTERNAL_SERVER_ERROR
       const detail = error.detail ? error.detail : null
-      return res.status(code).send({ code, message, detail, error: Convert.convertPlantObject(error as object) })
+      return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
 app.listen(4000, () => {

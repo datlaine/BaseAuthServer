@@ -1,4 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose'
+import { TComment } from './comment.model'
 
 const DOCUMENT_NAME = 'Product'
 const COLLECTION_NAME = 'products'
@@ -12,9 +13,12 @@ export interface IProductBook {
 }
 
 export interface IProductBookDoc extends IProductBook, Document {}
-
+export type TImage = {
+      secure_url: string
+      public_id: string
+}
 export interface IProduct {
-      user_id: Types.ObjectId
+      shop_id: Types.ObjectId
       product_name: string
       product_price: number
       product_thumb_image: {
@@ -26,25 +30,23 @@ export interface IProduct {
             secure_url: string
             public_id: string
       }[]
-
+      product_type: string
+      product_is_bought: number
+      product_quantity: number
+      // product_votes: number
+      // product_comment: TComment[]
       isProductFull?: boolean
       expireAt?: Date
-      product_type: string
       attribute: IProductBook
 }
-
-// export interface IProductDoc extends IProduct, Document {
-//       _id?: Types.ObjectId
-
-// }
 
 export type IProductDoc = IProduct & Document
 
 export const productSchema = new Schema<IProductDoc>(
       {
-            user_id: {
+            shop_id: {
                   type: Schema.Types.ObjectId,
-                  ref: 'User',
+                  ref: 'Shop',
                   require: true
             },
             product_name: { type: String, default: 'none', required: true },
@@ -67,6 +69,7 @@ export const productSchema = new Schema<IProductDoc>(
                   required: true
             },
             isProductFull: { type: Boolean, default: false },
+
             expireAt: {
                   type: Date,
                   default: Date.now,
@@ -78,6 +81,13 @@ export const productSchema = new Schema<IProductDoc>(
 
             product_type: { type: String, enum: ['Book', 'Food'], require: true },
 
+            product_is_bought: { type: Number, required: true },
+            product_quantity: { type: Number, required: true },
+            // product_votes: { type: Number, required: true },
+            // product_comment: {
+            //       type: [{ product_comment_id: Schema.Types.ObjectId, ref: 'Comment' }],
+            //       default: []
+            // },
             attribute: {
                   type: Schema.Types.Mixed,
                   required: true

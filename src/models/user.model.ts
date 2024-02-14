@@ -27,7 +27,9 @@ export interface UserDocument extends Document {
             public_id: string
             date_update: Date
       }[]
+      user_address: [string]
       gender: string
+      isOpenShop?: boolean
 }
 
 export const avatarUsedSchema = new Schema<IAvaterUsed>({
@@ -49,7 +51,7 @@ export const userSchema = new Schema<UserDocument>(
             fullName: { type: String },
             nickName: { type: String },
             verify_email: { type: Boolean, default: false },
-            bob: { type: Date, default: null },
+            bob: { type: Date, default: Date.now() },
             roles: { type: [String], enum: ['user', 'shop', 'admin'], default: ['user'] },
             gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Male' },
             avatar: {
@@ -70,7 +72,10 @@ export const userSchema = new Schema<UserDocument>(
                         }
                   ],
                   default: []
-            }
+            },
+            isOpenShop: { type: Boolean, default: false },
+
+            user_address: { types: [String], default: [] }
       },
       { timestamps: true, collection: COLLECTION_NAME }
 )

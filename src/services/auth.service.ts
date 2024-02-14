@@ -46,7 +46,7 @@ class AuthService {
                   access_token
             })
 
-            res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, httpOnly: true })
+            res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
             //return cho class Response ở controller
             return {
                   user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
@@ -60,16 +60,23 @@ class AuthService {
             const { email, password } = req.body
             // found email
             const foundUser = await UserService.findUserByEmail({ email })
-            if (!foundUser) throw new NotFoundError({ detail: 'Not found Email' })
+            if (!foundUser) throw new AuthFailedError({ detail: 'Đăng nhập thất bại, vui lòng nhập thông tin hợp lệ' })
             // match email with user._id
 
             // compare pass
 
             const comparePass = await bcrypt.compareSync(password, foundUser.password)
-            if (!comparePass) throw new AuthFailedError({ detail: 'Pw wrg' })
+            if (!comparePass) throw new AuthFailedError({ detail: 'Đăng nhập thất bại, vui lòng nhập thông tin hợp lệ' })
 
-            const keyStore = await KeyStoreService.findKeyByUserId({ user_id: foundUser._id })
-            if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
+            const public_key = randomBytes(64).toString('hex')
+            const private_key = randomBytes(64).toString('hex')
+            const keyStore = await keyStoreModel.findOneAndUpdate(
+                  { user_id: foundUser._id },
+                  { $set: { public_key, private_key } },
+                  { new: true, upsert: true }
+            )
+            // const keyStore = await KeyStoreService.findKeyByUserId({ user_id: foundUser._id })
+            // if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
 
             const { access_token, refresh_token: new_rf } = ProviderJWT.createPairToken({
                   payload: { _id: foundUser._id, email: foundUser.email, roles: foundUser.roles },
@@ -82,28 +89,18 @@ class AuthService {
 
                   // neu hop le thi thu hoi
                   if (refresh_token === keyStore.refresh_token) {
-                        if (keyStore.refresh_token_used.includes(refresh_token)) {
-                              // throw new AuthFailedError({ detail: 'Token da duoc su dung' })
-                              res.clearCookie('refresh-token')
-                        }
+                        // if (keyStore.refresh_token_used.includes(refresh_token)) {
+                        // throw new AuthFailedError({ detail: 'Token da duoc su dung' })
+                        // res.clearCookie('refresh-token')
                         await keyStoreModel?.findOneAndUpdate(
                               { user_id: foundUser._id },
                               { $set: { refresh_token: new_rf }, $addToSet: { refresh_token_used: refresh_token } }
                         )
-                  }
-
-                  res.cookie('refresh_token', new_rf)
-                  return {
-                        user: SelectData.omit(Convert.convertPlantObject(foundUser as object), [
-                              'password',
-                              'createdAt',
-                              'updatedAt',
-                              '__v'
-                        ]),
-                        access_token // rf: new_rf
+                        // }
                   }
             }
-            res.cookie('refresh_token', new_rf)
+            res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+            await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
 
             return {
                   user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
@@ -118,7 +115,7 @@ class AuthService {
             await KeyStoreService.deleteKeyStore({ user_id: (user as UserDocument).id })
             res.clearCookie('refresh_token')
 
-            return 'Logout ok'
+            return { message: 'Logout success!!' }
       }
 
       static async refresh_token(req: IRequestCustom, res: Response) {
@@ -135,10 +132,13 @@ class AuthService {
                               { upsert: true, new: true }
                         )
                         .lean()
-
-                  res.cookie('refresh_token', newRf)
+                  console.log(newRf)
+                  res.cookie('refresh_token', newRf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
                   return { token: access_token, rf: newRf, user }
             }
+            console.log('alo', keyStore?.refresh_token_used.includes(refresh_token as string))
+
+            throw new ForbiddenError({ detail: 'Token đã được sử dụng' })
       }
 
       static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {
