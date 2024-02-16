@@ -2,7 +2,6 @@ import { config } from 'dotenv'
 
 import { v2 as cloudinary } from 'cloudinary'
 import multer from 'multer'
-import { CloudinaryStorage } from 'multer-storage-cloudinary'
 
 config()
 

@@ -314,7 +314,8 @@ class ProductService {
       static async getProductWithId(req: IRequestCustom) {
             const id = req.params.id
             console.log({ id })
-            const product = await productModel.findById({ _id: new mongoose.Types.ObjectId(id) }).populate('shop_id', 'shop_name')
+            const product = await productModel.findById({ _id: new mongoose.Types.ObjectId(id) }).populate('shop_id')
+            // await sleep(3000)
             return { product }
       }
 
@@ -347,8 +348,8 @@ class ProductService {
       }
 
       static async deleteProductWithId(req: IRequestCustom) {
-            const { product_id } = req.body
-
+            const { product_id } = req.params
+            console.log({ product_id })
             const foundProduct = await productModel.findOne({ _id: product_id }).lean()
             if (!foundProduct) throw new BadRequestError({ detail: 'Không tìm thấy sản phẩm' })
 

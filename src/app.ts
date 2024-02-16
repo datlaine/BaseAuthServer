@@ -11,11 +11,8 @@ import { config } from 'dotenv'
 import router from './routers'
 import MongoConnect from './Database/mongo.connect'
 import { reasonCode, statusCode } from './Core/httpStatusCode'
-import Convert from './utils/convert'
 import bodyParser from 'body-parser'
 import productModel from './models/product.model'
-import { Types } from 'mongoose'
-import { ProductBook, ProductFactory } from './services/product.factory'
 
 config()
 
@@ -26,7 +23,17 @@ const app = express()
 //midlewares
 app.use(helmet())
 app.use(compression())
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
+app.use(
+      cors({
+            credentials: true,
+            origin: ['http://localhost:3000'],
+            exposedHeaders: ['set-cookie']
+
+            // origin: 'http://localhost:3000'
+            // origin: '*'
+      })
+)
+
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())

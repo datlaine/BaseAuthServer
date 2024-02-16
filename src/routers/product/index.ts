@@ -34,6 +34,6 @@ productRouter.post('/delete-product-image-full', asyncHandler(ProductController.
 // productRouter.post('/upload-product-images-full', upload.array('files'), asyncHandler(ProductController.uploadProductImageFull))
 // productRouter.post('/update-product-images-full', upload.array('files'), asyncHandler(ProductController.updateProductImageFull))
 
-productRouter.delete('/delete-product/:product_id', upload.array('files'), asyncHandler(ProductController.deleteProductWithId))
+productRouter.delete('/delete-product/:product_id', asyncHandler(ProductController.deleteProductWithId))
 
 export default productRouter
