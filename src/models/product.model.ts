@@ -33,6 +33,7 @@ export interface IProduct {
       product_type: string
       product_is_bought: number
       product_quantity: number
+      product_state: boolean
       // product_votes: number
       // product_comment: TComment[]
       isProductFull?: boolean
@@ -83,6 +84,7 @@ export const productSchema = new Schema<IProductDoc>(
 
             product_is_bought: { type: Number, required: true },
             product_quantity: { type: Number, required: true },
+            product_state: { type: Boolean, default: false },
             // product_votes: { type: Number, required: true },
             // product_comment: {
             //       type: [{ product_comment_id: Schema.Types.ObjectId, ref: 'Comment' }],

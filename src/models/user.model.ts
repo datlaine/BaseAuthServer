@@ -30,6 +30,7 @@ export interface UserDocument extends Document {
       user_address: [string]
       gender: string
       isOpenShop?: boolean
+      isCartSelectAll: boolean
 }
 
 export const avatarUsedSchema = new Schema<IAvaterUsed>({
@@ -74,6 +75,7 @@ export const userSchema = new Schema<UserDocument>(
                   default: []
             },
             isOpenShop: { type: Boolean, default: false },
+            isCartSelectAll: { type: Boolean, default: false },
 
             user_address: { types: [String], default: [] }
       },

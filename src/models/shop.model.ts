@@ -9,7 +9,7 @@ export type TShop = {
       shop_name: string
       shop_avatar: TImage
       shop_avatar_used: TImage[]
-      shop_avartar_default: string
+      shop_avatar_default: string
 }
 
 export type TShopDoc = TShop & Document
@@ -19,7 +19,7 @@ export const shopSchema = new Schema<TShopDoc>(
             owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
             shop_name: { type: String, required: true },
             shop_avatar: { type: { secure_url: String, public_id: String }, required: true },
-            shop_avartar_default: {
+            shop_avatar_default: {
                   type: String,
                   default: 'https://res.cloudinary.com/demonodejs/image/upload/v1705389477/static/o5gxkgehijtg9auirdje.jpg'
             },

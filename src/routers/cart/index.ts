@@ -9,5 +9,9 @@ cartRouter.use(authentication)
 cartRouter.post('/add-cart', asyncHandler(CartController.addcart))
 cartRouter.get('/cart-get-count-product', asyncHandler(CartController.getCountProductCart))
 cartRouter.get('/cart-get-my-cart', asyncHandler(CartController.getMyCart))
+cartRouter.post('/cart-change-quantity', asyncHandler(CartController.changeQuantityProductCart))
+cartRouter.post('/cart-change-select-all', asyncHandler(CartController.selectAllCart))
+cartRouter.post('/cart-change-select-one', asyncHandler(CartController.selectOneCart))
+cartRouter.get('/cart-pay', asyncHandler(CartController.calculatorPrice))
 
 export default cartRouter

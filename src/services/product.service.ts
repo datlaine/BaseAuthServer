@@ -314,7 +314,8 @@ class ProductService {
       static async getProductWithId(req: IRequestCustom) {
             const id = req.params.id
             console.log({ id })
-            const product = await productModel.findById({ _id: new mongoose.Types.ObjectId(id) }).populate('shop_id')
+            const product = await productModel.findOne({ _id: new mongoose.Types.ObjectId(id), product_state: true }).populate('shop_id')
+            if (!product) return { product: null }
             // await sleep(3000)
             return { product }
       }
@@ -350,22 +351,26 @@ class ProductService {
       static async deleteProductWithId(req: IRequestCustom) {
             const { product_id } = req.params
             console.log({ product_id })
-            const foundProduct = await productModel.findOne({ _id: product_id }).lean()
-            if (!foundProduct) throw new BadRequestError({ detail: 'Không tìm thấy sản phẩm' })
+            // const foundProduct = await productModel.findOne({ _id: product_id }).lean()
+            // if (!foundProduct) throw new BadRequestError({ detail: 'Không tìm thấy sản phẩm' })
 
-            const productThumbImage = foundProduct?.product_thumb_image
-            const deleteCloudProductThumbImage = await cloudinary.uploader.destroy(productThumbImage?.public_id as string)
-            if (!deleteCloudProductThumbImage) throw new BadRequestError({ detail: 'Xóa product thumb thất bại' })
+            // const productThumbImage = foundProduct?.product_thumb_image
+            // const deleteCloudProductThumbImage = await cloudinary.uploader.destroy(productThumbImage?.public_id as string)
+            // if (!deleteCloudProductThumbImage) throw new BadRequestError({ detail: 'Xóa product thumb thất bại' })
 
-            const productDescriptionImage = foundProduct?.product_desc_image
-            for (let index = 0; index < productDescriptionImage?.length; index++) {
-                  const deleteCloudProductDescriptionImageOne = await cloudinary.uploader.destroy(productDescriptionImage[index].public_id)
-                  if (!deleteCloudProductDescriptionImageOne)
-                        throw new BadRequestError({ detail: `Xóa product description item::${index} thất bại` })
-            }
-            const deleteProduct = await productModel.findOneAndDelete({ _id: product_id }, { new: true, upsert: true })
+            // const productDescriptionImage = foundProduct?.product_desc_image
+            // for (let index = 0; index < productDescriptionImage?.length; index++) {
+            //       const deleteCloudProductDescriptionImageOne = await cloudinary.uploader.destroy(productDescriptionImage[index].public_id)
+            //       if (!deleteCloudProductDescriptionImageOne)
+            //             throw new BadRequestError({ detail: `Xóa product description item::${index} thất bại` })
+            // }
+            const deleteProduct = await productModel.findOneAndUpdate(
+                  { _id: product_id },
+                  { $set: { product_state: false } },
+                  { new: true, upsert: true }
+            )
             if (!deleteProduct) throw new BadRequestError({ detail: 'Xóa sản phẩm thất bại' })
-
+            console.log({ deleteProduct })
             return { message: 'Xóa thành công' }
       }
 }

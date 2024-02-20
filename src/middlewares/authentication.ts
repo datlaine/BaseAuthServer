@@ -58,7 +58,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       if (req.originalUrl === '/v1/api/auth/rf') {
             console.log({ refresf: req?.cookies['refresh_token'] })
             if (!req?.cookies['refresh_token']) {
-                  return next(new ForbiddenError({ detail: 'Token không đúng' }))
+                  return next(new ForbiddenError({ detail: 'Token không đúng1' }))
             }
 
             if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
@@ -71,7 +71,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload
-                        if (decodeType._id !== client_id) throw new AuthFailedError({})
+                        // if (decodeType._id !== client_id) throw new AuthFailedError({})
                         req.user = user
                         req.keyStore = keyStore
                         req.refresh_token = refresh_token

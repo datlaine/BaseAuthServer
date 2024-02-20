@@ -13,12 +13,21 @@ import MongoConnect from './Database/mongo.connect'
 import { reasonCode, statusCode } from './Core/httpStatusCode'
 import bodyParser from 'body-parser'
 import productModel from './models/product.model'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import { DefaultEventsMap } from 'node_modules/socket.io/dist/typed-events'
 
 config()
+declare global {
+      var _io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+}
 
 //////START//////
 //khởi tạo express
 const app = express()
+const server = createServer(app)
+const io = new Server(server)
+global._io = io // cach 2
 
 //midlewares
 app.use(helmet())
@@ -62,7 +71,7 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
-app.listen(4000, () => {
+server.listen(4000, () => {
       console.log('Server is runing')
 })
 

@@ -71,6 +71,7 @@ class ProductController {
 
             const product_is_bought = 0
             const product_quantity = 1000
+            const product_state = true
             console.log({ _id })
 
             const book = new ProductBook({
@@ -81,7 +82,8 @@ class ProductController {
                   product_quantity,
                   shop_id: foundShop?._id,
                   attribute: { publishing, author, description, page_number, product_id: _id },
-                  product_type
+                  product_type,
+                  product_state
             })
 
             new OK({ metadata: await ProductFactory.createProduct(book) }).send(res)

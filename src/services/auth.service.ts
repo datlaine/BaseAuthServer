@@ -120,25 +120,33 @@ class AuthService {
 
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
-            if (!keyStore?.refresh_token_used.includes(refresh_token as string)) {
-                  const { access_token, refresh_token: newRf } = (await ProviderJWT.createPairToken({
-                        payload: { email: user?.email as string, _id: user?._id, roles: user?.roles as string[] },
-                        key: { public_key: (keyStore as IKeyStoreDoc).public_key, private_key: (keyStore as IKeyStoreDoc).private_key }
-                  })) as IToken
-                  const update = await keyStoreModel
-                        .findOneAndUpdate(
-                              { user_id: user?._id },
-                              { $addToSet: { refresh_token_used: refresh_token }, $set: { refresh_token: newRf, access_token } },
-                              { upsert: true, new: true }
-                        )
-                        .lean()
-                  console.log(newRf)
-                  res.cookie('refresh_token', newRf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
-                  return { token: access_token, rf: newRf, user }
-            }
-            console.log('alo', keyStore?.refresh_token_used.includes(refresh_token as string))
 
-            throw new ForbiddenError({ detail: 'Token đã được sử dụng' })
+            // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used })
+
+            if (keyStore?.refresh_token_used.includes(refresh_token as string)) {
+                  await keyStoreModel.deleteOne({ user_id: user?._id })
+                  throw new ForbiddenError({ detail: 'Token đã được sử dụng444' })
+            }
+
+            if (keyStore?.refresh_token !== refresh_token) throw new ForbiddenError({ detail: 'Token không đúng' })
+
+            const { access_token, refresh_token: newRf } = (await ProviderJWT.createPairToken({
+                  payload: { email: user?.email as string, _id: user?._id, roles: user?.roles as string[] },
+                  key: { public_key: keyStore?.public_key as string, private_key: keyStore?.private_key as string }
+            })) as IToken
+            const update = await keyStoreModel
+                  .updateOne(
+                        { user_id: user?._id },
+                        {
+                              $set: { refresh_token: newRf },
+                              $addToSet: { refresh_token_used: refresh_token }
+                        },
+                        { upsert: true, new: true }
+                  )
+                  .lean()
+            // console.log({ update })
+            res.cookie('refresh_token', newRf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+            return { token: access_token, rf: newRf, user }
       }
 
       static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {

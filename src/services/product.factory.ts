@@ -26,6 +26,7 @@ class Product implements IProductStrategy {
       protected product_type: string
       private product_is_bought: number
       private product_quantity: number
+      private product_state: boolean
       protected attribute: IProductBook
       constructor({
             shop_id,
@@ -34,6 +35,7 @@ class Product implements IProductStrategy {
             attribute,
             _id,
             product_type,
+            product_state,
             product_is_bought,
             product_quantity
       }: TProduct & { _id: Types.ObjectId }) {
@@ -43,6 +45,7 @@ class Product implements IProductStrategy {
             this.product_type = product_type
             this.attribute = attribute
             this._id = _id
+            this.product_state = product_state
             this.product_is_bought = product_is_bought
             this.product_quantity = product_quantity
       }
@@ -61,6 +64,8 @@ class Product implements IProductStrategy {
                               product_quantity: this.product_quantity,
                               product_type: this.product_type,
                               attribute: this.attribute,
+                              product_state: this.product_state,
+
                               isProductFull: true
                         }
                   },
@@ -78,9 +83,20 @@ export class ProductBook extends Product implements IProductStrategy {
             attribute,
             product_type = 'Book',
             product_is_bought,
-            product_quantity
+            product_quantity,
+            product_state = true
       }: TProduct & { _id: Types.ObjectId }) {
-            super({ shop_id, product_name, product_price, attribute, product_type, _id, product_is_bought, product_quantity })
+            super({
+                  shop_id,
+                  product_name,
+                  product_price,
+                  attribute,
+                  product_type,
+                  _id,
+                  product_is_bought,
+                  product_quantity,
+                  product_state
+            })
             this.product_type = product_type
             this.attribute = attribute
       }

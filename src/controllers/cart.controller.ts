@@ -14,6 +14,22 @@ class CartController {
       static async getMyCart(req: Request, res: Response, next: NextFunction) {
             new OK({ metadata: await CartService.getMyCart(req) }).send(res)
       }
+
+      static async changeQuantityProductCart(req: Request, res: Response, next: NextFunction) {
+            new OK({ metadata: await CartService.changeQuantityProductCart(req) }).send(res)
+      }
+
+      static async selectAllCart(req: Request, res: Response, next: NextFunction) {
+            new OK({ metadata: await CartService.selectAllCart(req) }).send(res)
+      }
+
+      static async selectOneCart(req: Request, res: Response, next: NextFunction) {
+            new OK({ metadata: await CartService.selectOneCart(req) }).send(res)
+      }
+
+      static async calculatorPrice(req: Request, res: Response, next: NextFunction) {
+            new OK({ metadata: await CartService.calculatorPrice(req) }).send(res)
+      }
 }
 
 export default CartController

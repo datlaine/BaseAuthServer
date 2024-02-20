@@ -74,7 +74,7 @@ class ShopService {
             //       .populate({ path: 'shop_id', match: { onwer: { $ne: new Types.ObjectId(user?._id) } } })
             // console.log({ foundProductMyShop })
             const shop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
-            const foundProductMyShop = await productModel.find({ shop_id: shop?._id })
+            const foundProductMyShop = await productModel.find({ shop_id: shop?._id, product_state: true })
 
             console.log({ foundProductMyShop })
             return { myProductOfShop: foundProductMyShop }
