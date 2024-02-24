@@ -10,6 +10,7 @@ import cloudinary from '~/configs/cloundinary.config'
 import { config } from 'dotenv'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 import AccountRepository from '~/repositories/account.repositort'
+import { Types } from 'mongoose'
 
 config()
 class AccountService {
@@ -118,6 +119,46 @@ class AccountService {
       }
 
       static async updatePassword(req: IRequestCustom) {}
+
+      static async addAddress(req: IRequestCustom) {
+            const { user } = req
+            const { addressPayload } = req.body
+            console.log({ body: req.body })
+
+            const query = { _id: new Types.ObjectId(user?._id) }
+            const update = { $addToSet: { user_address: addressPayload } }
+            const option = { new: true, upsert: true }
+
+            const updateUser = await userModel.findOneAndUpdate(query, update, option)
+
+            return { user: updateUser }
+      }
+
+      static async setAddressDefault(req: IRequestCustom) {
+            const { user } = req
+            const { addressPayload } = req.body
+            await userModel.updateMany({ _id: new Types.ObjectId(user?._id) }, { 'user_address.$[].address_default': false })
+            const query = { _id: new Types.ObjectId(user?._id), 'user_address._id': addressPayload._id }
+            const update = { 'user_address.$.address_default': true }
+            const option = { new: true, upsert: true }
+
+            const userUpdate = await userModel.findOneAndUpdate(query, update, option)
+
+            return { user: userUpdate }
+      }
+
+      static async deleteAddress(req: IRequestCustom) {
+            const { user } = req
+            const { address_id } = req.params
+
+            const query = { _id: new Types.ObjectId(user?._id), 'user_address._id': address_id }
+            const update = { $pull: { user_address: { _id: address_id } } }
+            const option = { new: true, upsert: true }
+
+            const updateUser = await userModel.findOneAndUpdate(query, update, option)
+
+            return { user: updateUser }
+      }
 }
 
 export default AccountService

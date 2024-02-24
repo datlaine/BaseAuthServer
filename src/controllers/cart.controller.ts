@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { OK } from '~/Core/response.success'
+import { OK, ResponseSuccess } from '~/Core/response.success'
 import CartService from '~/services/cart.service'
 
 class CartController {
@@ -29,6 +29,14 @@ class CartController {
 
       static async calculatorPrice(req: Request, res: Response, next: NextFunction) {
             new OK({ metadata: await CartService.calculatorPrice(req) }).send(res)
+      }
+
+      static async deleteCart(req: Request, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await CartService.deleteCart(req) }).send(res)
+      }
+
+      static async updateAddressCart(req: Request, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await CartService.updateAddressCart(req) }).send(res)
       }
 }
 

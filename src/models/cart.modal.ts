@@ -18,20 +18,23 @@ type CartState = ['active', 'pending', 'complete']
 export interface CartProduct {
       shop_id: Types.ObjectId
       product_id: Types.ObjectId
-      product_name: string
-      product_price: number
       cart_state: 'active' | 'pending' | 'complete'
 
       quantity: number
       new_quantity: number
       isSelect: boolean
       cart_date: Date
+      cart_address: {
+            address: string
+            type: 'Home' | 'Company' | 'Private'
+      }
 }
 
 interface CartModel {
       cart_user_id: Types.ObjectId
       cart_products: Types.DocumentArray<CartProduct>
       cart_count_product: number
+      cart_select_all: boolean
 }
 
 type CartModelDoc = CartModel & Document
@@ -50,24 +53,50 @@ type CartProductDoc = CartProduct & Document
 //       { collection: COLLECTION_NAME, timestamps: true }
 // )
 
+const cartAdressSchema = new Schema({
+      address: { type: String, require: true },
+      address_street: { type: String, require: true },
+      address_ward: {
+            type: {
+                  code: String,
+                  text: String
+            }
+      },
+      address_district: {
+            type: {
+                  code: String,
+                  text: String
+            }
+      },
+      address_province: {
+            type: {
+                  code: String,
+                  text: String
+            }
+      },
+      address_text: { type: String, require: true },
+
+      type: { type: String, enum: ['Home', 'Company', 'Private'], default: 'Home' }
+})
+
 const cartSchema = new Schema<CartModelDoc>({
       cart_user_id: {
             type: Schema.Types.ObjectId,
             ref: 'User'
       },
       cart_count_product: { type: Number, default: 0 },
+      cart_select_all: { type: Boolean, default: false },
       cart_products: [
             new Schema<CartProductDoc>({
-                  shop_id: { type: Schema.Types.ObjectId, ref: 'Shop' },
+                  shop_id: { type: Schema.Types.ObjectId, ref: 'Shop', required: true },
 
-                  product_id: { type: Schema.Types.ObjectId, ref: 'Product' },
-                  product_name: String,
-                  product_price: String,
-                  cart_state: { type: String, enum: ['active', 'pending', 'complete'], default: 'active' },
-                  quantity: Number,
+                  product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+                  cart_state: { type: String, enum: ['active', 'pending', 'complete'], default: 'active', required: true },
+                  quantity: { type: Number, require: true },
                   new_quantity: Number,
-                  cart_date: Date,
-                  isSelect: { type: Boolean, default: false }
+                  isSelect: { type: Boolean, default: false },
+                  cart_address: cartAdressSchema,
+                  cart_date: { type: Date, default: Date.now(), required: true }
             })
       ]
 })

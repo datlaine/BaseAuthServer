@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express'
-import { OK } from '~/Core/response.success'
+import { OK, ResponseSuccess } from '~/Core/response.success'
 import { IRequestCustom } from '~/middlewares/authentication'
 import AccountService from '~/services/account.service'
 
@@ -32,6 +32,18 @@ class AccountController {
 
       static async deleteAvatar(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await AccountService.deleteAvatar(req) }).send(res)
+      }
+
+      static async addAddress(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.addAddress(req) }).send(res)
+      }
+
+      static async setAddressDefault(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.setAddressDefault(req) }).send(res)
+      }
+
+      static async deleteAddress(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.deleteAddress(req) }).send(res)
       }
 }
 

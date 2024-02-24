@@ -101,7 +101,6 @@ class AuthService {
             }
             res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
-
             return {
                   user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
                   access_token

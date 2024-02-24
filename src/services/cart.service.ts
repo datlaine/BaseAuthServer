@@ -72,7 +72,7 @@ class CartService {
       static async addCart(req: IRequestCustom) {
             const { user } = req
             const { product } = req.body
-
+            console.log({ product })
             const userCart = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) })
             if (!userCart) {
                   return await CartService.createCart({ user_id: user?._id, product })
@@ -84,7 +84,10 @@ class CartService {
                   return { cart: await userCart.save() }
             }
 
-            const foundProduct = await cartModel.findOne({ 'cart_products.product_id': product.product_id })
+            const foundProduct = await cartModel.findOne({
+                  cart_user_id: new Types.ObjectId(user?._id),
+                  'cart_products.product_id': product.product_id
+            })
             console.log({ foundProduct })
 
             if (!foundProduct) {
@@ -123,14 +126,7 @@ class CartService {
                   .findOne({ cart_user_id: user?._id })
                   .populate({
                         path: 'cart_products.product_id',
-                        populate: {
-                              path: 'shop_id',
-                              select: {
-                                    shop_name: 1,
-                                    shop_avatar: 1,
-                                    shop_avatar_default: 1
-                              }
-                        },
+
                         select: {
                               product_thumb_image: 1,
                               product_price: 1,
@@ -140,59 +136,50 @@ class CartService {
                         }
                   })
                   .populate({
-                        path: 'shop_id',
+                        path: 'cart_products.shop_id',
                         select: {
                               shop_name: 1,
                               shop_avatar: 1,
                               shop_avatar_default: 1
                         }
                   })
-
-            console.log({ foundCart: JSON.stringify(foundCart) })
-            if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
+            console.log({ foundCart })
+            // if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
             return { cart: foundCart }
       }
 
       static async changeQuantityProductCart(req: IRequestCustom) {
-            // const { mode, quantity, cart_id } = req.body
-            // let update
+            const { user } = req
+            const { mode, quantity, product_id } = req.body
+            let update
             // const foundCart = await cartModel.findOne({ _id: cart_id })
             // if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
             // const updateQuantity: number = foundCart.cart_quantity + Number(quantity)
             // const updatePrice: number = updateQuantity * foundCart.cart_product_price_origin
             // console.log({ updateQuantity, updatePrice })
-            // if (mode === 'DECREASE') {
-            //       update = await cartModel.findOneAndUpdate(
-            //             { _id: new mongoose.Types.ObjectId(cart_id) },
-            //             { $set: { cart_quantity: updateQuantity, cart_product_price: updatePrice } },
-            //             { new: true, upsert: true }
-            //       )
-            // }
-            // if (mode === 'INCREASE') {
-            //       update = await cartModel.findOneAndUpdate(
-            //             { _id: new mongoose.Types.ObjectId(cart_id) },
-            //             { $set: { cart_quantity: updateQuantity, cart_product_price: updatePrice } },
-            //             { new: true, upsert: true }
-            //       )
-            // }
-            // if (mode === 'INPUT') {
-            //       let updateQuantity: number | null
-            //       let updatePrice: number | null
-            //       if (quantity === 0 || quantity === 1) {
-            //             updateQuantity = 1
-            //             updatePrice = updateQuantity * foundCart.cart_product_price_origin
-            //       } else {
-            //             updateQuantity = Number(quantity)
-            //             updatePrice = updateQuantity * foundCart.cart_product_price_origin
-            //       }
-            //       update = await cartModel.findOneAndUpdate(
-            //             { _id: new mongoose.Types.ObjectId(cart_id) },
-            //             { $set: { cart_quantity: updateQuantity as number, cart_product_price: updatePrice } },
-            //             { new: true, upsert: true }
-            //       )
-            //       console.log({ update })
-            // }
-            // return { quantity: update?.cart_quantity }
+            console.log({ body: req.body })
+            const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
+            const option = { new: true, upsert: true }
+            if (mode === 'DECREASE') {
+                  const update = { $inc: { 'cart_products.$.quantity': quantity } }
+                  const result = await cartModel.findOneAndUpdate(query, update, option)
+                  const foundProduct = result?.cart_products.find((product) => product.product_id.toString() === product_id)
+
+                  return { quantity: foundProduct?.quantity }
+            }
+            if (mode === 'INCREASE') {
+                  const update = { $inc: { 'cart_products.$.quantity': quantity } }
+                  const result = await cartModel.findOneAndUpdate(query, update, option)
+                  const foundProduct = result?.cart_products.find((product) => product.product_id.toString() === product_id)
+                  return { quantity: foundProduct?.quantity }
+            }
+            if (mode === 'INPUT') {
+                  const update = { $set: { 'cart_products.$.quantity': quantity } }
+                  const result = await cartModel.findOneAndUpdate(query, update, option)
+                  const foundProduct = result?.cart_products.find((product) => product.product_id.toString() === product_id)
+
+                  return { quantity: foundProduct?.quantity }
+            }
       }
 
       static async selectAllCart(req: IRequestCustom) {
@@ -207,43 +194,79 @@ class CartService {
                   { new: true }
             )
 
-            const updateUser = await userModel.findOneAndUpdate(
-                  { _id: new Types.ObjectId(user?._id) },
-                  { $set: { isCartSelectAll: select } },
+            const cartSelectAll = await cartModel.findOneAndUpdate(
+                  { cart_user_id: new Types.ObjectId(user?._id) },
+                  { $set: { cart_select_all: select, 'cart_products.$[].isSelect': select } },
                   { new: true, upsert: true }
             )
 
-            const result = await cartModel.find({ cart_user_id: new Types.ObjectId(user?._id) })
-            if (!updateAllCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
-
-            console.log({ updateAllCart })
-            return { cart: result, user: updateUser, current_select: updateUser.isCartSelectAll }
+            return { cart: cartSelectAll }
       }
 
       static async selectOneCart(req: IRequestCustom) {
-            //       const { cart_id, value } = req.body
-            //       const updateCart = await cartModel.findOneAndUpdate(
-            //             { _id: new Types.ObjectId(cart_id) },
-            //             { $set: { cart_is_select: value } },
-            //             { new: true, upsert: true }
-            //       )
-            //       return { cartUpdateItem: { cart_id: updateCart._id, cart_is_select: updateCart.cart_is_select } }
+            const { product_id, value } = req.body
+
+            const query = { 'cart_products.product_id': product_id }
+            const update = { $set: { 'cart_products.$.isSelect': value } }
+            const option = { new: true, upsert: true }
+            const updateCart = await cartModel.findOneAndUpdate(query, update, option)
+            const result = updateCart?.cart_products.find((product) => product.product_id.toString() === product_id.toString())
+            // const foundCartItem = await cartModel.findOne(query)
+            // console.log({ updateCart: JSON.stringify(foundCartItem) })
+            return { cartUpdateItem: result }
+      }
+
+      static async getCartWithId(req: IRequestCustom) {
+            const { cart_id } = req.params
+            const { user } = req
+
+            const query = { user }
+
+            const foundCart = await userModel.findOne({})
       }
 
       static async calculatorPrice(req: IRequestCustom) {
             const { user } = req
-            const cart = await cartModel
-                  .find({ cart_user_id: new Types.ObjectId(user?._id), cart_is_select: true })
+            const carts = await cartModel
+                  .findOne({ cart_user_id: new Types.ObjectId(user?._id), 'cart_products.isSelect': true })
                   .populate({
-                        path: 'cart_product_id',
-                        model: 'Product',
-                        match: { product_state: true },
-                        select: '_id product_thumb_image product_price product_name'
-                        // Lọc dựa trên điều kiện "product_available: true"
+                        path: 'cart_products.product_id',
+                        select: 'product_price product_thumb_image'
                   })
-                  .exec()
+            // if (!carts) return { carts: { cart_products: [] } }
+            console.log({ carts })
 
-            return { cart }
+            const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
+
+            return { carts: { cart_products: filterCarts || [] } }
+      }
+
+      static async deleteCart(req: IRequestCustom) {
+            const { product_id } = req.params
+            const { user } = req
+
+            const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
+            const update = { $pull: { cart_products: { product_id } }, $inc: { cart_count_product: -1 } }
+            const option = { new: true, upsert: true }
+            const deleteCart = await cartModel.findOneAndUpdate(query, update, option)
+            console.log({ deleteCart: JSON.stringify(deleteCart) })
+
+            if (!deleteCart) return { message: 'Xóa thất bại' }
+            return { message: 'Xóa thành công' }
+      }
+
+      static async updateAddressCart(req: IRequestCustom) {
+            const { payload } = req.body
+            console.log({ body: req.body })
+            const { product_id, address_full } = payload
+            const { user } = req
+            const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
+            const update = { 'cart_products.$.cart_address.address': address_full }
+            const option = { new: true, upsert: true }
+
+            const cartItem = await cartModel.findOneAndUpdate(query, update, option)
+
+            return { cart: cartItem }
       }
 }
 

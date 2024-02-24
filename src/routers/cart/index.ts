@@ -13,5 +13,7 @@ cartRouter.post('/cart-change-quantity', asyncHandler(CartController.changeQuant
 cartRouter.post('/cart-change-select-all', asyncHandler(CartController.selectAllCart))
 cartRouter.post('/cart-change-select-one', asyncHandler(CartController.selectOneCart))
 cartRouter.get('/cart-pay', asyncHandler(CartController.calculatorPrice))
+cartRouter.delete('/cart-delete/:product_id', asyncHandler(CartController.deleteCart))
+cartRouter.post('/cart-update-address-cart', asyncHandler(CartController.updateAddressCart))
 
 export default cartRouter

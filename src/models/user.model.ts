@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model, Document, Types } from 'mongoose'
 
 const DOCUMENT_NAME = 'User'
 const COLLECTION_NAME = 'users'
@@ -6,6 +6,16 @@ const COLLECTION_NAME = 'users'
 interface IAvaterUsed extends Document {
       public_id: string
       secure_url: string
+}
+
+interface UserAddress {
+      address_street: string
+      address_ward: string
+      address_district: string
+      address_province: string
+      address_type: 'Home' | 'Company' | 'Private'
+      address_creation_time: Date
+      address_default: boolean
 }
 
 export interface UserDocument extends Document {
@@ -27,16 +37,29 @@ export interface UserDocument extends Document {
             public_id: string
             date_update: Date
       }[]
-      user_address: [string]
+      user_address: Types.DocumentArray<UserAddress>
       gender: string
       isOpenShop?: boolean
       isCartSelectAll: boolean
+      user_address_count: number
 }
 
 export const avatarUsedSchema = new Schema<IAvaterUsed>({
       public_id: { type: String },
       secure_url: { type: String }
 })
+
+type UserAddressDoc = UserAddress & Document
+
+// const userAddressSchema = new Schema<UserAddressDoc>({
+//       address_street: { type: String, required: true },
+//       address_ward: { type: String, required: true },
+//       address_district: { type: String, required: true },
+//       address_province: { type: String, required: true },
+//       address_type: { type: String, enum: ['Home', 'Company', 'Private'], default: 'Private' },
+//       address_default: { type: Boolean, default: false },
+//       address_creation_time: { type: Date, default: Date.now() }
+// })
 
 export const userSchema = new Schema<UserDocument>(
       {
@@ -77,7 +100,40 @@ export const userSchema = new Schema<UserDocument>(
             isOpenShop: { type: Boolean, default: false },
             isCartSelectAll: { type: Boolean, default: false },
 
-            user_address: { types: [String], default: [] }
+            user_address: {
+                  type: [
+                        {
+                              address_text: { type: String, required: true },
+                              address_street: { type: String, required: true },
+                              address_ward: {
+                                    type: {
+                                          code: String,
+                                          text: String
+                                    },
+                                    required: true
+                              },
+                              address_district: {
+                                    type: {
+                                          code: String,
+                                          text: String
+                                    },
+
+                                    required: true
+                              },
+                              address_province: {
+                                    type: {
+                                          code: String,
+                                          text: String
+                                    },
+                                    required: true
+                              },
+                              address_type: { type: String, enum: ['Home', 'Company', 'Private'], default: 'Private' },
+                              address_default: { type: Boolean, default: false },
+                              address_creation_time: { type: Date, default: Date.now() }
+                        }
+                  ]
+            },
+            user_address_count: { type: Number, default: 0 }
       },
       { timestamps: true, collection: COLLECTION_NAME }
 )
