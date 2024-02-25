@@ -1,7 +1,6 @@
 import userModel, { UserDocument } from '~/models/user.model'
 import bcrypt from 'bcrypt'
 import mongoose, { Types } from 'mongoose'
-import { BadRequestError, NotFoundError } from '~/Core/response.error'
 
 type UserInfo = {
       email: string

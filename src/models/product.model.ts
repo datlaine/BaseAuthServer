@@ -10,13 +10,11 @@ export interface IProductBook {
       author: string
       page_number: number
       description: string
+      book_type: 'Novel' | 'Manga' | 'Detective'
 }
 
 export interface IProductBookDoc extends IProductBook, Document {}
-export type TImage = {
-      secure_url: string
-      public_id: string
-}
+
 export interface IProduct {
       shop_id: Types.ObjectId
       product_name: string
@@ -32,9 +30,11 @@ export interface IProduct {
       }[]
       product_type: string
       product_is_bought: number
-      product_quantity: number
+
       product_state: boolean
-      // product_votes: number
+      product_votes: number
+      product_available: number
+
       // product_comment: TComment[]
       isProductFull?: boolean
       expireAt?: Date
@@ -69,7 +69,7 @@ export const productSchema = new Schema<IProductDoc>(
                   ],
                   required: true
             },
-            isProductFull: { type: Boolean, default: false },
+            isProductFull: { type: Boolean, default: false, require: true },
 
             expireAt: {
                   type: Date,
@@ -83,9 +83,9 @@ export const productSchema = new Schema<IProductDoc>(
             product_type: { type: String, enum: ['Book', 'Food'], require: true },
 
             product_is_bought: { type: Number, required: true },
-            product_quantity: { type: Number, required: true },
             product_state: { type: Boolean, default: false },
-            // product_votes: { type: Number, required: true },
+            product_votes: { type: Number, required: true },
+            product_available: { type: Number, require: true },
             // product_comment: {
             //       type: [{ product_comment_id: Schema.Types.ObjectId, ref: 'Comment' }],
             //       default: []
@@ -106,7 +106,8 @@ export const bookSchema = new Schema<IProductBookDoc>(
             author: { type: String, required: true },
             page_number: { type: Number, required: true },
             description: { type: String, required: true },
-            product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true }
+            product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+            book_type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
       },
       { timestamps: true, collection: 'books' }
 )

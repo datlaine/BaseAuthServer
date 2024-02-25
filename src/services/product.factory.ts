@@ -2,7 +2,13 @@ import mongoose, { Document, ObjectId, Schema, Types, UpdateWriteOpResult } from
 import productModel, { IProduct, IProductBook, IProductDoc, productBookModel } from '~/models/product.model'
 
 interface IProductStrategy {
-      createProduct: () => Promise<UpdateWriteOpResult>
+      createProduct: () => Promise<
+            mongoose.Document<unknown, {}, IProductDoc> &
+                  IProduct &
+                  mongoose.Document<any, any, any> & {
+                        _id: Types.ObjectId
+                  }
+      >
 }
 
 export class ProductFactory {
@@ -21,12 +27,11 @@ class Product implements IProductStrategy {
       private shop_id: Types.ObjectId
       private product_name: string
       private product_price: number
-      // private product_desc_image: { secure_url: string; public_id: string }[]
-      // private product_thumb_image: { secure_url: string; public_id: string }
       protected product_type: string
       private product_is_bought: number
-      private product_quantity: number
       private product_state: boolean
+      private product_available: number
+      private product_votes: number
       protected attribute: IProductBook
       constructor({
             shop_id,
@@ -37,7 +42,8 @@ class Product implements IProductStrategy {
             product_type,
             product_state,
             product_is_bought,
-            product_quantity
+            product_available,
+            product_votes
       }: TProduct & { _id: Types.ObjectId }) {
             this.shop_id = shop_id
             this.product_name = product_name
@@ -47,13 +53,14 @@ class Product implements IProductStrategy {
             this._id = _id
             this.product_state = product_state
             this.product_is_bought = product_is_bought
-            this.product_quantity = product_quantity
+            this.product_available = product_available
+            this.product_votes = product_votes
       }
 
       async createProduct() {
             console.log({ shop_id: this.shop_id })
 
-            return await productModel.updateOne(
+            return await productModel.findOneAndUpdate(
                   { _id: this._id },
                   {
                         $set: {
@@ -61,10 +68,11 @@ class Product implements IProductStrategy {
                               product_name: this.product_name,
                               product_price: this.product_price,
                               product_is_bought: this.product_is_bought,
-                              product_quantity: this.product_quantity,
                               product_type: this.product_type,
                               attribute: this.attribute,
                               product_state: this.product_state,
+                              product_available: this.product_available,
+                              product_votes: this.product_votes,
 
                               isProductFull: true
                         }
@@ -80,11 +88,12 @@ export class ProductBook extends Product implements IProductStrategy {
             shop_id,
             product_name,
             product_price,
-            attribute,
             product_type = 'Book',
             product_is_bought,
-            product_quantity,
-            product_state = true
+            product_state = true,
+            product_available,
+            product_votes,
+            attribute
       }: TProduct & { _id: Types.ObjectId }) {
             super({
                   shop_id,
@@ -94,10 +103,10 @@ export class ProductBook extends Product implements IProductStrategy {
                   product_type,
                   _id,
                   product_is_bought,
-                  product_quantity,
-                  product_state
+                  product_state,
+                  product_available,
+                  product_votes
             })
-            this.product_type = product_type
             this.attribute = attribute
       }
 
@@ -107,7 +116,8 @@ export class ProductBook extends Product implements IProductStrategy {
                   author: this.attribute.author,
                   publishing: this.attribute.publishing,
                   page_number: this.attribute.page_number,
-                  description: this.attribute.description
+                  description: this.attribute.description,
+                  book_type: this.attribute.book_type
             })
 
             console.log({ book: createProductBook })

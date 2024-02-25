@@ -1,8 +1,9 @@
 import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
 import { OK } from '~/Core/response.success'
+import { product_default_vote } from '~/constant/product.constant'
 import { IRequestCustom } from '~/middlewares/authentication'
-import { IProduct } from '~/models/product.model'
+import productModel, { IProduct } from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
 import { ProductBook, ProductFactory } from '~/services/product.factory'
 import ProductService from '~/services/product.service'
@@ -20,10 +21,6 @@ class ProductController {
             new OK({ metadata: await ProductService.uploadProductDescriptionImageOne(req) }).send(res)
       }
 
-      // static async updateProductThumb(req: IRequestCustom, res: Response, next: NextFunction) {
-      //       new OK({ metadata: await ProductService.updateProductThumb(req) }).send(res)
-      // }
-
       static async getProductShop(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getProductShop(req) }).send(res)
       }
@@ -35,14 +32,6 @@ class ProductController {
             new OK({ metadata: await ProductService.deleteProductDescriptionImageOne(req) }).send(res)
       }
 
-      // static async uploadProductImageFull(req: IRequestCustom, res: Response, next: NextFunction) {
-      //       new OK({ metadata: await ProductService.uploadProductImageFull(req) }).send(res)
-      // }
-
-      // static async updateProductImageFull(req: IRequestCustom, res: Response, next: NextFunction) {
-      //       new OK({ metadata: await ProductService.updateProductImageFull(req) }).send(res)
-      // }
-
       static async deleteProductImageFull(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.deleteProductImageFull(req) }).send(res)
       }
@@ -50,40 +39,33 @@ class ProductController {
       static async uploadProductBook(req: IRequestCustom, res: Response, next: NextFunction) {
             const user_id = req.user?._id
             const foundShop = await shopModel.findOne({ owner: user_id })
+
             const {
                   _id,
-                  attribute,
-                  // product_desc_image,
                   product_name,
                   product_price,
-                  // product_thumb_image,
-                  product_type
+                  product_type,
+                  product_available,
+                  product_is_bought
             }: IProduct & { _id: Types.ObjectId } = req.body
-            const {
-                  // product_thumb_image_url,
-                  // product_thumb_image_public_id,
-                  publishing,
-                  author,
-                  page_number,
-                  description
-                  // product_image_description
-            } = req.body
 
-            const product_is_bought = 0
-            const product_quantity = 1000
+            const { book_type, publishing, author, page_number, description } = req.body
+
+            // const product_is_bought = product_is_bought || 0
             const product_state = true
-            console.log({ _id })
-
+            const product_votes = product_default_vote
+            const product = await productModel.findOne({ _id }).lean()
             const book = new ProductBook({
                   _id,
                   product_name,
+                  product_available,
+                  product_votes,
                   product_price,
-                  product_is_bought,
-                  product_quantity,
+                  product_is_bought: product?.product_is_bought || 0,
                   shop_id: foundShop?._id,
-                  attribute: { publishing, author, description, page_number, product_id: _id },
                   product_type,
-                  product_state
+                  product_state,
+                  attribute: { publishing, author, description, page_number, product_id: _id, book_type }
             })
 
             new OK({ metadata: await ProductFactory.createProduct(book) }).send(res)

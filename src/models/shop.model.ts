@@ -1,14 +1,18 @@
 import { Document, Schema, Types, model } from 'mongoose'
-import { TImage } from './product.model'
 
 const DOCUMENT_NAME = 'Shop'
 const COLLECTION_NAME = 'Shops'
 
+export type Cloudinary = {
+      secure_url: string
+      public_id: string
+}
+
 export type TShop = {
       owner: Types.ObjectId
       shop_name: string
-      shop_avatar: TImage
-      shop_avatar_used: TImage[]
+      shop_avatar: Cloudinary
+      shop_avatar_used: Cloudinary[]
       shop_avatar_default: string
 }
 

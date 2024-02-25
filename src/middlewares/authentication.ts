@@ -26,11 +26,12 @@ interface IKey {
 
 // const key: IRequestCustom = { keyStore: {} }
 
-export interface IRequestCustom extends Request {
+export interface IRequestCustom<T = any> extends Request {
       user?: InferSchemaType<typeof userSchema>
       //   key: Pick<InferSchemaType<typeof keyStoreSchema>, 'public_key'>
       keyStore?: InferSchemaType<typeof keyStoreSchema>
       refresh_token?: string
+      body: T
 }
 
 // type IParamsAuthentication = {}

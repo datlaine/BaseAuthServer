@@ -261,7 +261,7 @@ class CartService {
             const { product_id, address_full } = payload
             const { user } = req
             const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
-            const update = { 'cart_products.$.cart_address.address': address_full }
+            const update = { 'cart_products.$.cart_address': address_full }
             const option = { new: true, upsert: true }
 
             const cartItem = await cartModel.findOneAndUpdate(query, update, option)
