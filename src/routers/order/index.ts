@@ -7,5 +7,6 @@ const orderRouter = Router()
 
 orderRouter.use(authentication)
 orderRouter.post('/order-payment-product', asyncHandler(OrderController.orderAddProduct))
+orderRouter.get('/get-my-order', asyncHandler(OrderController.getMyOrder))
 
 export default orderRouter

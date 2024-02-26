@@ -11,6 +11,7 @@ import bcrypt from 'bcrypt'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { UserDocument } from '~/models/user.model'
 import { getGoogleUser, getOautGoogleToken } from '~/utils/google.oauth'
+import { Types } from 'mongoose'
 class AuthService {
       //REGISTER
       static async register(req: Request, res: Response) {
@@ -119,33 +120,34 @@ class AuthService {
 
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
+            console.log('gọi api')
+            console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
 
-            // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used })
-
-            if (keyStore?.refresh_token_used.includes(refresh_token as string)) {
+            if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
                   await keyStoreModel.deleteOne({ user_id: user?._id })
                   throw new ForbiddenError({ detail: 'Token đã được sử dụng444' })
             }
 
             if (keyStore?.refresh_token !== refresh_token) throw new ForbiddenError({ detail: 'Token không đúng' })
-
-            const { access_token, refresh_token: newRf } = (await ProviderJWT.createPairToken({
+            const public_key = randomBytes(64).toString('hex')
+            const private_key = randomBytes(64).toString('hex')
+            const token = (await ProviderJWT.createPairToken({
                   payload: { email: user?.email as string, _id: user?._id, roles: user?.roles as string[] },
-                  key: { public_key: keyStore?.public_key as string, private_key: keyStore?.private_key as string }
+                  key: { public_key: public_key as string, private_key: private_key as string }
             })) as IToken
             const update = await keyStoreModel
-                  .updateOne(
-                        { user_id: user?._id },
+                  .findOneAndUpdate(
+                        { user_id: new Types.ObjectId(user?._id) },
                         {
-                              $set: { refresh_token: newRf },
+                              $set: { refresh_token: token.refresh_token, public_key, private_key },
                               $addToSet: { refresh_token_used: refresh_token }
                         },
                         { upsert: true, new: true }
                   )
                   .lean()
-            // console.log({ update })
-            res.cookie('refresh_token', newRf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
-            return { token: access_token, rf: newRf, user }
+            console.log({ update })
+            res.cookie('refresh_token', token.refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+            return { token: token.access_token, rf: token.refresh_token, user }
       }
 
       static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {

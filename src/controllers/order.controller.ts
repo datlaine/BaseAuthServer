@@ -7,6 +7,10 @@ class OrderController {
       static async orderAddProduct(req: IRequestCustom, res: Response, next: NextFunction) {
             new ResponseSuccess({ metadata: await OrderService.orderAddProduct(req) }).send(res)
       }
+
+      static async getMyOrder(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await OrderService.getMyOrder(req) }).send(res)
+      }
 }
 
 export default OrderController

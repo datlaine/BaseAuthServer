@@ -9,14 +9,17 @@ class OrderService {
             const { user } = req
             const { products } = req.body
             const query = { order_user_id: new Types.ObjectId(user?._id) }
-            const update = { $push: { order_products: { $each: products } } }
+            const update = { $push: { order_products: { products: products } } }
             const option = { new: true, upsert: true, multi: true }
             const updateOrder = await orderModel.findOneAndUpdate(query, update, option)
 
             const productId = products.map((product) => product.product_id._id)
 
             const queryCart = { cart_user_id: new Types.ObjectId(user?._id) }
-            const updateCart = { $pull: { cart_products: { product_id: { $in: [productId] } } }, $inc: { cart_count_product: -1 } }
+            const updateCart = {
+                  $pull: { cart_products: { product_id: { $in: productId } } },
+                  $inc: { cart_count_product: -productId.length }
+            }
             const optionCart = { new: true, upsert: true, multi: true }
 
             const a = await cartModel.findOneAndUpdate(queryCart, updateCart, optionCart)
@@ -28,8 +31,20 @@ class OrderService {
                   )
             }
 
-            console.log({ updateOrder, products: products[0], _id: user?._id, a: JSON.stringify(a), productId })
+            console.log({ updateOrder, products: products[0], _id: user?._id, a: JSON.stringify(updateOrder) })
             return 1
+      }
+
+      static async getMyOrder(req: IRequestCustom) {
+            const { user } = req
+            const query = { order_user_id: new Types.ObjectId(user?._id) }
+
+            const myOrder = await orderModel.findOne(query).populate({
+                  path: 'order_products.products.product_id',
+                  select: { product_name: 1, product_thumb_image: 1, product_price: 1 }
+            })
+
+            return { order: myOrder }
       }
 }
 
