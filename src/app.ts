@@ -16,6 +16,7 @@ import productModel from './models/product.model'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { DefaultEventsMap } from 'node_modules/socket.io/dist/typed-events'
+import { renderNotificationSystem } from './utils/notification.util'
 
 config()
 declare global {
@@ -48,7 +49,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-
+console.log(renderNotificationSystem('Xin chào'))
 //Connect -> Database -> Mongo
 MongoConnect.Connect()
 

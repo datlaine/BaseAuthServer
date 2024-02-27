@@ -9,9 +9,11 @@ import KeyStoreService from './keyStore.service'
 import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError, ResponseError } from '~/Core/response.error'
 import bcrypt from 'bcrypt'
 import { IRequestCustom } from '~/middlewares/authentication'
-import { UserDocument } from '~/models/user.model'
+import userModel, { UserDocument } from '~/models/user.model'
 import { getGoogleUser, getOautGoogleToken } from '~/utils/google.oauth'
 import { Types } from 'mongoose'
+import { notificationModel } from '~/models/notification.model'
+import { renderNotificationSystem } from '~/utils/notification.util'
 class AuthService {
       //REGISTER
       static async register(req: Request, res: Response) {
@@ -46,6 +48,19 @@ class AuthService {
                   refresh_token,
                   access_token
             })
+
+            const admin = await userModel.findOne({ roles: { $in: ['Admin'] } })
+
+            const updateNotification = {}
+
+            const noti = await notificationModel.findOneAndUpdate(
+                  {
+                        notification_user_id: new Types.ObjectId(createUser._id)
+                  },
+                  { $inc: { notification_count: +1 }, $push: { notifications_message: [renderNotificationSystem('Xin chào')] } },
+
+                  { new: true, upsert: true }
+            )
 
             res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
             //return cho class Response ở controller
@@ -120,8 +135,8 @@ class AuthService {
 
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
-            console.log('gọi api')
-            console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
+            // console.log('gọi api')
+            // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
 
             if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
                   await keyStoreModel.deleteOne({ user_id: user?._id })
@@ -145,7 +160,7 @@ class AuthService {
                         { upsert: true, new: true }
                   )
                   .lean()
-            console.log({ update })
+            // console.log({ update })
             res.cookie('refresh_token', token.refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
             return { token: token.access_token, rf: token.refresh_token, user }
       }

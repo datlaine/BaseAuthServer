@@ -21,7 +21,7 @@ class ProviderJWT {
             try {
                   const access_token = jwt.sign(payload, key.public_key, { expiresIn: '4s' })
                   const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })
-                  console.log({ refresh_token, access_token })
+                  // console.log({ refresh_token, access_token })
                   return { access_token, refresh_token }
             } catch (e) {
                   console.log('e:', e)

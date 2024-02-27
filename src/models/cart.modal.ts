@@ -34,6 +34,19 @@ export interface CartProduct {
       cart_address: Address
 }
 
+export interface CartProductWithId {
+      _id: Types.ObjectId
+      shop_id: Types.ObjectId
+      product_id: Types.ObjectId
+      cart_state: 'active' | 'pending' | 'complete'
+
+      quantity: number
+      new_quantity: number
+      isSelect: boolean
+      cart_date: Date
+      cart_address: Address
+}
+
 interface CartModel {
       cart_user_id: Types.ObjectId
       cart_products: Types.DocumentArray<CartProduct>

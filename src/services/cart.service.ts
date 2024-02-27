@@ -2,58 +2,13 @@ import mongoose, { Schema, Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { CartProduct, cartModel } from '~/models/cart.modal'
+import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
 import userModel from '~/models/user.model'
 
 type TModeChangeCartQuantity = 'INCREASE' | 'DECREASE' | 'INPUT'
 
 class CartService {
-      // static async addCart(req: IRequestCustom) {
-      //       const { user } = req
-      //       const { product_id, quantity, cart_product_price_origin } = req.body
-      //       const cart_product_price_origin_number = Number(cart_product_price_origin)
-      //       const cart_quantity = Number(quantity)
-      //       const cart_product_price = cart_quantity * cart_product_price_origin
-      //       const foundCart = await cartModel
-      //             .findOne({ cart_product_id: product_id, cart_user_id: new Types.ObjectId(user?._id) })
-      //             .populate('cart_product_id')
-
-      //       if (foundCart) {
-      //             console.log('found')
-      //             const updateQuantity = foundCart.cart_quantity + cart_quantity
-      //             const updatePrice = updateQuantity * foundCart.cart_product_price_origin
-      //             const updateCart = await cartModel.findOneAndUpdate(
-      //                   { cart_product_id: product_id },
-      //                   {
-      //                         $set: {
-      //                               cart_quantity: updateQuantity,
-      //                               cart_product_price: updatePrice
-      //                         }
-      //                   },
-      //                   { new: true, upsert: true }
-      //             )
-      //             return { cart: updateCart }
-      //       }
-      //       console.log('not-found')
-
-      //       const addCart = await cartModel.findOneAndUpdate(
-      //             { cart_user_id: new Types.ObjectId(user?._id) },
-      //             {
-      //                   $set: {
-      //                         cart_product_id: product_id,
-      //                         cart_user_id: user?._id,
-      //                         cart_quantity,
-      //                         cart_product_price,
-      //                         cart_product_price_origin: cart_product_price_origin_number
-      //                   }
-      //             },
-      //             { new: true, upsert: true }
-      //       )
-      //       if (!addCart) throw new BadRequestError({ detail: 'Add cart faild' })
-
-      //       return { cart: addCart }
-      // }
-
       static async createCart({ user_id, product }: { user_id: string; product: CartProduct }) {
             const query = { cart_user_id: new Types.ObjectId(user_id) }
             const update = {
@@ -108,7 +63,25 @@ class CartService {
             const option = { new: true, upsert: true }
 
             const cart = await cartModel.findOneAndUpdate(query, update, option)
-            console.log({ cart, product })
+            const admin = await userModel.findOne({ roles: { $in: ['Admin'] } })
+
+            const updateNotification = {}
+            const notificationMessage = {
+                  notification_attribute: {
+                        notification_sender: admin?._id,
+                        notification_content: 'Đã mua thành công'
+                  }
+                  // notification_date: Date.now
+            }
+            const noti = await notificationModel.findOneAndUpdate(
+                  {
+                        notification_user_id: new Types.ObjectId(user?._id)
+                  },
+                  { $inc: { notification_count: +1 }, $push: { notifications_message: [notificationMessage] } },
+
+                  { new: true, upsert: true }
+            )
+            console.log({ cart, product, noti })
 
             return { cart }
       }
@@ -146,7 +119,7 @@ class CartService {
                   })
             console.log({ foundCart })
             // if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
-            return { cart: foundCart }
+            return { cart: foundCart ? foundCart : { cart_products: [] } }
       }
 
       static async changeQuantityProductCart(req: IRequestCustom) {
@@ -228,24 +201,26 @@ class CartService {
 
       static async calculatorPrice(req: IRequestCustom) {
             const { user } = req
-            const carts = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) }).populate({
-                  path: 'cart_products.product_id',
-                  select: 'product_price product_thumb_image'
-            })
+            const carts = await cartModel
+                  .findOne({ cart_user_id: new Types.ObjectId(user?._id), 'cart_products.isSelect': true })
+                  .populate({
+                        path: 'cart_products.product_id',
+                        select: 'product_price product_thumb_image'
+                  })
             // if (!carts) return { carts: { cart_products: [] } }
             console.log({ carts: JSON.stringify(carts) })
 
             const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
 
-            return { carts: { cart_products: filterCarts } }
+            return { carts }
       }
 
       static async deleteCart(req: IRequestCustom) {
             const { product_id } = req.params
             const { user } = req
-
-            const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
-            const update = { $pull: { cart_products: { product_id } }, $inc: { cart_count_product: -1 } }
+            console.log({ deleteId: product_id })
+            const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products._id': product_id }
+            const update = { $pull: { cart_products: { _id: product_id } }, $inc: { cart_count_product: -1 } }
             const option = { new: true, upsert: true }
             const deleteCart = await cartModel.findOneAndUpdate(query, update, option)
             console.log({ deleteCart: JSON.stringify(deleteCart) })
