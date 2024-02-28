@@ -40,7 +40,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       const client_id = req.headers[HEADER.CLIENT_ID]
       if (!client_id) {
             // res.clearCookie('refresh_token')
-            throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn' })
+            throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn client' })
       }
       const access_token = req.headers[HEADER.AUTHORIZATION] as string
       // eslint-disable-next-line no-extra-boolean-cast
@@ -52,12 +52,12 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
 
       // tim key
       const keyStore = await KeyStoreService.findKeyByUserId({ user_id: user._id })
-      if (!keyStore) throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn' })
+      if (!keyStore) throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn key' })
 
       // case: refresh_token
 
       if (req.originalUrl === '/v1/api/auth/rf') {
-            console.log({ refresf: req?.cookies['refresh_token'] })
+            console.log({ refresf: req?.cookies['refresh_token'], keyStore })
             if (!req?.cookies['refresh_token']) {
                   return next(new ForbiddenError({ detail: 'Token không đúng1' }))
             }
@@ -68,7 +68,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                   jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
-                              return next(new ForbiddenError({ detail: 'Token không đúng' }))
+                              return next(new ForbiddenError({ detail: 'Token không đúng12' }))
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload

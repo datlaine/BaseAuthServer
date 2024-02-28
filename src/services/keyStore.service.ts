@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import keyStoreModel from '~/models/keyStore.model'
 
 interface IKeyStore {
@@ -11,7 +12,7 @@ interface IKeyStore {
 
 class KeyStoreService {
       static async findKeyByUserId({ user_id }: { user_id: string }) {
-            const foundKey = await keyStoreModel.findOne({ user_id }).lean()
+            const foundKey = await keyStoreModel.findOne({ user_id: new Types.ObjectId(user_id) })
             return foundKey ? foundKey : null
       }
 

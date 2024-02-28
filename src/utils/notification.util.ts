@@ -3,26 +3,41 @@ import { NotificationMessage, NotificationSystem } from '~/models/notification.m
 
 export const renderNotificationSystem = (message: string) => {
       const notification_attribute: NotificationSystem = {
+            notification_type: 'SYSTEM',
             notification_content: message
       }
       return { notification_attribute }
 }
 
-export const renderNotificationProduct = ({
+export const renderNotificationProduct = ({ message, product_id }: { message: string; product_id: Types.ObjectId }) => {
+      const notificationProduct: NotificationMessage = {
+            notification_attribute: {
+                  notification_type: 'PRODUCT',
+                  notification_content: message,
+                  product_id: new Types.ObjectId(product_id)
+            }
+      }
+      return notificationProduct
+}
+
+export const renderNotificationShop = ({
       message,
-      sender_id,
-      product_id
+      order_id,
+      order_product_id,
+      user_buy_id
 }: {
       message: string
-      sender_id: Types.ObjectId
-      product_id: Types.ObjectId
+      order_id: Types.ObjectId
+      order_product_id: Types.ObjectId
+      user_buy_id: Types.ObjectId
 }) => {
       const notificationProduct: NotificationMessage = {
-            notification_type: 'Product',
             notification_attribute: {
+                  notification_type: 'SHOP',
                   notification_content: message,
-                  notification_sender: new Types.ObjectId(sender_id),
-                  product_id: new Types.ObjectId(product_id)
+                  order_id: new Types.ObjectId(order_id),
+                  order_product_id: new Types.ObjectId(order_product_id),
+                  user_buy_id: new Types.ObjectId(user_buy_id)
             }
       }
       return notificationProduct

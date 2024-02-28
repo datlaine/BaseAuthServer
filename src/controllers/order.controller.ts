@@ -15,6 +15,10 @@ class OrderController {
       static async buyAgain(req: IRequestCustom, res: Response, next: NextFunction) {
             new ResponseSuccess({ metadata: await OrderService.buyAgain(req) }).send(res)
       }
+
+      static async getOrderInfo(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await OrderService.getOrderInfo(req) }).send(res)
+      }
 }
 
 export default OrderController
