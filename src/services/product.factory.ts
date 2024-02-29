@@ -1,5 +1,5 @@
 import mongoose, { Document, ObjectId, Schema, Types, UpdateWriteOpResult } from 'mongoose'
-import productModel, { IProduct, IProductBook, IProductDoc, productBookModel } from '~/models/product.model'
+import productModel, { IProduct, IProductBook, IProductDoc, IProductFood, productBookModel, productFoodModel } from '~/models/product.model'
 
 interface IProductStrategy {
       createProduct: () => Promise<
@@ -32,7 +32,7 @@ class Product implements IProductStrategy {
       private product_state: boolean
       private product_available: number
       private product_votes: number
-      protected attribute: IProductBook
+      protected attribute: IProductBook | IProductFood
       constructor({
             shop_id,
             product_name,
@@ -83,6 +83,8 @@ class Product implements IProductStrategy {
 }
 
 export class ProductBook extends Product implements IProductStrategy {
+      protected attribute: IProductBook
+
       constructor({
             _id,
             shop_id,
@@ -96,18 +98,18 @@ export class ProductBook extends Product implements IProductStrategy {
             attribute
       }: TProduct & { _id: Types.ObjectId }) {
             super({
+                  _id,
                   shop_id,
                   product_name,
                   product_price,
-                  attribute,
                   product_type,
-                  _id,
                   product_is_bought,
                   product_state,
                   product_available,
-                  product_votes
+                  product_votes,
+                  attribute
             })
-            this.attribute = attribute
+            this.attribute = attribute as IProductBook
       }
 
       async createProduct() {
@@ -121,6 +123,54 @@ export class ProductBook extends Product implements IProductStrategy {
             })
 
             console.log({ book: createProductBook })
+            const createProduct = await super.createProduct()
+            return createProduct
+      }
+}
+
+export class ProductFood extends Product implements IProductStrategy {
+      protected attribute: IProductFood
+
+      constructor({
+            _id,
+            shop_id,
+            product_name,
+            product_price,
+            product_type = 'Food',
+            product_is_bought,
+            product_state = true,
+            product_available,
+            product_votes,
+            attribute
+      }: TProduct & { _id: Types.ObjectId }) {
+            super({
+                  _id,
+                  shop_id,
+                  product_name,
+                  product_price,
+                  product_is_bought,
+                  product_type,
+                  product_available,
+                  product_state,
+                  product_votes,
+                  attribute
+            })
+            this.attribute = attribute as IProductFood
+      }
+
+      async createProduct() {
+            const createProductFood = await productFoodModel.create({
+                  product_id: this.attribute.product_id,
+                  product_food_Manufacturers_Name: this.attribute.product_food_Manufacturers_Name,
+                  product_food_origin: this.attribute.product_food_origin,
+                  product_food_unit: this.attribute.product_food_unit,
+                  product_food_Date_Of_manufacture: this.attribute.product_id,
+
+                  product_food_description: this.attribute.product_food_description,
+                  product_food_type: this.attribute.product_food_type
+            })
+
+            console.log({ food: createProductFood })
             const createProduct = await super.createProduct()
             return createProduct
       }

@@ -57,7 +57,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       // case: refresh_token
 
       if (req.originalUrl === '/v1/api/auth/rf') {
-            console.log({ refresf: req?.cookies['refresh_token'], keyStore })
+            // console.log({ refresf: req?.cookies['refresh_token'], keyStore })
             if (!req?.cookies['refresh_token']) {
                   return next(new ForbiddenError({ detail: 'Token không đúng1' }))
             }

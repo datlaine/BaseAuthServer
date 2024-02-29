@@ -20,8 +20,31 @@ class NotificationService {
             //             const product = await orderModel.findOne(query, select)
             //       }
             // })
-            // console.log({ user: user?._id, notifications })
-            return { notifications }
+            console.log({ user: user?._id, notifications })
+            const result = await notificationModel.aggregate([
+                  {
+                        $match: { notification_user_id: new Types.ObjectId(user?._id) }
+                  },
+
+                  {
+                        $unwind: '$notifications_message'
+                  },
+                  {
+                        $sort: { 'notifications_message.notification_creation_time': -1 }
+                  },
+                  {
+                        $group: {
+                              _id: '$_id',
+                              notification_count: { $first: '$notification_count' },
+                              notification_user_id: { $first: '$notification_user_id' },
+                              notifications_message: {
+                                    $push: '$notifications_message'
+                              }
+                        }
+                  }
+            ])
+            console.log({ result: JSON.stringify(result) })
+            return { notifications: result[0] }
       }
 
       static async getMyShopNotifications(req: IRequestCustom) {

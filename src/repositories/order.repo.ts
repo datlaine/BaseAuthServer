@@ -34,7 +34,7 @@ class OrderRepository {
                   //@ điều kiện
                   {
                         $match: {
-                              'order_products.products._id': new Types.ObjectId(order_products_products_id)
+                              'order_products._id': new Types.ObjectId(order_products_products_id)
                         }
                   },
 
@@ -63,6 +63,7 @@ class OrderRepository {
                         }
                   }
             ])
+            console.log({ product: orderProductsId })
 
             return orderProductsId
       }
@@ -79,7 +80,7 @@ export default OrderRepository
 //   },
 //   {
 //     $match: {
-//       "order_products.products._id": ObjectId('65df36a14d3c988645af8c69')
+//       "order_products.products._id": ObjectId("65e0345901f228eb9756b098")
 //     }
 //   },
 //   {

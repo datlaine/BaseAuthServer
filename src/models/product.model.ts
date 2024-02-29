@@ -4,16 +4,9 @@ import { TComment } from './comment.model'
 const DOCUMENT_NAME = 'Product'
 const COLLECTION_NAME = 'products'
 
-export interface IProductBook {
-      product_id: Types.ObjectId
-      publishing: string
-      author: string
-      page_number: number
-      description: string
-      book_type: 'Novel' | 'Manga' | 'Detective'
-}
-
 export interface IProductBookDoc extends IProductBook, Document {}
+export interface IProductFoodDoc extends IProductFood, Document {}
+export type IProductDoc = IProduct & Document
 
 export interface IProduct {
       shop_id: Types.ObjectId
@@ -38,10 +31,8 @@ export interface IProduct {
       // product_comment: TComment[]
       isProductFull?: boolean
       expireAt?: Date
-      attribute: IProductBook
+      attribute: IProductBook | IProductFood
 }
-
-export type IProductDoc = IProduct & Document
 
 export const productSchema = new Schema<IProductDoc>(
       {
@@ -98,7 +89,15 @@ export const productSchema = new Schema<IProductDoc>(
       { timestamps: true, collection: COLLECTION_NAME }
 )
 
-const productModel = model<IProductDoc>(DOCUMENT_NAME, productSchema)
+//@ product - Books
+export interface IProductBook {
+      product_id: Types.ObjectId
+      publishing: string
+      author: string
+      page_number: number
+      description: string
+      book_type: 'Novel' | 'Manga' | 'Detective'
+}
 
 export const bookSchema = new Schema<IProductBookDoc>(
       {
@@ -112,6 +111,43 @@ export const bookSchema = new Schema<IProductBookDoc>(
       { timestamps: true, collection: 'books' }
 )
 
+//@ product - Food
+export interface IProductFood {
+      product_id: Types.ObjectId
+      product_food_Manufacturers_Name: string
+      product_food_origin: string
+      product_food_unit: 'Kilogram' | 'Box'
+
+      product_food_description: string
+      product_food_type: 'Fast food' | 'Canned Goods' | 'Drinks'
+}
+
+export const productFoodSchema = new Schema<IProductFoodDoc>(
+      {
+            product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+
+            product_food_Manufacturers_Name: { type: String, required: true },
+            product_food_origin: { type: String, required: true },
+            product_food_unit: { type: String, enum: ['Kilogram', 'Box'], default: 'Kilogram', required: true },
+            product_food_description: { type: String, required: true },
+            product_food_type: { type: String, enum: ['Fast food', 'Canned Goods', 'Drinks'], require: true }
+      },
+      { timestamps: true, collection: 'foods' }
+)
+
+export const Vacation = new Schema<IProductBookDoc>(
+      {
+            publishing: { type: String, required: true },
+            author: { type: String, required: true },
+            page_number: { type: Number, required: true },
+            description: { type: String, required: true },
+            product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+            book_type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
+      },
+      { timestamps: true, collection: 'books' }
+)
+const productModel = model<IProductDoc>(DOCUMENT_NAME, productSchema)
 export const productBookModel = model<IProductBookDoc>('Books', bookSchema)
+export const productFoodModel = model<IProductFoodDoc>('Foods', productFoodSchema)
 
 export default productModel

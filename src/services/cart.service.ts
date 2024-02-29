@@ -65,23 +65,23 @@ class CartService {
             const cart = await cartModel.findOneAndUpdate(query, update, option)
             const admin = await userModel.findOne({ roles: { $in: ['Admin'] } })
 
-            const updateNotification = {}
-            const notificationMessage = {
-                  notification_attribute: {
-                        notification_sender: admin?._id,
-                        notification_content: 'Đã mua thành công'
-                  }
-                  // notification_date: Date.now
-            }
-            const noti = await notificationModel.findOneAndUpdate(
-                  {
-                        notification_user_id: new Types.ObjectId(user?._id)
-                  },
-                  { $inc: { notification_count: +1 }, $push: { notifications_message: [notificationMessage] } },
+            // const updateNotification = {}
+            // const notificationMessage = {
+            //       notification_attribute: {
+            //             notification_sender: admin?._id,
+            //             notification_content: 'Đã mua thành công'
+            //       }
+            //       // notification_date: Date.now
+            // }
+            // const noti = await notificationModel.findOneAndUpdate(
+            //       {
+            //             notification_user_id: new Types.ObjectId(user?._id)
+            //       },
+            //       { $inc: { notification_count: +1 }, $push: { notifications_message: [notificationMessage] } },
 
-                  { new: true, upsert: true }
-            )
-            console.log({ cart, product, noti })
+            //       { new: true, upsert: true }
+            // )
+            // console.log({ cart, product, noti })
 
             return { cart }
       }
@@ -201,18 +201,16 @@ class CartService {
 
       static async calculatorPrice(req: IRequestCustom) {
             const { user } = req
-            const carts = await cartModel
-                  .findOne({ cart_user_id: new Types.ObjectId(user?._id), 'cart_products.isSelect': true })
-                  .populate({
-                        path: 'cart_products.product_id',
-                        select: 'product_price product_thumb_image'
-                  })
+            const carts = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) }).populate({
+                  path: 'cart_products.product_id',
+                  select: 'product_price product_thumb_image'
+            })
             // if (!carts) return { carts: { cart_products: [] } }
             console.log({ carts: JSON.stringify(carts) })
 
             const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
 
-            return { carts }
+            return { carts: { cart_products: filterCarts } }
       }
 
       static async deleteCart(req: IRequestCustom) {

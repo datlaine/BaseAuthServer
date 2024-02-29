@@ -28,6 +28,8 @@ productRouter.post(
 )
 
 productRouter.post('/upload-product-book', asyncHandler(ProductController.uploadProductBook))
+productRouter.post('/upload-product-food', asyncHandler(ProductController.uploadProductFood))
+
 productRouter.get('/shop-product-all', asyncHandler(ProductController.getProductShop))
 productRouter.post('/delete-product-thumb', asyncHandler(ProductController.deleteProductThumb))
 productRouter.post('/delete-product-image-full', asyncHandler(ProductController.deleteProductImageFull))

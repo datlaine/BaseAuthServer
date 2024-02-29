@@ -93,7 +93,7 @@ class OrderService {
                   optionNotificationUser
             )
 
-            console.log({ updateNotificationUser })
+            console.log({ updateNotificationUser, length: products.length, map: productId.length, products })
             // }
 
             //NOTIFICATION MODEL - SHOP MODEL
