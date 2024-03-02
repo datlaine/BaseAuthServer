@@ -9,12 +9,24 @@ export const renderNotificationSystem = (message: string) => {
       return { notification_attribute }
 }
 
-export const renderNotificationProduct = ({ message, product_id }: { message: string; product_id: Types.ObjectId }) => {
+export const renderNotificationProduct = ({
+      message,
+      order_id,
+      product_name,
+      product_quantity
+}: {
+      message: string
+      order_id: Types.ObjectId
+      product_name: string
+      product_quantity: number
+}) => {
       const notificationProduct: NotificationMessage = {
             notification_attribute: {
                   notification_type: 'PRODUCT',
+                  product_name,
+                  product_quantity,
                   notification_content: message,
-                  product_id: new Types.ObjectId(product_id)
+                  order_id: new Types.ObjectId(order_id)
             }
       }
       return notificationProduct

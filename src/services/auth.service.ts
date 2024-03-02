@@ -57,7 +57,10 @@ class AuthService {
                   {
                         notification_user_id: new Types.ObjectId(createUser._id)
                   },
-                  { $inc: { notification_count: +1 }, $push: { notifications_message: [renderNotificationSystem('Xin chào')] } },
+                  {
+                        $inc: { notification_count: 1 },
+                        $push: { notifications_message: renderNotificationSystem('Xin chào, cảm ơn bạn đã đăng kí tài khoản <3') }
+                  },
 
                   { new: true, upsert: true }
             )
@@ -91,8 +94,6 @@ class AuthService {
                   { $set: { public_key, private_key } },
                   { new: true, upsert: true }
             )
-            // const keyStore = await KeyStoreService.findKeyByUserId({ user_id: foundUser._id })
-            // if (!keyStore) throw new NotFoundError({ detail: 'Not found key' })
 
             const { access_token, refresh_token: new_rf } = ProviderJWT.createPairToken({
                   payload: { _id: foundUser._id, email: foundUser.email, roles: foundUser.roles },
@@ -105,9 +106,6 @@ class AuthService {
 
                   // neu hop le thi thu hoi
                   if (refresh_token === keyStore.refresh_token) {
-                        // if (keyStore.refresh_token_used.includes(refresh_token)) {
-                        // throw new AuthFailedError({ detail: 'Token da duoc su dung' })
-                        // res.clearCookie('refresh-token')
                         await keyStoreModel?.findOneAndUpdate(
                               { user_id: foundUser._id },
                               { $set: { refresh_token: new_rf }, $addToSet: { refresh_token_used: refresh_token } }
@@ -117,6 +115,18 @@ class AuthService {
             }
             res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7 })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(foundUser?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Chào mừng bạn đã đăng nhập trở lại')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+
+            const optionNotification = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             return {
                   user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
                   access_token
@@ -129,6 +139,16 @@ class AuthService {
             const { keyStore, user } = req
             await KeyStoreService.deleteKeyStore({ user_id: (user as UserDocument).id })
             res.clearCookie('refresh_token')
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Tiến hành logout')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
 
             return { message: 'Logout success!!' }
       }

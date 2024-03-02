@@ -166,7 +166,7 @@ export class ProductFood extends Product implements IProductStrategy {
                   product_food_unit: this.attribute.product_food_unit,
                   product_food_Date_Of_manufacture: this.attribute.product_id,
 
-                  product_food_description: this.attribute.product_food_description,
+                  product_food_description: this.attribute.description,
                   product_food_type: this.attribute.product_food_type
             })
 

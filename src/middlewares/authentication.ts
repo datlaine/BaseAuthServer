@@ -87,6 +87,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             console.log('at')
             jwt.verify(token, keyStore.public_key, (error, decode) => {
                   if (error) {
+                        console.log({ error })
                         return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
                   // console.log('decode::', decode)

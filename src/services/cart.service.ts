@@ -5,6 +5,7 @@ import { CartProduct, cartModel } from '~/models/cart.modal'
 import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
 import userModel from '~/models/user.model'
+import { renderNotificationProduct } from '~/utils/notification.util'
 
 type TModeChangeCartQuantity = 'INCREASE' | 'DECREASE' | 'INPUT'
 
@@ -27,7 +28,6 @@ class CartService {
       static async addCart(req: IRequestCustom) {
             const { user } = req
             const { product } = req.body
-            console.log({ product })
             const userCart = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) })
             if (!userCart) {
                   return await CartService.createCart({ user_id: user?._id, product })
@@ -43,7 +43,6 @@ class CartService {
                   cart_user_id: new Types.ObjectId(user?._id),
                   'cart_products.product_id': product.product_id
             })
-            console.log({ foundProduct })
 
             if (!foundProduct) {
                   const query = { cart_user_id: new Types.ObjectId(user?._id) }
@@ -63,25 +62,6 @@ class CartService {
             const option = { new: true, upsert: true }
 
             const cart = await cartModel.findOneAndUpdate(query, update, option)
-            const admin = await userModel.findOne({ roles: { $in: ['Admin'] } })
-
-            // const updateNotification = {}
-            // const notificationMessage = {
-            //       notification_attribute: {
-            //             notification_sender: admin?._id,
-            //             notification_content: 'Đã mua thành công'
-            //       }
-            //       // notification_date: Date.now
-            // }
-            // const noti = await notificationModel.findOneAndUpdate(
-            //       {
-            //             notification_user_id: new Types.ObjectId(user?._id)
-            //       },
-            //       { $inc: { notification_count: +1 }, $push: { notifications_message: [notificationMessage] } },
-
-            //       { new: true, upsert: true }
-            // )
-            // console.log({ cart, product, noti })
 
             return { cart }
       }
@@ -117,8 +97,6 @@ class CartService {
                               shop_avatar_default: 1
                         }
                   })
-            console.log({ foundCart })
-            // if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
             return { cart: foundCart ? foundCart : { cart_products: [] } }
       }
 
@@ -205,8 +183,6 @@ class CartService {
                   path: 'cart_products.product_id',
                   select: 'product_price product_thumb_image'
             })
-            // if (!carts) return { carts: { cart_products: [] } }
-            console.log({ carts: JSON.stringify(carts) })
 
             const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
 
@@ -216,12 +192,10 @@ class CartService {
       static async deleteCart(req: IRequestCustom) {
             const { product_id } = req.params
             const { user } = req
-            console.log({ deleteId: product_id })
             const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products._id': product_id }
             const update = { $pull: { cart_products: { _id: product_id } }, $inc: { cart_count_product: -1 } }
             const option = { new: true, upsert: true }
             const deleteCart = await cartModel.findOneAndUpdate(query, update, option)
-            console.log({ deleteCart: JSON.stringify(deleteCart) })
 
             if (!deleteCart) return { message: 'Xóa thất bại' }
             return { message: 'Xóa thành công' }

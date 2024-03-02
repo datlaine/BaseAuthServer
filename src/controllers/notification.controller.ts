@@ -10,6 +10,10 @@ class NotificationController {
       static async getMyShopNotifications(req: IRequestCustom, res: Response, next: NextFunction) {
             new ResponseSuccess({ metadata: await NotificationService.getMyShopNotifications(req) }).send(res)
       }
+
+      static async getMeNotificationPage(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await NotificationService.getMeNotificationPage(req) }).send(res)
+      }
 }
 
 export default NotificationController

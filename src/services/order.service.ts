@@ -43,7 +43,10 @@ class OrderService {
             const queryOrder = { order_user_id: new Types.ObjectId(user?._id) }
             const updateOrder = { $addToSet: { order_products: { products: products, order_total } } }
             const optionOrder = { new: true, upsert: true, multi: true }
-            const updateOrderDocument = await orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+            const updateOrderDocument = await orderModel
+                  .findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+                  .populate({ path: 'order_products.products.product_id' })
+                  .populate({ path: 'order_products.products.shop_id' })
 
             //CART MODEL
 
@@ -57,15 +60,26 @@ class OrderService {
             const optionCart = { new: true, upsert: true, multi: true }
             const updateCartDocument = await cartModel.findOneAndUpdate(queryCart, updateCart, optionCart)
 
+            const product_info: { product_name: string; product_quantity: number }[] = []
             //PRODUCT MODEL
             for (let index = 0; index < productId.length; index++) {
                   const queryProduct = { _id: productId[index] }
+                  const foundProduct = await productModel.findOne(queryProduct)
+
                   const updateProduct = {
-                        $inc: { product_available: -products[index].quantity, product_is_bought: products[index].quantity }
+                        $inc: {
+                              product_available: -products[index].quantity,
+                              product_is_bought:
+                                    (foundProduct?.product_is_bought ? foundProduct?.product_is_bought : 0) + products[index].quantity
+                        }
                   }
                   const optionProduct = { new: true, upsert: true }
 
                   const updateProductDocument = await productModel.findOneAndUpdate(queryProduct, updateProduct, optionProduct)
+                  product_info.push({
+                        product_name: updateProductDocument?.product_name as string,
+                        product_quantity: products[index].quantity
+                  })
             }
 
             // Lấy Object Order vừa được thêm vào
@@ -73,27 +87,37 @@ class OrderService {
             const elementLast = updateOrderDocument?.order_products[indexLastOrder]
 
             //NOTIFICATION MODEL - USER
-            // for (let index = 0; index < products.length; index++) {
-            const queryNotificationUser = { notification_user_id: new Types.ObjectId(user?._id) }
-            const updateNotificationUser = {
-                  $inc: { notification_count: 1 },
-                  $push: {
-                        notifications_message: [
-                              renderNotificationProduct({
-                                    message: 'Mua thành công',
-                                    product_id: elementLast!._id as Types.ObjectId
-                              })
-                        ]
+            for (let index = 0; index < products.length; index++) {
+                  const queryNotificationUser = { notification_user_id: new Types.ObjectId(user?._id) }
+                  const updateNotificationUser = {
+                        $inc: { notification_count: 1 },
+                        $push: {
+                              notifications_message: [
+                                    renderNotificationProduct({
+                                          message: `Mua thành công sản phẩm `,
+                                          product_name: product_info[index].product_name,
+                                          product_quantity: product_info[index].product_quantity,
+                                          order_id: elementLast!._id as Types.ObjectId
+                                    })
+                              ]
+                        }
                   }
-            }
-            const optionNotificationUser = { new: true, upsert: true }
-            const updateNotificationUserDocument = await notificationModel.findOneAndUpdate(
-                  queryNotificationUser,
-                  updateNotificationUser,
-                  optionNotificationUser
-            )
 
-            console.log({ updateNotificationUser, length: products.length, map: productId.length, products })
+                  const optionNotificationUser = { new: true, upsert: true }
+                  const updateNotificationUserDocument = await notificationModel.findOneAndUpdate(
+                        queryNotificationUser,
+                        updateNotificationUser,
+                        optionNotificationUser
+                  )
+            }
+
+            // console.log({
+            //       updateNotificationUser,
+            //       length: products.length,
+            //       map: productId.length,
+            //       products,
+            //       orderLast: JSON.stringify(elementLast)
+            // })
             // }
 
             //NOTIFICATION MODEL - SHOP MODEL
@@ -125,7 +149,7 @@ class OrderService {
                   )
             }
 
-            return { message: 'Thêm thành công' }
+            return { message: 'SUCCESS', order_success: elementLast }
       }
 
       static async getMyOrder(req: IRequestCustom) {

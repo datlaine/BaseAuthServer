@@ -4,47 +4,42 @@ import { NotificationMessage, notificationModel } from '~/models/notification.mo
 import { orderModel } from '~/models/order.model'
 import { shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
+import NotificationRepository from '~/repositories/notification.repository'
 import OrderRepository from '~/repositories/order.repo'
+
+export type NotificationType = 'PRODUCT' | 'SYSTEM' | 'ADMIN' | 'SHOP' | 'COMMON'
 
 class NotificationService {
       static async getMeNotification(req: IRequestCustom) {
             const { user } = req
-            const query = { notification_user_id: new Types.ObjectId(user?._id) }
-            const notifications = await notificationModel.findOne(query).sort({ 'notifications_message.notification_creation_time': -1 })
-            // const array: NotificationMessage[] = []
-            // notifications?.notifications_message.map(async (n) => {
-            //       if (n.notification_attribute.notification_type === 'PRODUCT') {
-            //             console.log({ _id: n.notification_attribute.product_id })
-            //             const query = { 'order_products._id': n.notification_attribute.product_id }
-            //             const select = { 'order_products.$': 1 }
-            //             const product = await orderModel.findOne(query, select)
-            //       }
-            // })
-            console.log({ user: user?._id, notifications })
-            const result = await notificationModel.aggregate([
-                  {
-                        $match: { notification_user_id: new Types.ObjectId(user?._id) }
-                  },
+            const page = Number(req.query.page)
+            const { type } = req.query
+            const limit = Number(req.query.limit)
 
-                  {
-                        $unwind: '$notifications_message'
-                  },
-                  {
-                        $sort: { 'notifications_message.notification_creation_time': -1 }
-                  },
-                  {
-                        $group: {
-                              _id: '$_id',
-                              notification_count: { $first: '$notification_count' },
-                              notification_user_id: { $first: '$notification_user_id' },
-                              notifications_message: {
-                                    $push: '$notifications_message'
-                              }
-                        }
-                  }
-            ])
-            console.log({ result: JSON.stringify(result) })
-            return { notifications: result[0] }
+            const result = await NotificationRepository.getNotificationPage({
+                  user_id: new Types.ObjectId(user?._id),
+                  limit,
+                  page,
+                  type: type as NotificationType
+            })
+
+            return { notifications: result }
+      }
+
+      static async getMeNotificationPage(req: IRequestCustom) {
+            const page = Number(req.query.page)
+            const limit = Number(req.query.limit)
+
+            const { user } = req
+            const result = await NotificationRepository.getNotificationPage({
+                  user_id: new Types.ObjectId(user?._id),
+                  limit,
+                  page,
+                  type: 'PRODUCT'
+            })
+
+            console.log({ result })
+            return result
       }
 
       static async getMyShopNotifications(req: IRequestCustom) {

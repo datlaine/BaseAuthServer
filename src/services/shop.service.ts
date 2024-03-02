@@ -2,9 +2,11 @@ import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
+import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
+import { renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 
@@ -29,6 +31,18 @@ class ShopService {
                   { $set: { isOpenShop: true } },
                   { new: true, upsert: true }
             )
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotifcation = {
+                  $push: {
+                        notification_message: renderNotificationSystem('Bạn vừa đăng kí mở cửa hàng thành công')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotifcation, optionNotification)
+
             return { shop: registerShop, user: updateUser }
       }
 

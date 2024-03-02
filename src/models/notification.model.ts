@@ -23,7 +23,9 @@ export interface NotificationSystem {
 
 export type NotificationProduct = {
       notification_type: 'PRODUCT'
-      product_id: Types.ObjectId
+      order_id: Types.ObjectId
+      product_name: string
+      product_quantity: number
       notification_content: string
 }
 

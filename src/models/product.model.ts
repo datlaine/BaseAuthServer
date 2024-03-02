@@ -118,7 +118,7 @@ export interface IProductFood {
       product_food_origin: string
       product_food_unit: 'Kilogram' | 'Box'
 
-      product_food_description: string
+      description: string
       product_food_type: 'Fast food' | 'Canned Goods' | 'Drinks'
 }
 
@@ -129,7 +129,7 @@ export const productFoodSchema = new Schema<IProductFoodDoc>(
             product_food_Manufacturers_Name: { type: String, required: true },
             product_food_origin: { type: String, required: true },
             product_food_unit: { type: String, enum: ['Kilogram', 'Box'], default: 'Kilogram', required: true },
-            product_food_description: { type: String, required: true },
+            description: { type: String, required: true },
             product_food_type: { type: String, enum: ['Fast food', 'Canned Goods', 'Drinks'], require: true }
       },
       { timestamps: true, collection: 'foods' }

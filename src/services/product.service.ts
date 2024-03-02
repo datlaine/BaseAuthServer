@@ -4,8 +4,10 @@ import { BadRequestError, ForbiddenError } from '~/Core/response.error'
 import { OK } from '~/Core/response.success'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
+import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
+import { renderNotificationProduct, renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 
@@ -188,6 +190,7 @@ class ProductService {
 
       static async deleteProductWithId(req: IRequestCustom) {
             const { product_id } = req.params
+            const { user } = req
 
             const deleteProduct = await productModel.findOneAndUpdate(
                   { _id: product_id },
@@ -195,6 +198,16 @@ class ProductService {
                   { new: true, upsert: true }
             )
             if (!deleteProduct) throw new BadRequestError({ detail: 'Xóa sản phẩm thất bại' })
+
+            const query = { notification_user_id: new Types.ObjectId(user?._id) }
+            const update = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Bạn đã xóa thành công 1 sản phẩm')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(query, update, optionNotification)
             return { message: 'Xóa thành công' }
       }
 }
@@ -207,8 +220,8 @@ export default ProductService
 //
 //                _ooOoo_                       NAM MÔ A DI ĐÀ PHẬT !
 //               o8888888o
-//               88" . "88      Thí chủ con tên là Nguyễn Quốc Việt, dương lịch ba mươi tháng tám năm 1998
-//               (| -_- |)      Ngụ tại số nhà 23B/17 Nguyễn Văn Trỗi, Mộ Lao, Hà Nội, Việt Nam
+//               88" . "88
+//               (| -_- |)
 //                O\ = /O
 //            ____/`---'\____         Con lạy chín phương trời, con lạy mười phương đất
 //            .' \\| |// `.             Chư Phật mười phương, mười phương chư Phật

@@ -85,8 +85,8 @@ class ProductController {
 
             const { product_id } = req.body
 
-            const { product_food_Manufacturers_Name, product_food_description, product_food_origin, product_food_type, product_food_unit } =
-                  req.body.product_attribute as IProductFoodDoc
+            const { product_food_Manufacturers_Name, description, product_food_origin, product_food_type, product_food_unit } = req.body
+                  .product_attribute as IProductFoodDoc
 
             // const product_is_bought = product_is_bought || 0
             const product_state = true
@@ -103,7 +103,7 @@ class ProductController {
                   product_type,
                   product_state,
                   attribute: {
-                        product_food_description,
+                        description,
                         product_food_Manufacturers_Name,
                         product_food_origin,
                         product_food_type,

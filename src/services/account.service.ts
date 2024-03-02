@@ -11,6 +11,8 @@ import { config } from 'dotenv'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 import AccountRepository from '~/repositories/account.repositort'
 import { Types } from 'mongoose'
+import { renderNotificationSystem } from '~/utils/notification.util'
+import { notificationModel } from '~/models/notification.model'
 
 config()
 class AccountService {
@@ -20,7 +22,7 @@ class AccountService {
             }
       }
       static async updateInfo(req: IRequestCustom) {
-            const user = req.user
+            const { user } = req
             const update = await userModel.findOneAndUpdate(
                   { _id: user?._id },
                   { $set: { bob: req.body.birth, gender: req.body.gender, fullName: req.body.fullName, nickName: req.body.nickName } },
@@ -28,6 +30,17 @@ class AccountService {
             )
 
             console.log({ update })
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Bạn vừa cập nhập thông tin cá nhân')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             return {
                   user: update
             }
@@ -48,6 +61,18 @@ class AccountService {
                         },
                         { new: true, upsert: true }
                   )
+                  const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+                  const updateNotification = {
+                        $push: {
+                              notifications_message: renderNotificationSystem('Bạn vừa cập nhập avatar cá nhân')
+                        },
+
+                        $inc: { notification_count: 1 }
+                  }
+                  const optionNotification = { new: true, upsert: true }
+
+                  await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
                   return { user: update }
             } else {
                   const folder = `users/${user.id}/avatar`
@@ -69,6 +94,18 @@ class AccountService {
                         },
                         { new: true, upsert: true }
                   )
+
+                  const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+                  const updateNotification = {
+                        $push: {
+                              notifications_message: renderNotificationSystem('Bạn vừa cập nhập avatar cá nhân')
+                        },
+                        $inc: { notification_count: 1 }
+                  }
+                  const optionNotification = { new: true, upsert: true }
+
+                  await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
                   return { user: update }
             }
       }
@@ -94,6 +131,19 @@ class AccountService {
                   },
                   { new: true, upsert: true }
             )
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Bạn vừa xóa một hình ảnh cũ')
+                  },
+
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             return { user: update }
       }
 
@@ -115,6 +165,18 @@ class AccountService {
                   },
                   { new: true, upsert: true }
             )
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationSystem('Bạn vừa xóa hình ảnh đại diện')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             return { user: update }
       }
 
