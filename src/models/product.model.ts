@@ -7,6 +7,7 @@ const COLLECTION_NAME = 'products'
 export interface IProductBookDoc extends IProductBook, Document {}
 export interface IProductFoodDoc extends IProductFood, Document {}
 export type IProductDoc = IProduct & Document
+export type ProductType = 'Book' | 'Food'
 
 export interface IProduct {
       shop_id: Types.ObjectId
@@ -21,9 +22,8 @@ export interface IProduct {
             secure_url: string
             public_id: string
       }[]
-      product_type: string
       product_is_bought: number
-
+      product_type: ProductType
       product_state: boolean
       product_votes: number
       product_available: number

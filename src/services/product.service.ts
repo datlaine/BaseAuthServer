@@ -5,8 +5,9 @@ import { OK } from '~/Core/response.success'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { notificationModel } from '~/models/notification.model'
-import productModel from '~/models/product.model'
+import productModel, { ProductType } from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
+import ProductRepository from '~/repositories/product.repository'
 import { renderNotificationProduct, renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
@@ -150,7 +151,8 @@ class ProductService {
             const products = await productModel
                   .find({ isProductFull: true })
                   .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1 })
-            return { products: products }
+            const count = products.length
+            return { products: products, count }
       }
 
       static async getProductWithId(req: IRequestCustom) {
@@ -209,6 +211,20 @@ class ProductService {
             const optionNotification = { new: true, upsert: true }
             await notificationModel.findOneAndUpdate(query, update, optionNotification)
             return { message: 'Xóa thành công' }
+      }
+
+      static async getAllProductWithType(req: IRequestCustom) {
+            console.log('OK')
+            const { product_type, minVote = 1, maxVote = 5, minPrice = 1, maxPrice = 1000000000 } = req.query
+            const products = await productModel.find({
+                  product_type,
+                  product_votes: { $gte: minVote, $lte: maxVote },
+                  product_price: { $gte: minPrice, $lte: maxPrice }
+            })
+
+            // const type = await ProductRepository.countProductWithType({ product_type: product_type as ProductType })
+            const count = (await productModel.find({ product_type: product_type as ProductType })).length
+            return { products, count }
       }
 }
 

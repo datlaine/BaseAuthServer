@@ -36,12 +36,16 @@ export const renderNotificationShop = ({
       message,
       order_id,
       order_product_id,
-      user_buy_id
+      user_buy_id,
+      product_name,
+      product_quantity
 }: {
       message: string
       order_id: Types.ObjectId
       order_product_id: Types.ObjectId
       user_buy_id: Types.ObjectId
+      product_name: string
+      product_quantity: number
 }) => {
       const notificationProduct: NotificationMessage = {
             notification_attribute: {
@@ -49,7 +53,9 @@ export const renderNotificationShop = ({
                   notification_content: message,
                   order_id: new Types.ObjectId(order_id),
                   order_product_id: new Types.ObjectId(order_product_id),
-                  user_buy_id: new Types.ObjectId(user_buy_id)
+                  user_buy_id: new Types.ObjectId(user_buy_id),
+                  product_name,
+                  product_quantity
             }
       }
       return notificationProduct

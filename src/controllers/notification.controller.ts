@@ -14,6 +14,13 @@ class NotificationController {
       static async getMeNotificationPage(req: IRequestCustom, res: Response, next: NextFunction) {
             new ResponseSuccess({ metadata: await NotificationService.getMeNotificationPage(req) }).send(res)
       }
+
+      static async readNotification(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await NotificationService.readNotification(req) }).send(res)
+      }
+      static async deleteNotification(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await NotificationService.deleteNotification(req) }).send(res)
+      }
 }
 
 export default NotificationController

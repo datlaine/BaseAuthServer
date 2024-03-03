@@ -30,6 +30,8 @@ export type NotificationProduct = {
 }
 
 export type NotificationShop = {
+      product_name: string
+      product_quantity: number
       notification_type: 'SHOP'
       order_id: Types.ObjectId
       order_product_id: Types.ObjectId
@@ -50,7 +52,8 @@ export interface NotificationMessage {
 }
 const notificationMessageSchema = new Schema({
       notification_attribute: { type: Schema.Types.Mixed, require: true },
-      notification_creation_time: { type: Date, default: Date.now, require: true }
+      notification_creation_time: { type: Date, default: Date.now, require: true },
+      notification_isRead: { type: Boolean, default: false, require: true }
 })
 
 type NotificationDoc = Notification & Document

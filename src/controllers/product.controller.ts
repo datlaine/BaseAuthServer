@@ -118,6 +118,9 @@ class ProductController {
       static async getAllProduct(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getAllProduct(req) }).send(res)
       }
+      static async getAllProductWithType(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getAllProductWithType(req) }).send(res)
+      }
 
       static async getProductWithId(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getProductWithId(req) }).send(res)

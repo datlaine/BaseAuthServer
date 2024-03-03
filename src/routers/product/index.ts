@@ -7,8 +7,10 @@ import { ProductFactory } from '~/services/product.factory'
 
 const productRouter = Router()
 
+productRouter.get('/get-all-product-category', asyncHandler(ProductController.getAllProductWithType))
 productRouter.get('/get-all-product', asyncHandler(ProductController.getAllProduct))
 productRouter.get('/get-product/:id', asyncHandler(ProductController.getProductWithId))
+
 productRouter.use(authentication)
 productRouter.get('/protect-product/:product_id', asyncHandler(ProductController.protectProduct))
 

@@ -55,6 +55,39 @@ class NotificationService {
 
             return { myNotificationShop: { product_sell: result } }
       }
+
+      static async readNotification(req: IRequestCustom) {
+            const { user } = req
+            const notification_id = req.params.notification_id as string
+
+            const query = {
+                  notification_user_id: new Types.ObjectId(user?._id),
+                  notifications_message: { $elemMatch: { _id: new Types.ObjectId(notification_id) } }
+            }
+            const update = { 'notifications_message.$.notification_isRead': true }
+
+            await notificationModel.findOneAndUpdate(query, update)
+
+            return { message: `Đánh dấu đã đọc thông báo có id: ${notification_id}` }
+      }
+      static async deleteNotification(req: IRequestCustom) {
+            const { user } = req
+            const notification_id = req.params.notification_id as string
+
+            const query = {
+                  notification_user_id: new Types.ObjectId(user?._id)
+            }
+            const update = {
+                  // $pull: { notifications.message: { _id: new Types.ObjectId(notification_id) } },
+                  $pull: { notifications_message: { _id: new Types.ObjectId(notification_id) } },
+                  $inc: { notification_count: -1 }
+            }
+            const option = { new: true, upsert: true }
+
+            const result = await notificationModel.findOneAndUpdate(query, update, option)
+            console.log({ result123: result })
+            return { message: `Đã xóa thông báo có id: ${notification_id}` }
+      }
 }
 
 export default NotificationService

@@ -69,8 +69,7 @@ class OrderService {
                   const updateProduct = {
                         $inc: {
                               product_available: -products[index].quantity,
-                              product_is_bought:
-                                    (foundProduct?.product_is_bought ? foundProduct?.product_is_bought : 0) + products[index].quantity
+                              product_is_bought: products[index].quantity
                         }
                   }
                   const optionProduct = { new: true, upsert: true }
@@ -134,6 +133,8 @@ class OrderService {
                               notifications_message: [
                                     renderNotificationShop({
                                           message: `Đã bán thành công ${products[index].quantity} sản phẩm`,
+                                          product_name: product_info[index].product_name,
+                                          product_quantity: product_info[index].product_quantity,
                                           order_id: elementLast?._id!,
                                           order_product_id: elementLast?.products[index]._id!,
                                           user_buy_id: user?._id
