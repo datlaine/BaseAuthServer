@@ -3,10 +3,13 @@ import mongoose, { Types } from 'mongoose'
 import { BadRequestError, ForbiddenError } from '~/Core/response.error'
 import { OK } from '~/Core/response.success'
 import cloudinary from '~/configs/cloundinary.config'
-import { IRequestCustom } from '~/middlewares/authentication'
+import { HEADER, IRequestCustom } from '~/middlewares/authentication'
+import { commentModel } from '~/models/comment.model'
 import { notificationModel } from '~/models/notification.model'
 import productModel, { ProductType } from '~/models/product.model'
-import { shopModel } from '~/models/shop.model'
+import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
+import userModel from '~/models/user.model'
+import CommentRepository from '~/repositories/comment.repository'
 import ProductRepository from '~/repositories/product.repository'
 import { renderNotificationProduct, renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
@@ -159,9 +162,49 @@ class ProductService {
             const id = req.params.id
             console.log({ id })
             const product = await productModel.findOne({ _id: new mongoose.Types.ObjectId(id), product_state: true }).populate('shop_id')
+            const { user } = req
+            console.log({ user })
+
+            const client_id = req.headers[HEADER.CLIENT_ID]
+            if (client_id) {
+                  const userDocument = await userModel.findOne({ _id: new Types.ObjectId(client_id as string) })
+
+                  // console.log({ productSee: JSON.stringify(userDocument?.product_see) })
+
+                  const see = await userModel.findOneAndUpdate(
+                        { _id: new Types.ObjectId(client_id as string) },
+                        { $addToSet: { product_see: { product_id: new Types.ObjectId(product?._id) } } },
+                        { new: true }
+                  )
+            }
+            const calcVoteAgain: { avgProductVote: number; totalComment: number } = await CommentRepository.calcTotalAndAvgProduct({
+                  product_id: new Types.ObjectId(id)
+            })
+
+            const detailComment = await CommentRepository.getCommentDetail({ product_id: new Types.ObjectId(id) })
+            const result = await commentModel.aggregate([
+                  {
+                        $match: {
+                              comment_product_id: new Types.ObjectId(id as string)
+                        }
+                  },
+
+                  {
+                        $group: {
+                              _id: '$comment_vote',
+                              count: { $sum: 1 }
+                        }
+                  }
+            ])
+
+            console.log({ detailComment, result })
             if (!product) return { product: null }
-            // await sleep(3000)
-            return { product }
+            return {
+                  product,
+                  totalComment: calcVoteAgain?.totalComment || 0,
+                  avg: calcVoteAgain?.avgProductVote || product.product_votes,
+                  detailComment
+            }
       }
 
       static async getProductWithIdUpdate(req: IRequestCustom) {
@@ -201,6 +244,14 @@ class ProductService {
             )
             if (!deleteProduct) throw new BadRequestError({ detail: 'Xóa sản phẩm thất bại' })
 
+            const foundShop = await shopModel.findOne({ onwer: new Types.ObjectId(user?._id) })
+
+            const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
+            const productShopUpdate = { $set: { products: { state: 'Delete' } } }
+            const productShopOptions = { new: true, upsert: true }
+
+            await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
+
             const query = { notification_user_id: new Types.ObjectId(user?._id) }
             const update = {
                   $push: {
@@ -215,16 +266,54 @@ class ProductService {
 
       static async getAllProductWithType(req: IRequestCustom) {
             console.log('OK')
-            const { product_type, minVote = 1, maxVote = 5, minPrice = 1, maxPrice = 1000000000 } = req.query
-            const products = await productModel.find({
-                  product_type,
-                  product_votes: { $gte: minVote, $lte: maxVote },
-                  product_price: { $gte: minPrice, $lte: maxPrice }
+            const { product_type, minVote = 1, maxVote = 5, minPrice = 1, maxPrice = 1000000000, page } = req.query
+            const limit = 2
+            const skipDocument = limit * (Number(page) - 1)
+            const products = await productModel
+                  .find({
+                        product_type
+                  })
+                  .skip(skipDocument)
+                  .limit(limit)
+                  .populate('shop_id')
+
+            let featuredCategory: string[] = []
+
+            const shops = await productModel.find({ product_type }).populate('shop_id')
+            const set = new Set()
+            const shop_id: TShopDoc[] = []
+            shops.filter((product) => {
+                  let index = shop_id.findIndex((shop) => shop._id === product.shop_id._id)
+                  if (index <= -1) {
+                        shop_id.push(product.shop_id as unknown as TShopDoc)
+                        return
+                  }
+                  return null
             })
 
             // const type = await ProductRepository.countProductWithType({ product_type: product_type as ProductType })
             const count = (await productModel.find({ product_type: product_type as ProductType })).length
-            return { products, count }
+            const a = await productModel.find({ 'attribute.product_food_type': 'Fast food' })
+            return { products, count, shops: shop_id }
+      }
+
+      static async getProductFilter(
+            req: IRequestCustom<{ product_vote: number; minPrice: number; maxPrice: number; product_type: ProductType; page: number }>
+      ) {
+            const { page = 1, maxPrice, minPrice, product_type, vote } = req.query
+            const LIMIT = 2
+            const getDocument = LIMIT * (Number(page) - 1)
+            console.log({ LIMIT, getDocument })
+            const products = await productModel
+                  .find({
+                        product_type,
+                        product_price: { $gte: Number(minPrice), $lte: Number(maxPrice) },
+                        product_votes: { $gte: Number(vote) }
+                  })
+                  .skip(getDocument)
+                  .limit(LIMIT)
+
+            return { products }
       }
 }
 

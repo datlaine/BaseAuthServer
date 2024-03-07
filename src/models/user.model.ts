@@ -42,6 +42,7 @@ export interface UserDocument extends Document {
       isOpenShop?: boolean
       isCartSelectAll: boolean
       user_address_count: number
+      product_see: [Types.ObjectId]
 }
 
 export const avatarUsedSchema = new Schema<IAvaterUsed>({
@@ -133,6 +134,12 @@ export const userSchema = new Schema<UserDocument>(
                         }
                   ]
             },
+            product_see: [
+                  new Schema({
+                        product_id: { type: Schema.Types.ObjectId, ref: 'Product', require: true },
+                        time: { type: Date, default: Date.now, require: true }
+                  })
+            ],
             user_address_count: { type: Number, default: 0 }
       },
       { timestamps: true, collection: COLLECTION_NAME }

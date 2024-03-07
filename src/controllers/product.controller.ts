@@ -4,7 +4,7 @@ import { OK } from '~/Core/response.success'
 import { product_default_vote } from '~/constant/product.constant'
 import { IRequestCustom } from '~/middlewares/authentication'
 import productModel, { IProduct, IProductBook, IProductFoodDoc } from '~/models/product.model'
-import { shopModel } from '~/models/shop.model'
+import { productShopModel, shopModel } from '~/models/shop.model'
 import { ProductBook, ProductFactory, ProductFood } from '~/services/product.factory'
 import ProductService from '~/services/product.service'
 
@@ -69,6 +69,13 @@ class ProductController {
                   attribute: { publishing, author, description, page_number, product_id: new Types.ObjectId(product_id), book_type }
             })
 
+            if (book) {
+                  const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
+                  const productShopUpdate = { $addToSet: { products: { product_id: new Types.ObjectId(product_id) } } }
+                  const productShopOptions = { new: true, upsert: true }
+                  await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
+            }
+
             new OK({ metadata: await ProductFactory.createProduct(book) }).send(res)
       }
 
@@ -112,6 +119,13 @@ class ProductController {
                   } as unknown as IProductFoodDoc
             })
 
+            if (food) {
+                  const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
+                  const productShopUpdate = { $addToSet: { products: { product_id: new Types.ObjectId(product_id) } } }
+                  const productShopOptions = { new: true, upsert: true }
+                  await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
+            }
+
             new OK({ metadata: await ProductFactory.createProduct(food) }).send(res)
       }
 
@@ -132,6 +146,10 @@ class ProductController {
 
       static async deleteProductWithId(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.deleteProductWithId(req) }).send(res)
+      }
+
+      static async getProductFilter(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductFilter(req) }).send(res)
       }
 }
 

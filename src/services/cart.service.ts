@@ -3,7 +3,7 @@ import { BadRequestError } from '~/Core/response.error'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { CartProduct, cartModel } from '~/models/cart.modal'
 import { notificationModel } from '~/models/notification.model'
-import productModel from '~/models/product.model'
+import productModel, { IProductDoc } from '~/models/product.model'
 import userModel from '~/models/user.model'
 import { renderNotificationProduct } from '~/utils/notification.util'
 
@@ -25,10 +25,21 @@ class CartService {
             return { cart: userCart }
       }
 
-      static async addCart(req: IRequestCustom) {
+      static async addCart(req: IRequestCustom<{ product: CartProduct }>) {
             const { user } = req
             const { product } = req.body
+
+            const checkProduct = await productModel.findOne({ _id: new Types.ObjectId(product.product_id) })
+            if (checkProduct!.product_available < product.quantity) {
+                  throw new BadRequestError({ detail: 'Số lượng sản phẩm được chọn nhiều hơn số lượng trong kho' })
+            }
+
+            console.log(checkProduct?.product_available, product.quantity)
+
             const userCart = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) })
+
+            // const
+
             if (!userCart) {
                   return await CartService.createCart({ user_id: user?._id, product })
             }
@@ -181,10 +192,28 @@ class CartService {
             const { user } = req
             const carts = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) }).populate({
                   path: 'cart_products.product_id',
-                  select: 'product_price product_thumb_image'
+                  select: 'product_price product_thumb_image product_available'
             })
 
+            // products.forEach(async (product) => {
+            //       const checkProducts = await productModel.findOne({ _id: new Types.ObjectId(product.product_id) })
+            //       if (checkProducts!.product_available < product.quantity) {
+            //             throw new BadRequestError({
+            //                   detail: `Sản phẩm ${checkProducts?.product_name} có lượng mua nhiều hơn lượng sản phẩm trong kho`
+            //             })
+            //             return
+            //       }
+            // })
+
             const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
+            // filterCarts?.forEach(async (product) => {
+            //       const checkProducts = await productModel.findOne({ _id: new Types.ObjectId(product.product_id) })
+            //       if (checkProducts!.product_available < product.quantity) {
+            //             return new BadRequestError({
+            //                   detail: `Sản phẩm ${checkProducts?.product_name} có lượng mua nhiều hơn lượng sản phẩm trong kho`
+            //             })
+            //       }
+            // })
 
             return { carts: { cart_products: filterCarts } }
       }

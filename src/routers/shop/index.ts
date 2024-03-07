@@ -9,11 +9,12 @@ const shopRouter = Router()
 //receive -> user_id
 
 shopRouter.use(authentication)
-shopRouter.post('/register-shop', asyncHandler(ShopController.registerShop))
+shopRouter.post('/register-shop', upload.single('file'), asyncHandler(ShopController.registerShop))
 shopRouter.post('/upload-avatar-shop', upload.single('image'), asyncHandler(ShopController.uploadAvatarShop))
 shopRouter.post('/delete-avatar-shop', asyncHandler(ShopController.deleteAvatarShop))
 // shopRouter.get('/get-shop-name', asyncHandler(ShopController.getShopName))
 shopRouter.get('/get-my-shop', asyncHandler(ShopController.getMyShop))
 shopRouter.get('/get-product-my-shop', asyncHandler(ShopController.getProductMyShop))
+shopRouter.get('/get-shop-has-product', asyncHandler(ShopController.foundShopHasProductType))
 
 export default shopRouter

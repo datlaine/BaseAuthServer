@@ -14,7 +14,7 @@ interface IHEADER {
       AUTHORIZATION: string
 }
 
-const HEADER: IHEADER = {
+export const HEADER: IHEADER = {
       CLIENT_ID: 'x-client-id',
       AUTHORIZATION: 'authorization'
 }

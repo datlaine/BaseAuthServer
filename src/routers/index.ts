@@ -11,6 +11,7 @@ import shopRouter from './shop'
 import cartRouter from './cart'
 import orderRouter from './order'
 import notificationRouter from './notification'
+import commentRouter from './comment'
 config()
 const router = Router()
 // router.get('/getData', (req, res, next) => {
@@ -31,6 +32,8 @@ router.use('/v1/api/shop', shopRouter)
 router.use('/v1/api/cart', cartRouter)
 router.use('/v1/api/order', orderRouter)
 router.use('/v1/api/notification', notificationRouter)
+router.use('/v1/api/comment', commentRouter)
+
 router.get('/api/oauth/google', AuthController.loginWithGoogle)
 
 export default router

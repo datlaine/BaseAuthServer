@@ -1,16 +1,24 @@
 import { ObjectId, Types } from 'mongoose'
+import { BadRequestError } from '~/Core/response.error'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { CartProduct, CartProductWithId, cartModel } from '~/models/cart.modal'
 import { notificationModel } from '~/models/notification.model'
 import { orderModel } from '~/models/order.model'
 import productModel from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
+import { checkQuanity } from '~/utils/checkQuantity.util'
 import { renderNotificationProduct, renderNotificationShop, renderNotificationSystem } from '~/utils/notification.util'
 
 class OrderService {
       static async orderAddProduct(req: IRequestCustom<{ orders: { products: CartProductWithId[]; order_total: number } }>) {
             const { user } = req
             const { products, order_total } = req.body.orders
+
+            const checkQuanityProduct = await checkQuanity({ products })
+            if (!checkQuanityProduct) {
+                  return checkQuanityProduct
+            }
+            console.log('flag')
 
             /*
                   B1: Update Order -> Mảng order từ client gửi lên

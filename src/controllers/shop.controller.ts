@@ -25,6 +25,10 @@ class ShopController {
       static async getProductMyShop(req: IRequestCustom, res: Response, next: NextFunction) {
             return new OK({ metadata: await ShopService.getProductMyShop(req) }).send(res)
       }
+
+      static async foundShopHasProductType(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await ShopService.foundShopHasProductType(req) }).send(res)
+      }
 }
 
 export default ShopController

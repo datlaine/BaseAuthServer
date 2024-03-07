@@ -44,4 +44,28 @@ export const shopSchema = new Schema<TShopDoc>(
       }
 )
 
+const DOCUMENT_NAME_PRODUCT_SHOP = 'ProductShop'
+const COLLLECTION_NAME_PRODUCT_SHOP = 'productShop'
+export type ProductShop = {
+      shop_id: Types.ObjectId
+      products: [Types.ObjectId]
+}
+
+export type ProductShopDoc = ProductShop & Document
+
+export const productShopSchema = new Schema<ProductShopDoc>(
+      {
+            shop_id: { type: Schema.Types.ObjectId, ref: 'Shop', require: true },
+            products: [
+                  new Schema({
+                        product_id: { type: Schema.Types.ObjectId, ref: 'Product', require: true },
+                        state: { type: String, enum: ['Active', 'Delete', 'Blocck'], default: 'Active', require: true }
+                  })
+            ]
+      },
+      { timestamps: true, collection: COLLLECTION_NAME_PRODUCT_SHOP }
+)
+
+export const productShopModel = model<ProductShopDoc>(DOCUMENT_NAME_PRODUCT_SHOP, productShopSchema)
+
 export const shopModel = model<TShopDoc>(DOCUMENT_NAME, shopSchema)
