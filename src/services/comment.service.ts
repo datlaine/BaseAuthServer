@@ -1,11 +1,12 @@
 import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
-import { IRequestCustom } from '~/middlewares/authentication'
+import { HEADER, IRequestCustom } from '~/middlewares/authentication'
 import { commentModel } from '~/models/comment.model'
 import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
 import CommentRepository from '~/repositories/comment.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
+import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 export type StateFile = 'Full' | 'no-file'
@@ -140,9 +141,69 @@ class CommentService {
                         }
                   }
             ])
-            console.log({ total, result, avg })
+            // console.log({ total, result, avg })
 
             return { comment }
+      }
+
+      static async getAllCommentProduct(req: IRequestCustom) {
+            const { product_id, page, limit } = req.query
+            const client_id = req.headers[HEADER.CLIENT_ID]
+
+            const LIMIT = Number(limit)
+            const skip = LIMIT * (Number(page) - 1)
+
+            const commentPopulate = {
+                  path: 'comment_user_id',
+                  select: { avatar: 1, nickName: 1, email: 1, fullName: 1, avatar_default_url: 1, createdAt: 1 }
+            }
+
+            const total: { total: number } = await CommentRepository.getTotalCommentPage({
+                  product_id: new Types.ObjectId(product_id as string)
+            })
+            console.log({ total })
+
+            if (client_id) {
+                  const total: { total: number } = await CommentRepository.getTotalCommentPage({
+                        product_id: new Types.ObjectId(product_id as string),
+                        user_id: new Types.ObjectId(client_id as string)
+                  })
+                  console.log({ total })
+                  const commentQuery = {
+                        comment_product_id: new Types.ObjectId(product_id as string),
+                        comment_user_id: { $nin: [new Types.ObjectId(client_id as string)] }
+                  }
+                  const commentDocument = await commentModel
+                        .find(commentQuery)
+                        .populate(commentPopulate)
+                        .sort({ comment_date: -1 })
+                        .skip(skip)
+                        .limit(LIMIT)
+                  return { comments: commentDocument, total: total?.total || 0 }
+            }
+
+            const commentQuery = {
+                  comment_product_id: new Types.ObjectId(product_id as string)
+            }
+
+            const commentDocument = await commentModel
+                  .find(commentQuery)
+                  .populate(commentPopulate)
+                  .sort({ comment_date: -1 })
+                  .skip(skip)
+                  .limit(LIMIT)
+
+            return { comments: commentDocument, total: total?.total || 0 }
+      }
+
+      static async getAllCommentImage(req: IRequestCustom) {
+            const { product_id } = req.query
+
+            const getAllCommentImage: { comment_images: [] } = await CommentRepository.getImageCommentAll({
+                  product_id: new Types.ObjectId(product_id as string)
+            })
+
+            return { comment_images: getAllCommentImage?.comment_images || [] }
       }
 }
 
