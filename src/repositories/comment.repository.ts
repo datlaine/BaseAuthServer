@@ -43,6 +43,73 @@ class CommentRepository {
             return result[0]
       }
 
+      static async getTotalCommentHasImage({
+            product_id,
+            user_id,
+            minVote,
+            maxVote
+      }: {
+            product_id: Types.ObjectId
+            user_id: Types.ObjectId
+            minVote: number
+            maxVote: number
+      }) {
+            const result = await commentModel.aggregate([
+                  {
+                        $match: {
+                              comment_product_id: product_id,
+                              comment_user_id: { $nin: [user_id] },
+                              $or: [{ comment_image: { $exists: true, $ne: [] } }],
+                              comment_vote: {
+                                    $gte: minVote,
+                                    $lte: maxVote
+                              }
+                        }
+                  },
+                  {
+                        $group: {
+                              _id: null,
+                              total: { $sum: 1 }
+                        }
+                  }
+            ])
+
+            return result[0]
+      }
+
+      static async getTotalCommentFilterLevel({
+            product_id,
+            user_id,
+            minVote,
+            maxVote
+      }: {
+            product_id: Types.ObjectId
+            user_id: Types.ObjectId
+            minVote: number
+            maxVote: number
+      }) {
+            const result = await commentModel.aggregate([
+                  {
+                        $match: {
+                              comment_product_id: product_id,
+                              comment_user_id: { $nin: [user_id] },
+                              comment_vote: {
+                                    $gte: minVote,
+                                    $lte: maxVote
+                              }
+                        }
+                  },
+                  {
+                        $group: {
+                              _id: null,
+                              total: { $sum: 1 }
+                        }
+                  }
+            ])
+
+            return result[0]
+      }
+
       static async getImageCommentAll({ product_id }: { product_id: Types.ObjectId }) {
             const result = await commentModel.aggregate([
                   { $match: { comment_product_id: product_id } },
@@ -63,6 +130,21 @@ class CommentRepository {
                         $project: {
                               _id: 0, // Loại bỏ trường _id
                               comment_images: 1 // Chỉ bao gồm trường comment_image
+                        }
+                  }
+            ])
+            return result[0]
+      }
+
+      static async getAllCommentMe({ comment_user_id }: { comment_user_id: Types.ObjectId }) {
+            const result = await commentModel.aggregate([
+                  { $match: { comment_user_id } },
+                  // {},
+
+                  {
+                        $group: {
+                              _id: null,
+                              total: { $sum: 1 }
                         }
                   }
             ])

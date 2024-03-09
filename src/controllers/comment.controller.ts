@@ -19,6 +19,18 @@ class CommentController {
       static async getAllCommentImage(req: IRequestCustom, res: Response, next: NextFunction) {
             return new OK({ metadata: await CommentService.getAllCommentImage(req) }).send(res)
       }
+
+      static async geAllCommentHasImage(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await CommentService.geAllCommentHasImage(req) }).send(res)
+      }
+
+      static async geAllCommentFollowLevel(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await CommentService.geAllCommentFollowLevel(req) }).send(res)
+      }
+
+      static async getAllCommentMe(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await CommentService.getAllCommentMe(req) }).send(res)
+      }
 }
 
 export default CommentController
