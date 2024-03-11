@@ -201,6 +201,25 @@ class ProductService {
             return { products }
       }
 
+      static async getProductBookAllType(req: IRequestCustom) {
+            const productQuery = {product_type: 'Book'}
+            const productQueryManga = {product_type: 'Book', 'attribute.type': 'Manga'}
+            const productQueryNovel = {product_type: 'Book', 'attribute.type': 'Novel'}
+            const productQueryDetective = {product_type: 'Book', 'attribute.type': 'Detective'}
+
+
+
+
+            const products = await productModel.find(productQuery).select('_id product_thumb_image product_name product_votes product_price')
+            const productManga = await productModel.find(productQueryManga).select('_id product_thumb_image product_name product_votes product_price attribute.type')
+            const productNovel = await productModel.find(productQueryNovel).select('_id product_thumb_image product_name product_votes product_price attribute.type')
+            const productDetective = await productModel.find(productQueryDetective).select('_id product_thumb_image product_name product_votes product_price attribute.type')
+
+
+            return {products, manga: productManga, novel: productNovel, detective: productDetective}
+
+      }
+
       static async getProductWithId(req: IRequestCustom) {
             const id = req.params.id
             console.log({ id })

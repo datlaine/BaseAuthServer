@@ -145,6 +145,13 @@ class ProductController {
             new OK({ metadata: await ProductService.getProductSimilar(req) }).send(res)
       }
 
+      static async getProductBookAllType(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductBookAllType(req) }).send(res)
+      }
+
+
+
+
       static async getAllProductWithType(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getAllProductWithType(req) }).send(res)
       }
