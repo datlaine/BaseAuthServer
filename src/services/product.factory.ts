@@ -119,7 +119,7 @@ export class ProductBook extends Product implements IProductStrategy {
                   publishing: this.attribute.publishing,
                   page_number: this.attribute.page_number,
                   description: this.attribute.description,
-                  book_type: this.attribute.book_type
+                  book_type: this.attribute.type
             })
 
             console.log({ book: createProductBook })
@@ -167,7 +167,7 @@ export class ProductFood extends Product implements IProductStrategy {
                   product_food_Date_Of_manufacture: this.attribute.product_id,
 
                   description: this.attribute.description,
-                  product_food_type: this.attribute.product_food_type
+                  product_food_type: this.attribute.type
             })
 
             console.log({ food: createProductFood })

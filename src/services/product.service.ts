@@ -7,15 +7,33 @@ import { HEADER, IRequestCustom } from '~/middlewares/authentication'
 import { commentModel } from '~/models/comment.model'
 import { notificationModel } from '~/models/notification.model'
 import productModel, { ProductType } from '~/models/product.model'
-import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
+import { TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
 import CommentRepository from '~/repositories/comment.repository'
-import ProductRepository from '~/repositories/product.repository'
-import { renderNotificationProduct, renderNotificationSystem } from '~/utils/notification.util'
-import sleep from '~/utils/sleep'
+import { renderNotificationSystem } from '~/utils/notification.util'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 class ProductService {
+      static async searchQuery(req: IRequestCustom) {
+            const { text } = req.query
+
+            console.log({ text })
+
+            const products = await productModel
+                  .find({ $text: { $search: text as string } })
+                  .select('product_name _id product_thumb_image product_votes')
+                  .skip(0)
+                  .limit(4)
+
+            const shops = await shopModel
+                  .find({ $text: { $search: text as string } })
+                  .select('shop_name _id')
+                  .skip(0)
+                  .limit(2)
+
+            return { products, shops }
+      }
+
       static async createBaseProductId(req: IRequestCustom) {
             const { user } = req
             const foundShop = await shopModel.findOne({ owner: user?._id })
@@ -153,9 +171,34 @@ class ProductService {
       static async getAllProduct(req: IRequestCustom) {
             const products = await productModel
                   .find({ isProductFull: true })
-                  .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1 })
+                  .limit(36)
+                  .sort({ product_price: 1 })
+                  .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
             const count = products.length
             return { products: products, count }
+      }
+
+      static async getAllProductCare(req: IRequestCustom) {
+            const products = await productModel
+                  .find({ isProductFull: true })
+                  .limit(18)
+                  .sort({ product_price: -1 })
+                  .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
+
+            return { products }
+      }
+
+      static async getProductSimilar(req: IRequestCustom) {
+            const { product_type, type, product_id } = req.query
+
+            const productQuery = { product_type: product_type as string, _id: { $nin: [new Types.ObjectId(product_id as string)] } }
+
+            const products = await productModel
+                  .find(productQuery)
+                  .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
+                  .limit(35)
+
+            return { products }
       }
 
       static async getProductWithId(req: IRequestCustom) {

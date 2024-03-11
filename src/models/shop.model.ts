@@ -21,7 +21,12 @@ export type TShopDoc = TShop & Document
 export const shopSchema = new Schema<TShopDoc>(
       {
             owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-            shop_name: { type: String, required: true },
+            shop_name: {
+                  type: String,
+                  index: true, //---Index----
+
+                  required: true
+            },
             shop_avatar: { type: { secure_url: String, public_id: String }, required: true },
             shop_avatar_default: {
                   type: String,
@@ -43,6 +48,8 @@ export const shopSchema = new Schema<TShopDoc>(
             collection: COLLECTION_NAME
       }
 )
+
+shopSchema.index({ shop_name: 'text' })
 
 const DOCUMENT_NAME_PRODUCT_SHOP = 'ProductShop'
 const COLLLECTION_NAME_PRODUCT_SHOP = 'productShop'

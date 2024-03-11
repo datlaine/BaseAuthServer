@@ -9,6 +9,10 @@ import { ProductBook, ProductFactory, ProductFood } from '~/services/product.fac
 import ProductService from '~/services/product.service'
 
 class ProductController {
+      static async searchQuery(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.searchQuery(req) }).send(res)
+      }
+
       static async createBaseProductId(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.createBaseProductId(req) }).send(res)
       }
@@ -49,7 +53,7 @@ class ProductController {
 
             const { product_id } = req.body
 
-            const { author, book_type, description, page_number, publishing } = req.body.product_attribute
+            const { author, type, description, page_number, publishing } = req.body.product_attribute
 
             // const product_is_bought = product_is_bought || 0
             // const product_is_bought = product_is_bought || 0
@@ -66,7 +70,7 @@ class ProductController {
                   shop_id: foundShop?._id,
                   product_type,
                   product_state,
-                  attribute: { publishing, author, description, page_number, product_id: new Types.ObjectId(product_id), book_type }
+                  attribute: { publishing, author, description, page_number, product_id: new Types.ObjectId(product_id), type }
             })
 
             if (book) {
@@ -92,7 +96,7 @@ class ProductController {
 
             const { product_id } = req.body
 
-            const { product_food_Manufacturers_Name, description, product_food_origin, product_food_type, product_food_unit } = req.body
+            const { product_food_Manufacturers_Name, description, product_food_origin, type, product_food_unit } = req.body
                   .product_attribute as IProductFoodDoc
 
             // const product_is_bought = product_is_bought || 0
@@ -113,7 +117,7 @@ class ProductController {
                         description,
                         product_food_Manufacturers_Name,
                         product_food_origin,
-                        product_food_type,
+                        type,
                         product_food_unit,
                         product_id: new Types.ObjectId(product_id)
                   } as unknown as IProductFoodDoc
@@ -132,6 +136,15 @@ class ProductController {
       static async getAllProduct(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getAllProduct(req) }).send(res)
       }
+
+      static async getAllProductCare(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getAllProductCare(req) }).send(res)
+      }
+
+      static async getProductSimilar(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductSimilar(req) }).send(res)
+      }
+
       static async getAllProductWithType(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getAllProductWithType(req) }).send(res)
       }

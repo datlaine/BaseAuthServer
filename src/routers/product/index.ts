@@ -12,6 +12,9 @@ productRouter.get('/get-all-product', asyncHandler(ProductController.getAllProdu
 productRouter.get('/get-product/:id', asyncHandler(ProductController.getProductWithId))
 productRouter.get('/get-product/:id', asyncHandler(ProductController.getProductWithId))
 productRouter.get('/get-product-filter', asyncHandler(ProductController.getProductFilter))
+productRouter.get('/get-product-shop-name', asyncHandler(ProductController.searchQuery))
+productRouter.get('/get-product-care', asyncHandler(ProductController.getAllProductCare))
+productRouter.get('/get-product-similar', asyncHandler(ProductController.getProductSimilar))
 
 productRouter.use(authentication)
 productRouter.get('/protect-product/:product_id', asyncHandler(ProductController.protectProduct))

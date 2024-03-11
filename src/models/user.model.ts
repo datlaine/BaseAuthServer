@@ -26,7 +26,7 @@ export interface UserDocument extends Document {
       verify_email?: boolean
       bob?: Date
       roles: string[]
-      avartar_url_default: string
+      avatar_url_default: string
       avatar: {
             secure_url?: string
             public_id: string
@@ -84,7 +84,7 @@ export const userSchema = new Schema<UserDocument>(
                   public_id: String,
                   date_update: Date
             },
-            avartar_url_default: {
+            avatar_url_default: {
                   type: String,
                   default: 'https://res.cloudinary.com/demonodejs/image/upload/v1705389477/static/o5gxkgehijtg9auirdje.jpg'
             },

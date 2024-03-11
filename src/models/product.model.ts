@@ -41,7 +41,12 @@ export const productSchema = new Schema<IProductDoc>(
                   ref: 'Shop',
                   require: true
             },
-            product_name: { type: String, default: 'none', required: true },
+            product_name: {
+                  type: String,
+                  default: 'none',
+                  index: true, //---Index----
+                  required: true
+            },
             product_price: { type: Number, default: 0, required: true },
             product_thumb_image: {
                   type: {
@@ -89,6 +94,8 @@ export const productSchema = new Schema<IProductDoc>(
       { timestamps: true, collection: COLLECTION_NAME }
 )
 
+productSchema.index({ product_name: 'text' })
+
 //@ product - Books
 export interface IProductBook {
       product_id: Types.ObjectId
@@ -96,7 +103,7 @@ export interface IProductBook {
       author: string
       page_number: number
       description: string
-      book_type: 'Novel' | 'Manga' | 'Detective'
+      type: 'Novel' | 'Manga' | 'Detective'
 }
 
 export const bookSchema = new Schema<IProductBookDoc>(
@@ -106,7 +113,7 @@ export const bookSchema = new Schema<IProductBookDoc>(
             page_number: { type: Number, required: true },
             description: { type: String, required: true },
             product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-            book_type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
+            type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
       },
       { timestamps: true, collection: 'books' }
 )
@@ -119,7 +126,7 @@ export interface IProductFood {
       product_food_unit: 'Kilogram' | 'Box'
 
       description: string
-      product_food_type: 'Fast food' | 'Canned Goods' | 'Drinks'
+      type: 'Fast food' | 'Canned Goods' | 'Drinks'
 }
 
 export const productFoodSchema = new Schema<IProductFoodDoc>(
@@ -130,7 +137,7 @@ export const productFoodSchema = new Schema<IProductFoodDoc>(
             product_food_origin: { type: String, required: true },
             product_food_unit: { type: String, enum: ['Kilogram', 'Box'], default: 'Kilogram', required: true },
             description: { type: String, required: true },
-            product_food_type: { type: String, enum: ['Fast food', 'Canned Goods', 'Drinks'], require: true }
+            type: { type: String, enum: ['Fast food', 'Canned Goods', 'Drinks'], require: true }
       },
       { timestamps: true, collection: 'foods' }
 )
@@ -142,7 +149,7 @@ export const Vacation = new Schema<IProductBookDoc>(
             page_number: { type: Number, required: true },
             description: { type: String, required: true },
             product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-            book_type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
+            type: { type: String, enum: ['Novel', 'Manga', 'Detective'], require: true }
       },
       { timestamps: true, collection: 'books' }
 )

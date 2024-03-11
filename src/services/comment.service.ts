@@ -78,11 +78,11 @@ class CommentService {
             const productDoc = await productModel.findOneAndUpdate(productQuery, productUpdate, productOption)
 
             const notificationQuery = { notification_user_id: new Types.ObjectId(user?._id) }
-            const notificationUpdate = { notification_message: renderNotificationSystem('Bạn vừa đăng một nhận xét') }
+            const notificationUpdate = { push: { notifications_message: [renderNotificationSystem('Bạn vừa đăng một nhận xét')] } }
             const notificationOption = { new: true, upsert: true }
 
-            await notificationModel.findOneAndUpdate(notificationQuery, notificationUpdate, notificationOption)
-
+            const a = await notificationModel.findOneAndUpdate(notificationQuery, notificationUpdate, notificationOption)
+            // console.log({ a })
             return { comment: commentDocument }
       }
 
@@ -252,7 +252,6 @@ class CommentService {
             const user_id = req.headers[HEADER.CLIENT_ID] as string
             if (user_id) {
                   const commentQuery = {
-                        comment_image: { $exists: true, $ne: [] },
                         comment_product_id: new Types.ObjectId(product_id as string),
                         comment_vote: { $gte: MIN_VOTE, $lte: MAX_VOTE },
                         comment_user_id: { $nin: [new Types.ObjectId(user_id as string)] }
@@ -265,8 +264,8 @@ class CommentService {
                               select: { name: 1, nickName: 1, fullName: 1, email: 1, avatar: 1, avatar_default_url: 1, createdAt: 1 }
                         })
                         .skip(SKIP)
-                        .sort({ comment_vote: -1 })
                         .limit(LIMIT)
+                        .sort({ comment_vote: -1 })
             }
             if (!user_id) {
                   const commentQuery = {
@@ -291,6 +290,8 @@ class CommentService {
                   minVote: MIN_VOTE,
                   maxVote: MAX_VOTE
             })) as unknown as TotalPage
+
+            console.log({ result })
 
             return { comments: result, total: total?.total || 0 }
       }
