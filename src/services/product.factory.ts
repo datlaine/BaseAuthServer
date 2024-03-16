@@ -1,5 +1,7 @@
 import mongoose, { Document, ObjectId, Schema, Types, UpdateWriteOpResult } from 'mongoose'
 import productModel, { IProduct, IProductBook, IProductDoc, IProductFood, productBookModel, productFoodModel } from '~/models/product.model'
+import { shopModel } from '~/models/shop.model'
+import { shopProductUnique } from '~/utils/shop.utils'
 
 interface IProductStrategy {
       createProduct: () => Promise<
@@ -60,7 +62,7 @@ class Product implements IProductStrategy {
       async createProduct() {
             console.log({ shop_id: this.shop_id })
 
-            return await productModel.findOneAndUpdate(
+            const product = await productModel.findOneAndUpdate(
                   { _id: this._id },
                   {
                         $set: {
@@ -79,12 +81,15 @@ class Product implements IProductStrategy {
                   },
                   { new: true, upsert: true }
             )
+
+            return product
       }
 }
 
+type ModeForm = 'UPLOAD' | 'UPDATE'
 export class ProductBook extends Product implements IProductStrategy {
       protected attribute: IProductBook
-
+      mode: ModeForm
       constructor({
             _id,
             shop_id,
@@ -93,15 +98,18 @@ export class ProductBook extends Product implements IProductStrategy {
             product_type = 'Book',
             product_is_bought,
             product_state = true,
+            totalComment = 0,
             product_available,
             product_votes,
-            attribute
-      }: TProduct & { _id: Types.ObjectId }) {
+            attribute,
+            mode
+      }: TProduct & { _id: Types.ObjectId; mode: ModeForm }) {
             super({
                   _id,
                   shop_id,
                   product_name,
                   product_price,
+                  totalComment,
                   product_type,
                   product_is_bought,
                   product_state,
@@ -110,6 +118,7 @@ export class ProductBook extends Product implements IProductStrategy {
                   attribute
             })
             this.attribute = attribute as IProductBook
+            this.mode = mode
       }
 
       async createProduct() {
@@ -124,13 +133,31 @@ export class ProductBook extends Product implements IProductStrategy {
 
             console.log({ book: createProductBook })
             const createProduct = await super.createProduct()
+            console.log('Book')
+
+            if (createProduct) {
+                  console.log('system')
+                  if (this.mode === 'UPLOAD') {
+                        const productShopQuery = { _id: new Types.ObjectId(createProduct.shop_id?._id) }
+                        const product = await productModel
+                              .findOne({ _id: new Types.ObjectId(createProduct._id) })
+                              .populate('shop_id', '_id')
+                        // const productShopUpdate = { $push: { shop_products: { product_id: new Types.ObjectId(product_id) } } }
+                        // const productShopOptions = { new: true, upsert: true }
+                        await shopProductUnique({
+                              shop_id: new Types.ObjectId(product?.shop_id._id),
+                              product_id: new Types.ObjectId(createProduct._id)
+                        })
+                  }
+            }
+
             return createProduct
       }
 }
 
 export class ProductFood extends Product implements IProductStrategy {
       protected attribute: IProductFood
-
+      mode: ModeForm
       constructor({
             _id,
             shop_id,
@@ -139,15 +166,18 @@ export class ProductFood extends Product implements IProductStrategy {
             product_type = 'Food',
             product_is_bought,
             product_state = true,
+            totalComment = 0,
             product_available,
             product_votes,
+            mode,
             attribute
-      }: TProduct & { _id: Types.ObjectId }) {
+      }: TProduct & { _id: Types.ObjectId; mode: ModeForm }) {
             super({
                   _id,
                   shop_id,
                   product_name,
                   product_price,
+                  totalComment,
                   product_is_bought,
                   product_type,
                   product_available,
@@ -156,6 +186,7 @@ export class ProductFood extends Product implements IProductStrategy {
                   attribute
             })
             this.attribute = attribute as IProductFood
+            this.mode = mode
       }
 
       async createProduct() {
@@ -172,6 +203,21 @@ export class ProductFood extends Product implements IProductStrategy {
 
             console.log({ food: createProductFood })
             const createProduct = await super.createProduct()
+            if (createProduct) {
+                  console.log('system')
+                  if (this.mode === 'UPLOAD') {
+                        const productShopQuery = { _id: new Types.ObjectId(createProduct.shop_id?._id) }
+                        const product = await productModel
+                              .findOne({ _id: new Types.ObjectId(createProduct._id) })
+                              .populate('shop_id', '_id')
+                        // const productShopUpdate = { $push: { shop_products: { product_id: new Types.ObjectId(product_id) } } }
+                        // const productShopOptions = { new: true, upsert: true }
+                        await shopProductUnique({
+                              shop_id: new Types.ObjectId(product?.shop_id._id),
+                              product_id: new Types.ObjectId(createProduct._id)
+                        })
+                  }
+            }
             return createProduct
       }
 }

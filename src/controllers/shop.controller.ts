@@ -29,6 +29,18 @@ class ShopController {
       static async foundShopHasProductType(req: IRequestCustom, res: Response, next: NextFunction) {
             return new OK({ metadata: await ShopService.foundShopHasProductType(req) }).send(res)
       }
+
+      static async getShopInfoOfProduct(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await ShopService.getShopInfoOfProduct(req) }).send(res)
+      }
+
+      static async getShopId(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await ShopService.getShopId(req) }).send(res)
+      }
+
+      static async getProductFilter(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await ShopService.getProductFilter(req) }).send(res)
+      }
 }
 
 export default ShopController

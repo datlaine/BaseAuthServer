@@ -37,6 +37,29 @@ class ProductRepository {
                   }
             ])
       }
+
+      static async getProductDetai({ product_type }: { product_type: ProductType }) {
+            const result = await productModel.aggregate([
+                  {
+                        $match: { product_type }
+                  },
+
+                  // {
+                  //       $project: {
+                  //             category: '$attribute.book_type'
+                  //       }
+                  // },
+                  {
+                        $group: {
+                              _id: '$attribute.book_type',
+                              products: { $first: '$$ROOT' },
+                              count_type: { $sum: 1 }
+                        }
+                  }
+            ])
+
+            return result
+      }
 }
 
 export default ProductRepository

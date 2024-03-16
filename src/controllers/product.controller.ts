@@ -1,5 +1,6 @@
 import { NextFunction, Response } from 'express'
-import { Types } from 'mongoose'
+import { ObjectId, Types } from 'mongoose'
+import { BadRequestError } from '~/Core/response.error'
 import { OK } from '~/Core/response.success'
 import { product_default_vote } from '~/constant/product.constant'
 import { IRequestCustom } from '~/middlewares/authentication'
@@ -7,6 +8,7 @@ import productModel, { IProduct, IProductBook, IProductFoodDoc } from '~/models/
 import { productShopModel, shopModel } from '~/models/shop.model'
 import { ProductBook, ProductFactory, ProductFood } from '~/services/product.factory'
 import ProductService from '~/services/product.service'
+import { shopProductUnique } from '~/utils/shop.utils'
 
 class ProductController {
       static async searchQuery(req: IRequestCustom, res: Response, next: NextFunction) {
@@ -41,7 +43,12 @@ class ProductController {
       }
 
       static async uploadProductBook(
-            req: IRequestCustom<{ uploadProduct: IProduct; product_id: string; product_attribute: IProductBook }>,
+            req: IRequestCustom<{
+                  uploadProduct: IProduct
+                  product_id: string
+                  product_attribute: IProductBook
+                  mode: 'UPLOAD' | 'UPDATE'
+            }>,
             res: Response,
             next: NextFunction
       ) {
@@ -51,7 +58,7 @@ class ProductController {
 
             const { product_name, product_price, product_type, product_available } = req.body.uploadProduct
 
-            const { product_id } = req.body
+            const { product_id, mode } = req.body
 
             const { author, type, description, page_number, publishing } = req.body.product_attribute
 
@@ -60,31 +67,34 @@ class ProductController {
             const product_state = true
             const product_votes = product_default_vote
             const product = await productModel.findOne({ _id: new Types.ObjectId(product_id) }).lean()
+            if (!product?.product_thumb_image.secure_url || product.product_desc_image.length === 0) {
+                  throw new BadRequestError({ detail: 'Quá trình upload hình ảnh xảy ra lỗi, vui lòng chọn lại' })
+            }
             const book = new ProductBook({
                   _id: new Types.ObjectId(product_id),
                   product_name,
                   product_available,
                   product_votes,
                   product_price,
+                  totalComment: 0,
                   product_is_bought: product?.product_is_bought || 0,
                   shop_id: foundShop?._id,
                   product_type,
                   product_state,
+                  mode,
                   attribute: { publishing, author, description, page_number, product_id: new Types.ObjectId(product_id), type }
             })
-
-            if (book) {
-                  const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
-                  const productShopUpdate = { $addToSet: { products: { product_id: new Types.ObjectId(product_id) } } }
-                  const productShopOptions = { new: true, upsert: true }
-                  await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
-            }
 
             new OK({ metadata: await ProductFactory.createProduct(book) }).send(res)
       }
 
       static async uploadProductFood(
-            req: IRequestCustom<{ uploadProduct: IProduct; product_id: string; product_attribute: IProductBook | IProductFoodDoc }>,
+            req: IRequestCustom<{
+                  uploadProduct: IProduct
+                  product_id: string
+                  product_attribute: IProductBook | IProductFoodDoc
+                  mode: 'UPLOAD' | 'UPDATE'
+            }>,
             res: Response,
             next: NextFunction
       ) {
@@ -94,7 +104,7 @@ class ProductController {
 
             const { product_name, product_price, product_type, product_available } = req.body.uploadProduct
 
-            const { product_id } = req.body
+            const { product_id, mode } = req.body
 
             const { product_food_Manufacturers_Name, description, product_food_origin, type, product_food_unit } = req.body
                   .product_attribute as IProductFoodDoc
@@ -103,16 +113,21 @@ class ProductController {
             const product_state = true
             const product_votes = product_default_vote
             const product = await productModel.findOne({ _id: new Types.ObjectId(product_id) }).lean()
+            if (!product?.product_thumb_image.secure_url || product.product_desc_image.length === 0) {
+                  throw new BadRequestError({ detail: 'Quá trình upload hình ảnh xảy ra lỗi, vui lòng chọn lại' })
+            }
             const food = new ProductFood({
                   _id: new Types.ObjectId(product_id),
                   product_name,
                   product_available,
                   product_votes,
                   product_price,
+                  totalComment: 0,
                   product_is_bought: product?.product_is_bought || 0,
                   shop_id: foundShop?._id,
                   product_type,
                   product_state,
+                  mode,
                   attribute: {
                         description,
                         product_food_Manufacturers_Name,
@@ -122,13 +137,6 @@ class ProductController {
                         product_id: new Types.ObjectId(product_id)
                   } as unknown as IProductFoodDoc
             })
-
-            if (food) {
-                  const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
-                  const productShopUpdate = { $addToSet: { products: { product_id: new Types.ObjectId(product_id) } } }
-                  const productShopOptions = { new: true, upsert: true }
-                  await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
-            }
 
             new OK({ metadata: await ProductFactory.createProduct(food) }).send(res)
       }
@@ -145,12 +153,17 @@ class ProductController {
             new OK({ metadata: await ProductService.getProductSimilar(req) }).send(res)
       }
 
+      static async getProductBestBought(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductBestBought(req) }).send(res)
+      }
+
       static async getProductBookAllType(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getProductBookAllType(req) }).send(res)
       }
 
-
-
+      static async getProductFoodAllType(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductFoodAllType(req) }).send(res)
+      }
 
       static async getAllProductWithType(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getAllProductWithType(req) }).send(res)

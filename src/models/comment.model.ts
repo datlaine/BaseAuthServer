@@ -1,7 +1,7 @@
 import { Document, Schema, Types, model } from 'mongoose'
 
 const DOCUMENT_NAME = 'Comment'
-const COLLECTION_NAME = 'Comments'
+const COLLECTION_NAME = 'comments'
 
 export type TComment = {
       comment_user_id: Types.ObjectId

@@ -32,6 +32,9 @@ export interface IProduct {
       isProductFull?: boolean
       expireAt?: Date
       attribute: IProductBook | IProductFood
+
+      //demo
+      totalComment: number
 }
 
 export const productSchema = new Schema<IProductDoc>(
@@ -89,7 +92,8 @@ export const productSchema = new Schema<IProductDoc>(
             attribute: {
                   type: Schema.Types.Mixed,
                   required: true
-            }
+            },
+            totalComment: { type: Number, default: 0 }
       },
       { timestamps: true, collection: COLLECTION_NAME }
 )

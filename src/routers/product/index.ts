@@ -16,14 +16,14 @@ productRouter.get('/get-product-shop-name', asyncHandler(ProductController.searc
 productRouter.get('/get-product-care', asyncHandler(ProductController.getAllProductCare))
 productRouter.get('/get-product-similar', asyncHandler(ProductController.getProductSimilar))
 productRouter.get('/get-product-book-all-type', asyncHandler(ProductController.getProductBookAllType))
-
+productRouter.get('/get-product-food-all-type', asyncHandler(ProductController.getProductFoodAllType))
+productRouter.get('/get-product-best-bought', asyncHandler(ProductController.getProductBestBought))
 
 productRouter.use(authentication)
 productRouter.get('/protect-product/:product_id', asyncHandler(ProductController.protectProduct))
 
 productRouter.post('/create-base-product-id', asyncHandler(ProductController.createBaseProductId))
 productRouter.post('/upload-product-thumb', upload.single('file'), asyncHandler(ProductController.uploadProductThumb))
-// productRouter.post('/update-product-thumb', upload.single('file'), asyncHandler(ProductController.updateProductThumb))
 productRouter.post(
       '/upload-product-description-image-one',
       upload.single('file'),

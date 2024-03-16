@@ -1,7 +1,7 @@
 import { Document, Schema, Types, model } from 'mongoose'
 
 const DOCUMENT_NAME = 'KeyStore'
-const COLLECTION_NAME = 'Keystores'
+const COLLECTION_NAME = 'keystores'
 
 export interface IKeyStoreDoc extends Document {
       user_id: Types.ObjectId

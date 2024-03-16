@@ -1,7 +1,8 @@
 import { Document, Schema, Types, model } from 'mongoose'
+import { IProductDoc } from './product.model'
 
 const DOCUMENT_NAME = 'Shop'
-const COLLECTION_NAME = 'Shops'
+const COLLECTION_NAME = 'shops'
 
 export type Cloudinary = {
       secure_url: string
@@ -14,6 +15,9 @@ export type TShop = {
       shop_avatar: Cloudinary
       shop_avatar_used: Cloudinary[]
       shop_avatar_default: string
+      shop_products: Types.ObjectId[]
+      shop_vote: number
+      shop_count_total_vote: number
 }
 
 export type TShopDoc = TShop & Document
@@ -41,7 +45,18 @@ export const shopSchema = new Schema<TShopDoc>(
                         }
                   ],
                   default: []
-            }
+            },
+            shop_vote: {
+                  type: Number,
+                  default: 0,
+                  required: true
+            },
+            shop_count_total_vote: {
+                  type: Number,
+                  default: 0,
+                  required: true
+            },
+            shop_products: [{ type: Schema.Types.ObjectId, ref: 'Product', require: true }]
       },
       {
             timestamps: true,
@@ -62,13 +77,7 @@ export type ProductShopDoc = ProductShop & Document
 
 export const productShopSchema = new Schema<ProductShopDoc>(
       {
-            shop_id: { type: Schema.Types.ObjectId, ref: 'Shop', require: true },
-            products: [
-                  new Schema({
-                        product_id: { type: Schema.Types.ObjectId, ref: 'Product', require: true },
-                        state: { type: String, enum: ['Active', 'Delete', 'Blocck'], default: 'Active', require: true }
-                  })
-            ]
+            shop_id: { type: Schema.Types.ObjectId, ref: 'Shop', require: true }
       },
       { timestamps: true, collection: COLLLECTION_NAME_PRODUCT_SHOP }
 )

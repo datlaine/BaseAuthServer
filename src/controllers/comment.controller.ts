@@ -8,8 +8,16 @@ class CommentController {
             return new OK({ metadata: await CommentService.addComment(req) }).send(res)
       }
 
+      static async deleteComment(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await CommentService.deleteComment(req) }).send(res)
+      }
+
       static async meComment(req: IRequestCustom, res: Response, next: NextFunction) {
             return new OK({ metadata: await CommentService.getMeComment(req) }).send(res)
+      }
+
+      static async getCommentCore(req: IRequestCustom, res: Response, next: NextFunction) {
+            return new OK({ metadata: await CommentService.getCommentCore(req) }).send(res)
       }
 
       static async getAllCommentProduct(req: IRequestCustom, res: Response, next: NextFunction) {

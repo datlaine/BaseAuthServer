@@ -10,8 +10,12 @@ import productModel, { ProductType } from '~/models/product.model'
 import { TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
 import CommentRepository from '~/repositories/comment.repository'
+import ProductRepository from '~/repositories/product.repository'
+import ShopRepository from '~/repositories/shop.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
+import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
+import { userProductSeeUnique } from '~/utils/user.utils'
 
 class ProductService {
       static async searchQuery(req: IRequestCustom) {
@@ -169,13 +173,28 @@ class ProductService {
       }
 
       static async getAllProduct(req: IRequestCustom) {
+            const { page, limit } = req.query
+            const PAGE = Number(page)
+            const LIMIT = Number(limit)
+            const SKIP = LIMIT * (PAGE - 1)
+
             const products = await productModel
                   .find({ isProductFull: true })
-                  .limit(36)
+                  .skip(SKIP)
+                  .limit(LIMIT)
                   .sort({ product_price: 1 })
                   .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
+                  .lean()
             const count = products.length
-            return { products: products, count }
+
+            // await sleep(7000)
+            const admin = await userModel.findOne({ roles: 'Admin' })
+            const shopAdmin = await shopModel
+                  .findOne({ owner: new Types.ObjectId(admin?._id) })
+                  .select('shop_name shop_avatar shop_avatar_default')
+                  .lean()
+
+            return { products: products, count, shopAdmin }
       }
 
       static async getAllProductCare(req: IRequestCustom) {
@@ -198,74 +217,93 @@ class ProductService {
                   .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
                   .limit(35)
 
+            console.log({ products: JSON.stringify(products) })
+
+            return { products }
+      }
+
+      static async getProductBestBought(req: IRequestCustom) {
+            const { page, limit } = req.query
+
+            const PAGE = Number(page)
+            const LIMIT = Number(limit)
+
+            const products = await productModel
+                  .find({})
+                  .limit(LIMIT)
+                  .sort({ product_is_bought: -1 })
+                  .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
             return { products }
       }
 
       static async getProductBookAllType(req: IRequestCustom) {
-            const productQuery = {product_type: 'Book'}
-            const productQueryManga = {product_type: 'Book', 'attribute.type': 'Manga'}
-            const productQueryNovel = {product_type: 'Book', 'attribute.type': 'Novel'}
-            const productQueryDetective = {product_type: 'Book', 'attribute.type': 'Detective'}
+            const productQuery = { product_type: 'Book' }
+            const productQueryManga = { product_type: 'Book', 'attribute.type': 'Manga' }
+            const productQueryNovel = { product_type: 'Book', 'attribute.type': 'Novel' }
+            const productQueryDetective = { product_type: 'Book', 'attribute.type': 'Detective' }
 
+            const text = await ProductRepository.getProductDetai({ product_type: 'Book' })
 
+            const products = await productModel
+                  .find(productQuery)
+                  .select('_id product_thumb_image product_name product_votes product_price')
+            const productManga = await productModel
+                  .find(productQueryManga)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.type')
+            const productNovel = await productModel
+                  .find(productQueryNovel)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.type')
+            const productDetective = await productModel
+                  .find(productQueryDetective)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.type')
 
+            return { products, manga: productManga, novel: productNovel, detective: productDetective, test: text }
+      }
 
-            const products = await productModel.find(productQuery).select('_id product_thumb_image product_name product_votes product_price')
-            const productManga = await productModel.find(productQueryManga).select('_id product_thumb_image product_name product_votes product_price attribute.type')
-            const productNovel = await productModel.find(productQueryNovel).select('_id product_thumb_image product_name product_votes product_price attribute.type')
-            const productDetective = await productModel.find(productQueryDetective).select('_id product_thumb_image product_name product_votes product_price attribute.type')
+      static async getProductFoodAllType(req: IRequestCustom) {
+            const productQuery = { product_type: 'Food' }
+            const productQueryFastFood = { product_type: 'Food', 'attribute.type': 'Fast food' }
+            const productQueryCannedGood = { product_type: 'Food', 'attribute.type': 'Canned Goods' }
+            const productQueryDrinks = { product_type: 'Food', 'attribute.type': 'Drinks' }
 
+            const products = await productModel
+                  .find(productQuery)
+                  .select('_id product_thumb_image product_name product_votes product_price')
+            const productFastFood = await productModel
+                  .find(productQueryFastFood)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.product_food_type')
+            const productCannedGood = await productModel
+                  .find(productQueryCannedGood)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.type')
+            const productDrinks = await productModel
+                  .find(productQueryDrinks)
+                  .select('_id product_thumb_image product_name product_votes product_price attribute.type')
 
-            return {products, manga: productManga, novel: productNovel, detective: productDetective}
-
+            return { products, fastFood: productFastFood, cannedGood: productCannedGood, drinks: productDrinks }
       }
 
       static async getProductWithId(req: IRequestCustom) {
             const id = req.params.id
-            console.log({ id })
             const product = await productModel.findOne({ _id: new mongoose.Types.ObjectId(id), product_state: true }).populate('shop_id')
-            const { user } = req
-            console.log({ user })
 
+            // const demo = await ShopRepository.getTotalCommentAndVote({ shop_id: new Types.ObjectId(product?.shop_id._id) })
             const client_id = req.headers[HEADER.CLIENT_ID]
             if (client_id) {
-                  const userDocument = await userModel.findOne({ _id: new Types.ObjectId(client_id as string) })
-
-                  // console.log({ productSee: JSON.stringify(userDocument?.product_see) })
-
-                  const see = await userModel.findOneAndUpdate(
-                        { _id: new Types.ObjectId(client_id as string) },
-                        { $addToSet: { product_see: { product_id: new Types.ObjectId(product?._id) } } },
-                        { new: true }
-                  )
+                  const foundShop = await shopModel.findOne({ _id: new Types.ObjectId(product?.shop_id._id) })
+                  if (foundShop?.owner.toString() !== (client_id as string)) {
+                        await userProductSeeUnique({ user_id: new Types.ObjectId(client_id as string), product_id: new Types.ObjectId(id) })
+                  }
             }
-            const calcVoteAgain: { avgProductVote: number; totalComment: number } = await CommentRepository.calcTotalAndAvgProduct({
-                  product_id: new Types.ObjectId(id)
-            })
 
             const detailComment = await CommentRepository.getCommentDetail({ product_id: new Types.ObjectId(id) })
-            const result = await commentModel.aggregate([
-                  {
-                        $match: {
-                              comment_product_id: new Types.ObjectId(id as string)
-                        }
-                  },
 
-                  {
-                        $group: {
-                              _id: '$comment_vote',
-                              count: { $sum: 1 }
-                        }
-                  }
-            ])
-
-            console.log({ detailComment, result })
             if (!product) return { product: null }
             return {
                   product,
-                  totalComment: calcVoteAgain?.totalComment || 0,
-                  avg: calcVoteAgain?.avgProductVote || product.product_votes,
+                  totalComment: product.totalComment,
+                  avg: product.product_votes,
                   detailComment
+                  // demo
             }
       }
 
@@ -305,14 +343,27 @@ class ProductService {
                   { new: true, upsert: true }
             )
             if (!deleteProduct) throw new BadRequestError({ detail: 'Xóa sản phẩm thất bại' })
+            const foundShop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
+            console.log({ foundShop, user: user?._id, product_id })
 
-            const foundShop = await shopModel.findOne({ onwer: new Types.ObjectId(user?._id) })
+            if (foundShop) {
+                  const deleteProductShop = foundShop?.shop_products.filter((p) => p.toString() !== product_id.toString())
+                  foundShop.shop_products = deleteProductShop
+                  await foundShop.save()
+                  const calcShop: { shop_vote: number; shop_total_comment: number } = await ShopRepository.getTotalCommentAndVote({
+                        shop_id: new Types.ObjectId(foundShop._id)
+                  })
+                  foundShop.shop_vote = calcShop?.shop_vote || 4.5
+                  foundShop.shop_count_total_vote = calcShop?.shop_total_comment || 0
+                  await foundShop.save()
+                  console.log({ foundShop, user: user?._id, calcShop })
+            }
 
-            const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
-            const productShopUpdate = { $set: { products: { state: 'Delete' } } }
-            const productShopOptions = { new: true, upsert: true }
+            // const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
+            // const productShopUpdate = { $set: { products: { state: 'Delete' } } }
+            // const productShopOptions = { new: true, upsert: true }
 
-            await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
+            // await productShopModel.findOneAndUpdate(productShopQuery, productShopUpdate, productShopOptions)
 
             const query = { notification_user_id: new Types.ObjectId(user?._id) }
             const update = {

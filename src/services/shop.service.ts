@@ -1,9 +1,9 @@
-import { Types } from 'mongoose'
+import { SortOrder, Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { notificationModel } from '~/models/notification.model'
-import productModel from '~/models/product.model'
+import productModel, { IProduct } from '~/models/product.model'
 import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
 import { renderNotificationSystem } from '~/utils/notification.util'
@@ -131,6 +131,57 @@ class ShopService {
             })
 
             return { shops: shop_unique }
+      }
+
+      static async getShopInfoOfProduct(req: IRequestCustom) {
+            const { shop_id } = req.query
+
+            const foundShop = await shopModel.findOne({ _id: new Types.ObjectId(shop_id as string) })
+
+            return { shop: foundShop }
+      }
+
+      static async getShopId(req: IRequestCustom) {
+            const { shop_id } = req.query
+            const shop = await shopModel.findOne({ _id: new Types.ObjectId(shop_id as string) })
+
+            return { shop }
+      }
+
+      static async getProductFilter(req: IRequestCustom) {
+            const { page, limit, shop_id, sort, inc } = req.query
+            const PAGE = Number(page)
+            const INC = Number(inc)
+
+            const LIMIT = Number(limit)
+            const SKIP = LIMIT * (PAGE - 1)
+            const filter = { [sort as string]: INC }
+            const shopQuery = { _id: new Types.ObjectId(shop_id as string) }
+            // const shop = await shopModel.findOne(shopQuery).populate('shop_products.product_id')
+            const shop = await shopModel.aggregate([
+                  { $match: { _id: new Types.ObjectId(shop_id as string) } },
+                  { $unwind: '$shop_products' },
+                  {
+                        $lookup: {
+                              from: 'products',
+                              localField: 'shops.products.product_id',
+                              foreignField: '_id',
+                              as: 'product'
+                        }
+                  },
+                  {
+                        $unwind: '$product'
+                  },
+                  {
+                        $project: {
+                              product: 1
+                        }
+                  }
+            ])
+
+            // .sort(filter as { [key: string]: SortOrder | { $meta: any } } | [string, SortOrder][] | null | undefined)
+
+            return { shop }
       }
 }
 

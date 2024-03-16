@@ -134,12 +134,7 @@ export const userSchema = new Schema<UserDocument>(
                         }
                   ]
             },
-            product_see: [
-                  new Schema({
-                        product_id: { type: Schema.Types.ObjectId, ref: 'Product', require: true },
-                        time: { type: Date, default: Date.now, require: true }
-                  })
-            ],
+            product_see: [{ type: Schema.Types.ObjectId, ref: 'Product', require: true }],
             user_address_count: { type: Number, default: 0 }
       },
       { timestamps: true, collection: COLLECTION_NAME }

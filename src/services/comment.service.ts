@@ -1,10 +1,12 @@
 import { Types } from 'mongoose'
-import { BadRequestError } from '~/Core/response.error'
+import { BadRequestError, NotFoundError } from '~/Core/response.error'
 import { HEADER, IRequestCustom } from '~/middlewares/authentication'
 import { commentModel } from '~/models/comment.model'
 import { notificationModel } from '~/models/notification.model'
 import productModel from '~/models/product.model'
+import { shopModel } from '~/models/shop.model'
 import CommentRepository from '~/repositories/comment.repository'
+import ShopRepository from '~/repositories/shop.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
@@ -26,9 +28,10 @@ export type TotalPage = {
 class CommentService {
       static async addComment(req: IRequestCustom) {
             const { content, countStar, product_id } = req.body
-            const { state } = req.query
+            const { state, mode } = req.query
             const { user } = req
 
+            //@comment section
             const commentQuery = {
                   comment_product_id: new Types.ObjectId(product_id),
 
@@ -36,7 +39,7 @@ class CommentService {
             }
             let commentUpdate = {}
             const option = { new: true, upsert: true }
-
+            //@comment image
             if (state === 'file') {
                   const { file } = req
 
@@ -66,24 +69,118 @@ class CommentService {
             }
 
             const commentDocument = await commentModel.findOneAndUpdate(commentQuery, commentUpdate, option)
+
+            //@product section
             const calcVoteAgain: { avgProductVote: number; totalComment: number } = await CommentRepository.calcTotalAndAvgProduct({
                   product_id: new Types.ObjectId(product_id)
             })
-
             const productQuery = { _id: new Types.ObjectId(product_id) }
-            const productUpdate = {
-                  $set: { product_votes: Number(calcVoteAgain?.avgProductVote || countStar) }
+            let productUpdate
+            if (mode === 'UPLOAD') {
+                  productUpdate = {
+                        $set: { product_votes: Number(calcVoteAgain?.avgProductVote || countStar) },
+                        $inc: { totalComment: 1 }
+                  }
+            } else {
+                  productUpdate = {
+                        $set: { product_votes: Number(calcVoteAgain?.avgProductVote || countStar) }
+                  }
             }
             const productOption = { new: true, upsert: true }
-            const productDoc = await productModel.findOneAndUpdate(productQuery, productUpdate, productOption)
+            const productDoc = await productModel
+                  .findOneAndUpdate(productQuery, productUpdate, productOption)
+                  .populate({ path: 'shop_id', select: { _id: 1 } })
 
+            //@shop section
+            const shop_id = productDoc?.shop_id._id
+            const calcShop: { shop_vote: number; shop_total_comment: number } = await ShopRepository.getTotalCommentAndVote({
+                  shop_id: new Types.ObjectId(shop_id)
+            })
+
+            console.log({ calcShop, shop_id })
+            const shopQuery = { _id: new Types.ObjectId(shop_id) }
+            const shopUpdate = {
+                  shop_vote: calcShop.shop_vote,
+                  shop_count_total_vote: calcShop.shop_total_comment
+            }
+            await shopModel.findOneAndUpdate(shopQuery, shopUpdate)
+
+            //@notification section
             const notificationQuery = { notification_user_id: new Types.ObjectId(user?._id) }
             const notificationUpdate = { push: { notifications_message: [renderNotificationSystem('Bạn vừa đăng một nhận xét')] } }
             const notificationOption = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(notificationQuery, notificationUpdate, notificationOption)
 
-            const a = await notificationModel.findOneAndUpdate(notificationQuery, notificationUpdate, notificationOption)
             // console.log({ a })
+
             return { comment: commentDocument }
+      }
+
+      static async deleteComment(req: IRequestCustom) {
+            const { product_id } = req.query
+            const { user } = req
+
+            //@comment section
+            const commentQuery = {
+                  comment_user_id: new Types.ObjectId(user?._id),
+                  comment_product_id: new Types.ObjectId(product_id as string)
+            }
+            const commentDocument = await commentModel.findOne(commentQuery)
+            if (!commentDocument) {
+                  return new NotFoundError({ detail: 'Không tìm thấy comment' })
+            }
+
+            //@product section
+            const productQuery = { _id: new Types.ObjectId(commentDocument?.comment_product_id) }
+            const foundProduct = await productModel.findOne(productQuery).populate({ path: 'shop_id', select: { _id: 1 } })
+            if (!foundProduct) {
+                  return new NotFoundError({ detail: 'Không tìm thấy sản phẩm' })
+            }
+            //star =(( lấy tổng comment * số lượng votes) - số votes bị xóa) / (tổng số lượng comment  - 1)
+            const calcAvg = foundProduct?.totalComment * foundProduct?.product_votes - commentDocument?.comment_vote
+            const totalCommentNew = foundProduct.totalComment - 1 > 0 ? foundProduct.totalComment - 1 : 0
+            let star = 0
+            if (totalCommentNew === 0) {
+                  star = 4.5
+            } else {
+                  star = calcAvg / totalCommentNew || 0
+            }
+            ;(foundProduct.totalComment -= 1), (foundProduct.product_votes = star)
+            await foundProduct.save()
+
+            //@shop section
+            const shop_id = foundProduct.shop_id._id
+            const calcShop: { shop_vote: number; shop_total_comment: number } = await ShopRepository.getTotalCommentAndVote({
+                  shop_id: new Types.ObjectId(shop_id)
+            })
+            const shopQuery = { _id: new Types.ObjectId(shop_id) }
+            const shopUpdate = { $set: { shop_vote: calcShop.shop_vote, shop_count_total_vote: calcShop.shop_total_comment } }
+            await shopModel.findOneAndUpdate(shopQuery, shopUpdate)
+
+            const deleteComment = await commentModel.deleteOne(commentQuery)
+            if (!deleteComment) {
+                  return new BadRequestError({ detail: 'Xóa không thành công' })
+            }
+            await sleep(5000)
+
+            return { message: `Đã xóa thành công comment id ${commentDocument._id}` }
+      }
+
+      static async getCommentCore(req: IRequestCustom) {
+            const { product_id } = req.query
+            const product = await productModel.findOne({ _id: new Types.ObjectId(product_id as string) })
+            const calcVoteAgain: { avgProductVote: number; totalComment: number } = await CommentRepository.calcTotalAndAvgProduct({
+                  product_id: new Types.ObjectId(product_id as string)
+            })
+
+            const detailComment = await CommentRepository.getCommentDetail({ product_id: new Types.ObjectId(product_id as string) })
+
+            return {
+                  totalCommentProduct: calcVoteAgain?.totalComment,
+                  comment_avg: calcVoteAgain?.avgProductVote,
+                  detailComment,
+                  vote: product?.product_votes
+            }
       }
 
       static async getMeComment(req: IRequestCustom) {
