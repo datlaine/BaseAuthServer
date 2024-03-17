@@ -38,6 +38,23 @@ class ProductService {
             return { products, shops }
       }
 
+      static async seachNameProduct(req: IRequestCustom) {
+            const { page, limit, text } = req.query
+            const PAGE = Number(page)
+            const LIMIT = Number(limit)
+            const SKIP = LIMIT * (PAGE - 1)
+
+            console.log({ text })
+
+            const products = await productModel
+                  .find({ $text: { $search: text as string } })
+                  .select('product_name _id product_thumb_image product_votes')
+                  .skip(SKIP)
+                  .limit(LIMIT)
+
+            return { shop: { shop_products: products } }
+      }
+
       static async createBaseProductId(req: IRequestCustom) {
             const { user } = req
             const foundShop = await shopModel.findOne({ owner: user?._id })

@@ -15,6 +15,10 @@ class ProductController {
             new OK({ metadata: await ProductService.searchQuery(req) }).send(res)
       }
 
+      static async seachNameProduct(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.seachNameProduct(req) }).send(res)
+      }
+
       static async createBaseProductId(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.createBaseProductId(req) }).send(res)
       }

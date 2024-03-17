@@ -27,7 +27,7 @@ export interface IProduct {
       product_state: boolean
       product_votes: number
       product_available: number
-
+      product_date_create?: Date
       // product_comment: TComment[]
       isProductFull?: boolean
       expireAt?: Date
@@ -85,6 +85,7 @@ export const productSchema = new Schema<IProductDoc>(
             product_state: { type: Boolean, default: false },
             product_votes: { type: Number, required: true },
             product_available: { type: Number, require: true },
+            product_date_create: { type: Date, default: Date.now },
             // product_comment: {
             //       type: [{ product_comment_id: Schema.Types.ObjectId, ref: 'Comment' }],
             //       default: []
