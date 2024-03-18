@@ -12,7 +12,7 @@ import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 class ShopService {
       static async registerShop(req: IRequestCustom) {
-            const { shop_name, data } = req.body
+            const { shop_name, data, shop_description } = req.body
             const { user } = req
             const { file } = req
             const { state, mode } = req.query
@@ -23,7 +23,7 @@ class ShopService {
                   const folder = `user/${user?._id}/shop`
                   const result = await uploadToCloudinary(file, folder)
                   update = {
-                        $set: { shop_name, shop_avatar: { secure_url: result.secure_url, public_id: result.public_id } }
+                        $set: { shop_name, shop_avatar: { secure_url: result.secure_url, public_id: result.public_id }, shop_description }
                   }
             }
 
@@ -155,33 +155,29 @@ class ShopService {
 
             const LIMIT = Number(limit)
             const SKIP = LIMIT * (PAGE - 1)
-            const filter = { [sort as keyof IProduct]: INC }
+            const filter = { [sort as keyof IProduct]: INC, _id: 1 }
 
             const shopQuery = { _id: new Types.ObjectId(shop_id as string) }
 
-            const shop = await shopModel
-                  .findOne(shopQuery)
-                  // .skip(SKIP)
-                  // .limit(LIMIT)
-                  .populate({
-                        path: 'shop_products',
-                        options: {
-                              skip: SKIP,
-                              limit: LIMIT,
-                              select: {
-                                    _id: 1,
-                                    product_name: 1,
-                                    product_price: 1,
-                                    product_thumb_image: 1,
-                                    product_votes: 1,
-                                    product_is_bought: 1,
-                                    product_desc_image: 1
-                              },
-                              sort: filter
+            const shop = await shopModel.findOne(shopQuery).populate({
+                  path: 'shop_products',
+                  options: {
+                        sort: filter,
+                        skip: SKIP,
+                        limit: LIMIT,
+                        select: {
+                              _id: 1,
+                              product_name: 1,
+                              product_price: 1,
+                              product_thumb_image: 1,
+                              product_votes: 1,
+                              product_is_bought: 1,
+                              product_desc_image: 1
                         }
-                  })
+                  }
+            })
 
-            console.log({ SKIP, LIMIT })
+            console.log({ SKIP, LIMIT, page, limit, sort })
             return { shop: shop || { shop_products: [] } }
       }
 }

@@ -1,10 +1,6 @@
 import { IRequestCustom } from '~/middlewares/authentication'
 import SelectData from '~/utils/SelectData'
-import Convert from '~/utils/convert'
-import UserService from './user.service'
 import userModel from '~/models/user.model'
-import { NextFunction } from 'express'
-import path from 'path'
 import cloudinary from '~/configs/cloundinary.config'
 import { config } from 'dotenv'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
@@ -12,6 +8,10 @@ import AccountRepository from '~/repositories/account.repositort'
 import { Types } from 'mongoose'
 import { renderNotificationSystem } from '~/utils/notification.util'
 import { notificationModel } from '~/models/notification.model'
+import bcrypt from 'bcrypt'
+import { BadRequestError, NotFoundError } from '~/Core/response.error'
+import sleep from '~/utils/sleep'
+import Convert from '~/utils/convert'
 
 config()
 class AccountService {
@@ -179,8 +179,6 @@ class AccountService {
             return { user: update }
       }
 
-      static async updatePassword(req: IRequestCustom) {}
-
       static async addAddress(req: IRequestCustom) {
             const { user } = req
             const { addressPayload } = req.body
@@ -219,6 +217,52 @@ class AccountService {
             const updateUser = await userModel.findOneAndUpdate(query, update, option)
 
             return { user: updateUser }
+      }
+
+      static async securityPassword(req: IRequestCustom) {
+            const { user } = req
+            const { password } = req.body
+            const userQuery = { _id: new Types.ObjectId(user?._id) }
+            const foundUser = await userModel.findOne(userQuery)
+            if (!foundUser) throw new NotFoundError({ detail: 'Không tìm thấy user' })
+            const comparePass = await bcrypt.compareSync(password, foundUser?.password)
+            await sleep(5000)
+            return { message: comparePass ? true : false }
+      }
+
+      static async updateEmail(req: IRequestCustom) {
+            const { user } = req
+            const { password, newEmail } = req.body
+            const userQuery = { _id: new Types.ObjectId(user?._id) }
+            const foundUser = await userModel.findOne(userQuery)
+            if (!foundUser) throw new NotFoundError({ detail: 'Không tìm thấy user' })
+            const comparePass = await bcrypt.compareSync(password, foundUser?.password)
+            if (!comparePass) {
+                  throw new BadRequestError({ detail: 'Quá trình cập nhập xảy ra lỗi' })
+            }
+            foundUser.email = newEmail || foundUser.email
+            await foundUser.save()
+            await sleep(5000)
+
+            return { user: foundUser }
+      }
+
+      static async updatePassword(req: IRequestCustom<{ password: string; newPassword: string }>) {
+            const { user } = req
+            const { newPassword, password } = req.body
+
+            const userQuery = { _id: new Types.ObjectId(user?._id) }
+            const foundUser = await userModel.findOne(userQuery)
+            if (!foundUser) throw new NotFoundError({ detail: 'Không tìm thấy user' })
+            const comparePass = await bcrypt.compareSync(password, foundUser?.password)
+            if (!comparePass) {
+                  throw new BadRequestError({ detail: 'Sai mật khẩu' })
+            }
+            const hashPassword = await bcrypt.hash(newPassword, 10)
+            foundUser.password = hashPassword
+            await foundUser.save()
+            await sleep(5000)
+            return { message: true, user: SelectData.omit(Convert.convertPlantObject(foundUser), ['password']) }
       }
 }
 

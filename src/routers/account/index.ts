@@ -21,5 +21,8 @@ accountRouter.post('/deleteAvatar', asyncHandler(AccountController.deleteAvatar)
 accountRouter.post('/add-address', asyncHandler(AccountController.addAddress))
 accountRouter.post('/set-address-default', asyncHandler(AccountController.setAddressDefault))
 accountRouter.delete('/delete-address/:address_id', asyncHandler(AccountController.deleteAddress))
+accountRouter.post('/check-password', asyncHandler(AccountController.securityPassword))
+accountRouter.post('/update-email', asyncHandler(AccountController.updateEmail))
+accountRouter.post('/update-password', asyncHandler(AccountController.updatePassword))
 
 export default accountRouter

@@ -17,6 +17,7 @@ export type TShop = {
       shop_avatar_default: string
       shop_products: Types.ObjectId[]
       shop_vote: number
+      shop_description: string
       shop_count_total_vote: number
 }
 
@@ -54,6 +55,11 @@ export const shopSchema = new Schema<TShopDoc>(
             shop_count_total_vote: {
                   type: Number,
                   default: 0,
+                  required: true
+            },
+
+            shop_description: {
+                  type: String,
                   required: true
             },
             shop_products: [{ type: Schema.Types.ObjectId, ref: 'Product', require: true }]

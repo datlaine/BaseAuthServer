@@ -12,12 +12,6 @@ class AccountController {
             new OK({ metadata: await AccountService.updateAvatar(req) }).send(res)
       }
 
-      static async updateEmail() {}
-
-      static async updatePassword(req: IRequestCustom, res: Response, next: NextFunction) {
-            new OK({ metadata: await AccountService.updatePassword(req) }).send(res)
-      }
-
       static async updateInfo(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await AccountService.updateInfo(req) }).send(res)
       }
@@ -44,6 +38,18 @@ class AccountController {
 
       static async deleteAddress(req: IRequestCustom, res: Response, next: NextFunction) {
             new ResponseSuccess({ metadata: await AccountService.deleteAddress(req) }).send(res)
+      }
+
+      static async securityPassword(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.securityPassword(req) }).send(res)
+      }
+
+      static async updateEmail(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.updateEmail(req) }).send(res)
+      }
+
+      static async updatePassword(req: IRequestCustom, res: Response, next: NextFunction) {
+            new ResponseSuccess({ metadata: await AccountService.updatePassword(req) }).send(res)
       }
 }
 
