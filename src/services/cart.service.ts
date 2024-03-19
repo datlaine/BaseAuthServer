@@ -80,8 +80,6 @@ class CartService {
       static async getCountProductCart(req: IRequestCustom) {
             const { user } = req
             const countCart = await cartModel.findOne({ cart_user_id: new mongoose.Types.ObjectId(user?._id) })
-            console.log({ countCart })
-            // if (!countCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
             return { count: countCart?.cart_count_product }
       }
 
@@ -114,12 +112,6 @@ class CartService {
       static async changeQuantityProductCart(req: IRequestCustom) {
             const { user } = req
             const { mode, quantity, product_id } = req.body
-            let update
-            // const foundCart = await cartModel.findOne({ _id: cart_id })
-            // if (!foundCart) throw new BadRequestError({ detail: 'Lỗi máy chủ' })
-            // const updateQuantity: number = foundCart.cart_quantity + Number(quantity)
-            // const updatePrice: number = updateQuantity * foundCart.cart_product_price_origin
-            // console.log({ updateQuantity, updatePrice })
             console.log({ body: req.body })
             const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
             const option = { new: true, upsert: true }
@@ -148,7 +140,6 @@ class CartService {
       static async selectAllCart(req: IRequestCustom) {
             const { user } = req
             const { select } = req.body
-            console.log({ body: req.body })
 
             const product_list_id = await productModel.distinct('_id', { product_state: true })
             const updateAllCart = await cartModel.updateMany(
@@ -174,7 +165,6 @@ class CartService {
             const option = { new: true, upsert: true }
             const updateCart = await cartModel.findOneAndUpdate(query, update, option)
             const result = updateCart?.cart_products.find((product) => product.product_id.toString() === product_id.toString())
-            // const foundCartItem = await cartModel.findOne(query)
             console.log({ updateCart: JSON.stringify(updateCart) })
             return { cartUpdateItem: result }
       }
@@ -195,25 +185,7 @@ class CartService {
                   select: 'product_price product_thumb_image product_available'
             })
 
-            // products.forEach(async (product) => {
-            //       const checkProducts = await productModel.findOne({ _id: new Types.ObjectId(product.product_id) })
-            //       if (checkProducts!.product_available < product.quantity) {
-            //             throw new BadRequestError({
-            //                   detail: `Sản phẩm ${checkProducts?.product_name} có lượng mua nhiều hơn lượng sản phẩm trong kho`
-            //             })
-            //             return
-            //       }
-            // })
-
             const filterCarts = carts?.cart_products.filter((product) => product.isSelect === true)
-            // filterCarts?.forEach(async (product) => {
-            //       const checkProducts = await productModel.findOne({ _id: new Types.ObjectId(product.product_id) })
-            //       if (checkProducts!.product_available < product.quantity) {
-            //             return new BadRequestError({
-            //                   detail: `Sản phẩm ${checkProducts?.product_name} có lượng mua nhiều hơn lượng sản phẩm trong kho`
-            //             })
-            //       }
-            // })
 
             return { carts: { cart_products: filterCarts } }
       }

@@ -188,6 +188,10 @@ class ProductController {
       static async getProductFilter(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await ProductService.getProductFilter(req) }).send(res)
       }
+
+      static async getProductTopSearch(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await ProductService.getProductTopSearch(req) }).send(res)
+      }
 }
 
 export default ProductController

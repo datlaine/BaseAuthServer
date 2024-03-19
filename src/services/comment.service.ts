@@ -97,7 +97,6 @@ class CommentService {
                   shop_id: new Types.ObjectId(shop_id)
             })
 
-            console.log({ calcShop, shop_id })
             const shopQuery = { _id: new Types.ObjectId(shop_id) }
             const shopUpdate = {
                   shop_vote: calcShop.shop_vote,
@@ -110,8 +109,6 @@ class CommentService {
             const notificationUpdate = { push: { notifications_message: [renderNotificationSystem('Bạn vừa đăng một nhận xét')] } }
             const notificationOption = { new: true, upsert: true }
             await notificationModel.findOneAndUpdate(notificationQuery, notificationUpdate, notificationOption)
-
-            // console.log({ a })
 
             return { comment: commentDocument }
       }
@@ -325,8 +322,6 @@ class CommentService {
                         .limit(LIMIT)
             }
 
-            // if (client_id) {
-
             const total: TotalPage = (await CommentRepository.getTotalCommentHasImage({
                   product_id: new Types.ObjectId(product_id as string),
                   user_id: new Types.ObjectId(user_id),
@@ -339,12 +334,14 @@ class CommentService {
 
       static async geAllCommentFollowLevel(req: IRequestCustom) {
             const { product_id, minVote = 1, maxVote = 5, page, limit } = req.query
-            console.log({ minVote, maxVote })
+
             const LIMIT = Number(limit)
             const PAGE = Number(page)
             const SKIP = LIMIT * (PAGE - 1)
+
             const MIN_VOTE = Number(minVote)
             const MAX_VOTE = Number(maxVote)
+
             let result
             const user_id = req.headers[HEADER.CLIENT_ID] as string
             if (user_id) {

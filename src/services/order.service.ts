@@ -68,7 +68,7 @@ class OrderService {
             const optionCart = { new: true, upsert: true, multi: true }
             const updateCartDocument = await cartModel.findOneAndUpdate(queryCart, updateCart, optionCart)
 
-            const product_info: { product_name: string; product_quantity: number }[] = []
+            const product_info: { product_name: string; product_quantity: number; product_image: string }[] = []
             //PRODUCT MODEL
             for (let index = 0; index < productId.length; index++) {
                   const queryProduct = { _id: productId[index] }
@@ -85,7 +85,8 @@ class OrderService {
                   const updateProductDocument = await productModel.findOneAndUpdate(queryProduct, updateProduct, optionProduct)
                   product_info.push({
                         product_name: updateProductDocument?.product_name as string,
-                        product_quantity: products[index].quantity
+                        product_quantity: products[index].quantity,
+                        product_image: updateProductDocument?.product_thumb_image.secure_url as string
                   })
             }
 
@@ -145,7 +146,8 @@ class OrderService {
                                           product_quantity: product_info[index].product_quantity,
                                           order_id: elementLast?._id!,
                                           order_product_id: elementLast?.products[index]._id!,
-                                          user_buy_id: user?._id
+                                          user_buy_id: user?._id,
+                                          product_image: product_info[index].product_image
                                     })
                               ]
                         }
@@ -182,10 +184,8 @@ class OrderService {
       }
 
       static async buyAgain(req: IRequestCustom<{ products: CartProduct[] }>) {
-            console.log({ body: JSON.stringify(req.body.products) })
             const { user } = req
             const products = req.body.products
-            console.log({ length: products.length })
             const query = { cart_user_id: new Types.ObjectId(user?._id) }
             const update = { $push: { cart_products: { $each: products, $position: 0 } }, $inc: { cart_count_product: products.length } }
             const option = { new: true, upsert: true }
@@ -198,7 +198,6 @@ class OrderService {
       static async getOrderInfo(req: IRequestCustom) {
             const order_id = req.params.order_id
             const { user } = req
-            console.log({ order_id })
             const query = { order_user_id: new Types.ObjectId(user?._id), 'order_products._id': new Types.ObjectId(order_id) }
             const select = { 'order_products.$': 1 }
             const getOrderInfo = await orderModel

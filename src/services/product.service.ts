@@ -305,7 +305,6 @@ class ProductService {
                   .findOne({ _id: new mongoose.Types.ObjectId(id), product_state: true })
                   .populate({ path: 'shop_id', populate: { path: 'owner', model: 'User', select: { _id: 1 } } })
 
-            // const demo = await ShopRepository.getTotalCommentAndVote({ shop_id: new Types.ObjectId(product?.shop_id._id) })
             const client_id = req.headers[HEADER.CLIENT_ID]
             if (client_id) {
                   const foundShop = await shopModel.findOne({ _id: new Types.ObjectId(product?.shop_id._id) })
@@ -444,6 +443,14 @@ class ProductService {
                   })
                   .skip(getDocument)
                   .limit(LIMIT)
+
+            return { products }
+      }
+
+      static async getProductTopSearch(req: IRequestCustom) {
+            const { limit } = req.query
+            const LIMIT = Number(limit)
+            const products = await productModel.find({}).sort({ product_is_bought: -1 }).skip(0).limit(LIMIT)
 
             return { products }
       }

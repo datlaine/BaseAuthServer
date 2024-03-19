@@ -7,7 +7,7 @@ import userModel from '~/models/user.model'
 import NotificationRepository from '~/repositories/notification.repository'
 import OrderRepository from '~/repositories/order.repo'
 
-export type NotificationType = 'PRODUCT' | 'SYSTEM' | 'ADMIN' | 'SHOP' | 'COMMON'
+export type NotificationType = 'PRODUCT' | 'SYSTEM' | 'ADMIN' | 'SHOP' | 'USER'
 
 class NotificationService {
       static async getMeNotification(req: IRequestCustom) {

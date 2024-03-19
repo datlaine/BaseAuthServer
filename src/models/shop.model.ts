@@ -19,6 +19,7 @@ export type TShop = {
       shop_vote: number
       shop_description: string
       shop_count_total_vote: number
+      shop_count_total_product: number
 }
 
 export type TShopDoc = TShop & Document
@@ -48,6 +49,12 @@ export const shopSchema = new Schema<TShopDoc>(
                   default: []
             },
             shop_vote: {
+                  type: Number,
+                  default: 0,
+                  required: true
+            },
+
+            shop_count_total_product: {
                   type: Number,
                   default: 0,
                   required: true

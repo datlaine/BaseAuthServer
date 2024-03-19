@@ -1,9 +1,17 @@
 import { Types } from 'mongoose'
-import { NotificationMessage, NotificationSystem } from '~/models/notification.model'
+import { NotificationMessage, NotificationSystem, NotificationUser } from '~/models/notification.model'
 
 export const renderNotificationSystem = (message: string) => {
       const notification_attribute: NotificationSystem = {
             notification_type: 'SYSTEM',
+            notification_content: message
+      }
+      return { notification_attribute }
+}
+
+export const renderNotificationUser = (message: string) => {
+      const notification_attribute: NotificationUser = {
+            notification_type: 'USER',
             notification_content: message
       }
       return { notification_attribute }
@@ -38,7 +46,8 @@ export const renderNotificationShop = ({
       order_product_id,
       user_buy_id,
       product_name,
-      product_quantity
+      product_quantity,
+      product_image
 }: {
       message: string
       order_id: Types.ObjectId
@@ -46,6 +55,7 @@ export const renderNotificationShop = ({
       user_buy_id: Types.ObjectId
       product_name: string
       product_quantity: number
+      product_image: string
 }) => {
       const notificationProduct: NotificationMessage = {
             notification_attribute: {
@@ -55,7 +65,8 @@ export const renderNotificationShop = ({
                   order_product_id: new Types.ObjectId(order_product_id),
                   user_buy_id: new Types.ObjectId(user_buy_id),
                   product_name,
-                  product_quantity
+                  product_quantity,
+                  product_image
             }
       }
       return notificationProduct

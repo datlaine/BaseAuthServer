@@ -36,6 +36,7 @@ export type NotificationShop = {
       order_id: Types.ObjectId
       order_product_id: Types.ObjectId
       notification_content: string
+      product_image: string
       user_buy_id: Types.ObjectId
 }
 
@@ -44,8 +45,15 @@ export type NotificationAdmin = {
       notification_content: string
       notification_sender: Types.ObjectId
 }
+
+export type NotificationUser = {
+      notification_type: 'USER'
+      notification_content: string
+      // notification_sender: Types.ObjectId
+}
+
 // export type NotificationAdmin = NotificationCommon
-type NotificationAttribute = NotificationSystem | NotificationProduct | NotificationAdmin | NotificationShop
+type NotificationAttribute = NotificationSystem | NotificationProduct | NotificationAdmin | NotificationShop | NotificationUser
 
 export interface NotificationMessage {
       notification_attribute: NotificationAttribute

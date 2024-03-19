@@ -1,6 +1,8 @@
 import mongoose, { Document, ObjectId, Schema, Types, UpdateWriteOpResult } from 'mongoose'
+import { notificationModel } from '~/models/notification.model'
 import productModel, { IProduct, IProductBook, IProductDoc, IProductFood, productBookModel, productFoodModel } from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
+import { renderNotificationSystem } from '~/utils/notification.util'
 import { shopProductUnique } from '~/utils/shop.utils'
 
 interface IProductStrategy {
@@ -26,7 +28,7 @@ type TProduct = Omit<Omit<IProduct, 'product_desc_image'>, 'product_thumb_image'
 
 class Product implements IProductStrategy {
       private _id: Types.ObjectId
-      private shop_id: Types.ObjectId
+      protected shop_id: Types.ObjectId
       private product_name: string
       private product_price: number
       protected product_type: string
@@ -90,6 +92,7 @@ type ModeForm = 'UPLOAD' | 'UPDATE'
 export class ProductBook extends Product implements IProductStrategy {
       protected attribute: IProductBook
       mode: ModeForm
+      protected shop_id: Types.ObjectId
       constructor({
             _id,
             shop_id,
@@ -119,6 +122,7 @@ export class ProductBook extends Product implements IProductStrategy {
             })
             this.attribute = attribute as IProductBook
             this.mode = mode
+            this.shop_id = shop_id
       }
 
       async createProduct() {
@@ -148,6 +152,16 @@ export class ProductBook extends Product implements IProductStrategy {
                               shop_id: new Types.ObjectId(product?.shop_id._id),
                               product_id: new Types.ObjectId(createProduct._id)
                         })
+                        const checkUser = await shopModel.findOne({ _id: new Types.ObjectId(this.shop_id) })
+                        const query = { notification_user_id: new Types.ObjectId(checkUser?.owner) }
+                        const update = {
+                              $push: {
+                                    notifications_message: renderNotificationSystem('Bạn đã đăng thành công 1 sản phẩm')
+                              },
+                              $inc: { notification_count: 1 }
+                        }
+                        const optionNotification = { new: true, upsert: true }
+                        await notificationModel.findOneAndUpdate(query, update, optionNotification)
                   }
             }
 
@@ -216,6 +230,17 @@ export class ProductFood extends Product implements IProductStrategy {
                               shop_id: new Types.ObjectId(product?.shop_id._id),
                               product_id: new Types.ObjectId(createProduct._id)
                         })
+
+                        const checkUser = await shopModel.findOne({ _id: new Types.ObjectId(this.shop_id) })
+                        const query = { notification_user_id: new Types.ObjectId(checkUser?.owner) }
+                        const update = {
+                              $push: {
+                                    notifications_message: renderNotificationSystem('Bạn đã đăng thành công 1 sản phẩm')
+                              },
+                              $inc: { notification_count: 1 }
+                        }
+                        const optionNotification = { new: true, upsert: true }
+                        await notificationModel.findOneAndUpdate(query, update, optionNotification)
                   }
             }
             return createProduct

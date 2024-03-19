@@ -3,6 +3,7 @@ import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { notificationModel } from '~/models/notification.model'
+import { orderModel } from '~/models/order.model'
 import productModel, { IProduct } from '~/models/product.model'
 import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
@@ -104,16 +105,44 @@ class ShopService {
 
       static async getProductMyShop(req: IRequestCustom) {
             const { user } = req
-            console.log({ id: user?._id })
-            // const foundProductMyShop = await productModel
-            //       .find()
-            //       .populate({ path: 'shop_id', match: { onwer: { $ne: new Types.ObjectId(user?._id) } } })
-            // console.log({ foundProductMyShop })
-            const shop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
-            const foundProductMyShop = await productModel.find({ shop_id: shop?._id, product_state: true })
+            const { page, limit, shop_id, sort, inc } = req.query
+            const shopQuery = { owner: new Types.ObjectId(user?._id) }
 
-            console.log({ foundProductMyShop })
-            return { myProductOfShop: foundProductMyShop }
+            const PAGE = Number(page)
+            const LIMIT = Number(limit)
+            const SKIP = LIMIT * (PAGE - 1)
+
+            const foundOrder = await orderModel
+                  .find({
+                        'order_products.products.shop_id': new Types.ObjectId(shop_id as string)
+                  })
+                  .populate({ path: 'order_products.products.product_id', select: { product_name: 1, product_price: 1 } })
+
+            console.log({ foundOrder })
+
+            const shop = await shopModel.findOne(shopQuery).populate({
+                  path: 'shop_products',
+                  options: {
+                        // sort: filter,
+                        skip: SKIP,
+                        limit: LIMIT,
+                        select: {
+                              _id: 1,
+                              product_name: 1,
+                              product_price: 1,
+                              product_thumb_image: 1,
+                              product_votes: 1,
+                              product_is_bought: 1,
+                              product_desc_image: 1
+                        }
+                  }
+            })
+
+            // const shop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
+            // const foundProductMyShop = await productModel.find({ shop_id: shop?._id, product_state: true })
+
+            // console.log({ foundProductMyShop })
+            return { shop: shop, order: foundOrder }
       }
 
       static async foundShopHasProductType(req: IRequestCustom) {
@@ -179,6 +208,46 @@ class ShopService {
 
             console.log({ SKIP, LIMIT, page, limit, sort })
             return { shop: shop || { shop_products: [] } }
+      }
+
+      static async getOrderMyShop(req: IRequestCustom) {
+            const { user } = req
+            const { page, limit, shop_id } = req.query
+            const orderQuery = {
+                  'order_products.products.shop_id': new Types.ObjectId(shop_id as string)
+            }
+
+            const PAGE = Number(page)
+
+            const LIMIT = Number(limit)
+            const SKIP = LIMIT * (PAGE - 1)
+            const populatePath = 'order_products.products.product_id'
+
+            // const populateSelect = { product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1, _id: 1 }
+            const populateOption = {
+                  select: {
+                        _id: 1,
+                        product_name: 1,
+                        product_price: 1,
+                        product_thumb_image: 1,
+                        product_votes: 1,
+                        product_is_bought: 1
+                  }
+            }
+            const foundOrder = await orderModel
+                  .find(orderQuery)
+                  .populate({
+                        path: populatePath,
+                        options: populateOption
+                  })
+                  .skip(SKIP)
+                  .limit(LIMIT)
+            const PAGE_RESULT = PAGE - 1
+            const start = LIMIT * PAGE_RESULT
+            const end = start + LIMIT
+            // const pagination = foundOrder?.order_products.slice(start, end)
+            // console.log({ start, end })
+            return { orderShop: foundOrder[0] || { order_products: [] } }
       }
 }
 

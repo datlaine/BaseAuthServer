@@ -6,7 +6,7 @@ import { config } from 'dotenv'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 import AccountRepository from '~/repositories/account.repositort'
 import { Types } from 'mongoose'
-import { renderNotificationSystem } from '~/utils/notification.util'
+import { renderNotificationSystem, renderNotificationUser } from '~/utils/notification.util'
 import { notificationModel } from '~/models/notification.model'
 import bcrypt from 'bcrypt'
 import { BadRequestError, NotFoundError } from '~/Core/response.error'
@@ -33,7 +33,7 @@ class AccountService {
             const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
             const updateNotification = {
                   $push: {
-                        notifications_message: renderNotificationSystem('Bạn vừa cập nhập thông tin cá nhân')
+                        notifications_message: renderNotificationUser('Bạn vừa cập nhập thông tin cá nhân')
                   },
                   $inc: { notification_count: 1 }
             }
@@ -63,7 +63,7 @@ class AccountService {
                   const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
                   const updateNotification = {
                         $push: {
-                              notifications_message: renderNotificationSystem('Bạn vừa cập nhập avatar cá nhân')
+                              notifications_message: renderNotificationUser('Bạn vừa cập nhập avatar cá nhân')
                         },
 
                         $inc: { notification_count: 1 }
@@ -97,7 +97,7 @@ class AccountService {
                   const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
                   const updateNotification = {
                         $push: {
-                              notifications_message: renderNotificationSystem('Bạn vừa cập nhập avatar cá nhân')
+                              notifications_message: renderNotificationUser('Bạn vừa cập nhập avatar cá nhân')
                         },
                         $inc: { notification_count: 1 }
                   }
@@ -134,7 +134,7 @@ class AccountService {
             const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
             const updateNotification = {
                   $push: {
-                        notifications_message: renderNotificationSystem('Bạn vừa xóa một hình ảnh cũ')
+                        notifications_message: renderNotificationUser('Bạn vừa xóa một hình ảnh cũ')
                   },
 
                   $inc: { notification_count: 1 }
@@ -168,7 +168,7 @@ class AccountService {
             const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
             const updateNotification = {
                   $push: {
-                        notifications_message: renderNotificationSystem('Bạn vừa xóa hình ảnh đại diện')
+                        notifications_message: renderNotificationUser('Bạn vừa xóa hình ảnh đại diện')
                   },
                   $inc: { notification_count: 1 }
             }
@@ -189,6 +189,17 @@ class AccountService {
             const option = { new: true, upsert: true }
 
             const updateUser = await userModel.findOneAndUpdate(query, update, option)
+
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationUser('Bạn vừa thêm 1 địa chỉ')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
 
             return { user: updateUser }
       }
@@ -226,6 +237,7 @@ class AccountService {
             const foundUser = await userModel.findOne(userQuery)
             if (!foundUser) throw new NotFoundError({ detail: 'Không tìm thấy user' })
             const comparePass = await bcrypt.compareSync(password, foundUser?.password)
+
             await sleep(5000)
             return { message: comparePass ? true : false }
       }
@@ -241,6 +253,16 @@ class AccountService {
                   throw new BadRequestError({ detail: 'Quá trình cập nhập xảy ra lỗi' })
             }
             foundUser.email = newEmail || foundUser.email
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationUser('Bạn vừa thay đổi email')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             await foundUser.save()
             await sleep(5000)
 
@@ -261,6 +283,16 @@ class AccountService {
             const hashPassword = await bcrypt.hash(newPassword, 10)
             foundUser.password = hashPassword
             await foundUser.save()
+            const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
+            const updateNotification = {
+                  $push: {
+                        notifications_message: renderNotificationUser('Bạn vừa thay đổi mật khẩu')
+                  },
+                  $inc: { notification_count: 1 }
+            }
+            const optionNotification = { new: true, upsert: true }
+            await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
+
             await sleep(5000)
             return { message: true, user: SelectData.omit(Convert.convertPlantObject(foundUser), ['password']) }
       }
