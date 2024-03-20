@@ -72,7 +72,7 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
-server.listen(4000, () => {
+server.listen(process.env.PORT, () => {
       console.log('Server is runing')
 })
 
