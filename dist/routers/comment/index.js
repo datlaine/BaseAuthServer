@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const authentication_1 = __importDefault(require("../../middlewares/authentication"));
+const asyncHandler_1 = require("../../helpers/asyncHandler");
+const cloundinary_config_1 = require("../../configs/cloundinary.config");
+const comment_controller_1 = __importDefault(require("../../controllers/comment.controller"));
+const commentRouter = (0, express_1.Router)();
+commentRouter.get('/get-all-comment', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.getAllCommentProduct));
+commentRouter.get('/get-all-comment-image', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.getAllCommentImage));
+commentRouter.get('/get-all-comment-has-image', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.geAllCommentHasImage));
+commentRouter.get('/get-all-comment-follow-level', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.geAllCommentFollowLevel));
+commentRouter.get('/get-comment-core', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.getCommentCore));
+commentRouter.use(authentication_1.default);
+commentRouter.get('/get-me-comment', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.meComment));
+commentRouter.get('/get-me-all-comment', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.getAllCommentMe));
+commentRouter.delete('/delete-comment', (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.deleteComment));
+commentRouter.post('/add-comment', cloundinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(comment_controller_1.default.addComment));
+exports.default = commentRouter;

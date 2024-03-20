@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const cart_controller_1 = __importDefault(require("../../controllers/cart.controller"));
+const asyncHandler_1 = require("../../helpers/asyncHandler");
+const authentication_1 = __importDefault(require("../../middlewares/authentication"));
+const cartRouter = (0, express_1.Router)();
+cartRouter.use(authentication_1.default);
+cartRouter.post('/add-cart', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.addcart));
+cartRouter.get('/cart-get-count-product', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.getCountProductCart));
+cartRouter.get('/cart-get-my-cart', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.getMyCart));
+cartRouter.post('/cart-change-quantity', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.changeQuantityProductCart));
+cartRouter.post('/cart-change-select-all', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.selectAllCart));
+cartRouter.post('/cart-change-select-one', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.selectOneCart));
+cartRouter.get('/cart-pay', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.calculatorPrice));
+cartRouter.delete('/cart-delete/:product_id', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.deleteCart));
+cartRouter.post('/cart-update-address-cart', (0, asyncHandler_1.asyncHandler)(cart_controller_1.default.updateAddressCart));
+exports.default = cartRouter;
