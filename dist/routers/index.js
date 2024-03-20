@@ -26,6 +26,9 @@ const router = (0, express_1.Router)();
 //       return res.json({ query, name })
 // })
 //auth
+router.get('', (req, res, next) => {
+    return res.json({ message: `Xin chào ${process.env.CLIENT_URL}` });
+});
 router.use('/v1/api/auth', auth_1.default);
 router.use('/v1/api/account', account_1.default);
 router.use('/v1/api/product', product_1.default);
