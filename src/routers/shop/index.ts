@@ -12,6 +12,8 @@ shopRouter.get('/get-shop-id', asyncHandler(ShopController.getShopId))
 shopRouter.get('/get-shop-has-product', asyncHandler(ShopController.foundShopHasProductType))
 shopRouter.get('/get-shop-product', asyncHandler(ShopController.getShopInfoOfProduct))
 shopRouter.get('/get-product-best-seller', asyncHandler(ShopController.getProductFilter))
+shopRouter.get('/get-shop-admin', asyncHandler(ShopController.getShopAdmin))
+
 shopRouter.use(authentication)
 shopRouter.post('/register-shop', upload.single('file'), asyncHandler(ShopController.registerShop))
 shopRouter.post('/upload-avatar-shop', upload.single('image'), asyncHandler(ShopController.uploadAvatarShop))

@@ -30,7 +30,7 @@ class ShopService {
 
             if (state === 'no-file') {
                   update = {
-                        $set: { shop_name }
+                        $set: { shop_name, shop_description }
                   }
             }
 
@@ -248,6 +248,16 @@ class ShopService {
             // const pagination = foundOrder?.order_products.slice(start, end)
             // console.log({ start, end })
             return { orderShop: foundOrder[0] || { order_products: [] } }
+      }
+
+      static async getShopAdmin(req: IRequestCustom) {
+            const admin = await userModel.findOne({ roles: 'admin' })
+            const shopAdmin = await shopModel
+                  .findOne({ owner: new Types.ObjectId(admin?._id) })
+                  .select('shop_name shop_avatar shop_avatar_default shop_vote _id shop_count_total_vote')
+                  .lean()
+
+            return { shopAdmin }
       }
 }
 

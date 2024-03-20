@@ -36,7 +36,7 @@ app.use(compression())
 app.use(
       cors({
             credentials: true,
-            origin: ['http://localhost:3000'],
+            origin: [process.env.CLIENT_URL as string],
             exposedHeaders: ['set-cookie']
 
             // origin: 'http://localhost:3000'

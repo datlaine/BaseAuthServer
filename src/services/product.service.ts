@@ -205,13 +205,8 @@ class ProductService {
             const count = products.length
 
             // await sleep(7000)
-            const admin = await userModel.findOne({ roles: 'Admin' })
-            const shopAdmin = await shopModel
-                  .findOne({ owner: new Types.ObjectId(admin?._id) })
-                  .select('shop_name shop_avatar shop_avatar_default')
-                  .lean()
 
-            return { products: products, count, shopAdmin }
+            return { products: products, count }
       }
 
       static async getAllProductCare(req: IRequestCustom) {
