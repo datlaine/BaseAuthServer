@@ -31,7 +31,7 @@ class ProductService {
 
             const shops = await shopModel
                   .find({ $text: { $search: text as string } })
-                  .select('shop_name _id')
+                  .select('shop_name _id shop_avatar')
                   .skip(0)
                   .limit(2)
 

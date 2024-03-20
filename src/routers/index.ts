@@ -24,6 +24,9 @@ const router = Router()
 //       return res.json({ query, name })
 // })
 //auth
+router.get('', (req, res, next) => {
+      return res.json({ message: `Xin chào ${process.env.CLIENT_URL}` })
+})
 router.use('/v1/api/auth', authRouter)
 router.use('/v1/api/account', accountRouter)
 router.use('/v1/api/product', productRouter)
