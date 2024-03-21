@@ -106,7 +106,7 @@ class OrderService {
                                           message: `Mua thành công sản phẩm `,
                                           product_name: product_info[index].product_name,
                                           product_quantity: product_info[index].product_quantity,
-                                          order_id: elementLast!._id as Types.ObjectId
+                                          order_id: elementLast?.products[index]._id as unknown as Types.ObjectId
                                     })
                               ]
                         }
@@ -145,7 +145,7 @@ class OrderService {
                                           message: `Đã bán thành công ${products[index].quantity} sản phẩm`,
                                           product_name: product_info[index].product_name,
                                           product_quantity: product_info[index].product_quantity,
-                                          order_id: elementLast?._id!,
+                                          order_id: elementLast?.products[index]._id as unknown as Types.ObjectId,
                                           order_product_id: elementLast?.products[index]._id!,
                                           user_buy_id: user?._id,
                                           product_image: product_info[index].product_image
@@ -199,7 +199,10 @@ class OrderService {
       static async getOrderInfo(req: IRequestCustom) {
             const order_id = req.params.order_id
             const { user } = req
-            const query = { order_user_id: new Types.ObjectId(user?._id), 'order_products._id': new Types.ObjectId(order_id) }
+            const query = {
+                  order_user_id: new Types.ObjectId(user?._id),
+                  'order_products.products': { $elemMatch: { _id: new Types.ObjectId(order_id) } }
+            }
             const select = { 'order_products.$': 1 }
             const getOrderInfo = await orderModel
                   .findOne(query)
