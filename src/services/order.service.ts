@@ -53,8 +53,8 @@ class OrderService {
             const optionOrder = { new: true, upsert: true, multi: true }
             const updateOrderDocument = await orderModel
                   .findOneAndUpdate(queryOrder, updateOrder, optionOrder)
-                  .populate({ path: 'order_products.products.product_id' })
-                  .populate({ path: 'order_products.products.shop_id' })
+                  // .populate({ path: 'order_products.products.product_id' })
+                  // .populate({ path: 'order_products.products.shop_id' })
 
             console.log({ order: updateOrderDocument })
 
