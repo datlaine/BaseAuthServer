@@ -24,7 +24,7 @@ const orderItemSchema = new Schema(
             order_time_payment: { type: Date, default: Date.now },
             order_total: { type: Number, required: true }
       },
-      { _id: true }
+      { _id: false }
 )
 
 const schemaOrder = new Schema<OrderDoc>(
