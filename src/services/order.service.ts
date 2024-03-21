@@ -210,7 +210,7 @@ class OrderService {
 
                   .lean()
             // .select('order_products.products.quantity')
-            console.log({ getOrderInfo })
+            console.log({ getOrderInfo, user, order_id })
             return { getOrderInfo }
       }
 }
