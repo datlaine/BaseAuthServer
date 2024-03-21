@@ -49,7 +49,7 @@ class OrderService {
 
             //ORDER MODEL
             const queryOrder = { order_user_id: new Types.ObjectId(user?._id) }
-            const updateOrder = { $addToSet: { order_products: { products: products, order_total } } }
+            const updateOrder = { $addToSet: { order_products: { products: products, order_total, _id: new Types.ObjectId() } } }
             const optionOrder = { new: true, upsert: true, multi: true }
             const updateOrderDocument = await orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder)
             // .populate({ path: 'order_products.products.product_id' })

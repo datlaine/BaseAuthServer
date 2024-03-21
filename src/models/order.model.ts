@@ -21,9 +21,9 @@ export type OrderDoc = Order & Document
 const orderItemSchema = new Schema({
       _id: {
             type: Schema.Types.ObjectId,
-            index: true,
-            required: true,
-            auto: true
+            // index: true,
+            required: true
+            // auto: true
       },
       products: [cartProductSchema],
       order_time_payment: { type: Date, default: Date.now },
