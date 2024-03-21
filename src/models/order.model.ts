@@ -18,12 +18,14 @@ export interface Order {
 
 export type OrderDoc = Order & Document
 
-const orderItemSchema = new Schema({
-      // _id: Types.ObjectId,
-      products: [cartProductSchema],
-      order_time_payment: { type: Date, default: Date.now },
-      order_total: { type: Number, required: true }
-})
+const orderItemSchema = new Schema(
+      {
+            products: [cartProductSchema],
+            order_time_payment: { type: Date, default: Date.now },
+            order_total: { type: Number, required: true }
+      },
+      { _id: true }
+)
 
 const schemaOrder = new Schema<OrderDoc>(
       {
