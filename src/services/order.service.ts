@@ -56,7 +56,7 @@ class OrderService {
                   // .populate({ path: 'order_products.products.product_id' })
                   // .populate({ path: 'order_products.products.shop_id' })
 
-            console.log({ order: updateOrderDocument })
+            console.log({ order: updateOrderDocument, flag: true })
 
             //CART MODEL
 
