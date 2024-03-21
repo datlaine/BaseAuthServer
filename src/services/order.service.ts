@@ -200,10 +200,10 @@ class OrderService {
             const order_id = req.params.order_id
             const { user } = req
             const query = { order_user_id: new Types.ObjectId(user?._id), 'order_products._id': new Types.ObjectId(order_id) }
-            // const select = { 'order_products.$': 1 }
+            const select = { 'order_products.$': 1 }
             const getOrderInfo = await orderModel
                   .findOne(query)
-                  // .select({ 'orders.products.products.product_id': 1 })
+                  .select({ 'orders.products.products.product_id': 1 })
                   .populate({ path: 'order_products.products.product_id' })
                   .populate({ path: 'order_products.products.shop_id' })
 
