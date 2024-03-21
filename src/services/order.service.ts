@@ -56,6 +56,8 @@ class OrderService {
                   .populate({ path: 'order_products.products.product_id' })
                   .populate({ path: 'order_products.products.shop_id' })
 
+            console.log({ order: updateOrderDocument })
+
             //CART MODEL
 
             /// lấy mảng product_id trong mảng products từ client truyền lên

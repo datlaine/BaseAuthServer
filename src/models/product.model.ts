@@ -74,7 +74,7 @@ export const productSchema = new Schema<IProductDoc>(
                   type: Date,
                   default: Date.now,
                   index: {
-                        expireAfterSeconds: 100,
+                        expireAfterSeconds: 600,
                         partialFilterExpression: { isProductFull: false }
                   }
             },
