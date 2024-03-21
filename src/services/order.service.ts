@@ -18,7 +18,7 @@ class OrderService {
             if (!checkQuanityProduct) {
                   return checkQuanityProduct
             }
-            console.log('flag')
+            console.log('flag orders')
 
             /*
                   B1: Update Order -> Mảng order từ client gửi lên
