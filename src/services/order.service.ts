@@ -18,7 +18,7 @@ class OrderService {
             if (!checkQuanityProduct) {
                   return checkQuanityProduct
             }
-            console.log('flag orders')
+            console.log('flag orders', user)
 
             /*
                   B1: Update Order -> Mảng order từ client gửi lên
@@ -51,10 +51,9 @@ class OrderService {
             const queryOrder = { order_user_id: new Types.ObjectId(user?._id) }
             const updateOrder = { $addToSet: { order_products: { products: products, order_total } } }
             const optionOrder = { new: true, upsert: true, multi: true }
-            const updateOrderDocument = await orderModel
-                  .findOneAndUpdate(queryOrder, updateOrder, optionOrder)
-                  // .populate({ path: 'order_products.products.product_id' })
-                  // .populate({ path: 'order_products.products.shop_id' })
+            const updateOrderDocument = await orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+            // .populate({ path: 'order_products.products.product_id' })
+            // .populate({ path: 'order_products.products.shop_id' })
 
             console.log({ order: updateOrderDocument, flag: true })
 
