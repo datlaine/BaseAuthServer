@@ -38,7 +38,7 @@ exports.productSchema = new mongoose_1.Schema({
         type: Date,
         default: Date.now,
         index: {
-            expireAfterSeconds: 100,
+            expireAfterSeconds: 600,
             partialFilterExpression: { isProductFull: false }
         }
     },

@@ -6,7 +6,6 @@ const cart_modal_1 = require("./cart.modal");
 const DOCUMENT_NAME = 'Order';
 const COLLECTION_NAME = 'orders';
 const orderItemSchema = new mongoose_1.Schema({
-    _id: mongoose_1.Types.ObjectId,
     products: [cart_modal_1.cartProductSchema],
     order_time_payment: { type: Date, default: Date.now },
     order_total: { type: Number, required: true }

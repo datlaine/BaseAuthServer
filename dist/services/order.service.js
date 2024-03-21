@@ -19,7 +19,7 @@ class OrderService {
         if (!checkQuanityProduct) {
             return checkQuanityProduct;
         }
-        console.log('flag');
+        console.log('flag orders', user);
         /*
               B1: Update Order -> Mảng order từ client gửi lên
               B2: Update Cart -> xóa product và -1 count cart
@@ -50,10 +50,10 @@ class OrderService {
         const queryOrder = { order_user_id: new mongoose_1.Types.ObjectId(user?._id) };
         const updateOrder = { $addToSet: { order_products: { products: products, order_total } } };
         const optionOrder = { new: true, upsert: true, multi: true };
-        const updateOrderDocument = await order_model_1.orderModel
-            .findOneAndUpdate(queryOrder, updateOrder, optionOrder)
-            .populate({ path: 'order_products.products.product_id' })
-            .populate({ path: 'order_products.products.shop_id' });
+        const updateOrderDocument = await order_model_1.orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder);
+        // .populate({ path: 'order_products.products.product_id' })
+        // .populate({ path: 'order_products.products.shop_id' })
+        console.log({ order: updateOrderDocument, flag: true });
         //CART MODEL
         /// lấy mảng product_id trong mảng products từ client truyền lên
         const productId = products.map((product) => product.product_id._id);
@@ -170,15 +170,15 @@ class OrderService {
         const order_id = req.params.order_id;
         const { user } = req;
         const query = { order_user_id: new mongoose_1.Types.ObjectId(user?._id), 'order_products._id': new mongoose_1.Types.ObjectId(order_id) };
-        const select = { 'order_products.$': 1 };
+        // const select = { 'order_products.$': 1 }
         const getOrderInfo = await order_model_1.orderModel
-            .findOne(query, select)
+            .findOne(query)
             // .select({ 'orders.products.products.product_id': 1 })
             .populate({ path: 'order_products.products.product_id' })
             .populate({ path: 'order_products.products.shop_id' })
             .lean();
         // .select('order_products.products.quantity')
-        console.log({ getOrderInfo });
+        console.log({ getOrderInfo, user, order_id });
         return { getOrderInfo };
     }
 }
