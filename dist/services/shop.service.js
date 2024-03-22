@@ -11,6 +11,7 @@ const order_model_1 = require("../models/order.model");
 const product_model_1 = __importDefault(require("../models/product.model"));
 const shop_model_1 = require("../models/shop.model");
 const user_model_1 = __importDefault(require("../models/user.model"));
+const shop_repository_1 = __importDefault(require("../repositories/shop.repository"));
 const notification_util_1 = require("../utils/notification.util");
 const uploadCloudinary_1 = __importDefault(require("../utils/uploadCloudinary"));
 class ShopService {
@@ -187,17 +188,22 @@ class ShopService {
                 product_is_bought: 1
             }
         };
-        const foundOrder = await order_model_1.orderModel
-            .find(orderQuery)
-            .populate({
-            path: populatePath,
-            options: populateOption
-        })
-            .skip(SKIP)
-            .limit(LIMIT);
-        const PAGE_RESULT = PAGE - 1;
-        const start = LIMIT * PAGE_RESULT;
-        const end = start + LIMIT;
+        const foundOrder = await shop_repository_1.default.getMyOrderShop({
+            shop_id: new mongoose_1.Types.ObjectId(shop_id),
+            limit: LIMIT,
+            skip: SKIP
+        });
+        // const foundOrder = await orderModel
+        //       .find(orderQuery)
+        //       .populate({
+        //             path: populatePath,
+        //             options: populateOption
+        //       })
+        //       .skip(SKIP)
+        //       .limit(LIMIT)
+        // const PAGE_RESULT = PAGE - 1
+        // const start = LIMIT * PAGE_RESULT
+        // const end = start + LIMIT
         // const pagination = foundOrder?.order_products.slice(start, end)
         // console.log({ start, end })
         return { orderShop: foundOrder[0] || { order_products: [] } };
