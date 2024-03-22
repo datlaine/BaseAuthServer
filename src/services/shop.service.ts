@@ -246,11 +246,11 @@ class ShopService {
                   .populate({
                         path: 'shop_order.product_id',
                         model: 'Product',
-                        select: '_id product_thumb_image product_name product_votes product_price',
-                        options: {
-                              skip: SKIP,
-                              limit: LIMIT
-                        }
+                        select: '_id product_thumb_image product_name product_votes product_price'
+                        // options: {
+                        //       skip: SKIP,
+                        //       limit: LIMIT
+                        // }
                   })
                   .exec()
             // const foundOrder = await orderModel
