@@ -37,6 +37,12 @@ exports.cartProductSchema = new mongoose_1.Schema({
     cart_address: cartAdressSchema,
     cart_date: { type: Date, default: Date.now(), required: true }
 });
+exports.cartProductSchema.virtual('product', {
+    ref: 'Product',
+    localField: 'product_id',
+    foreignField: '_id',
+    justOne: true
+});
 const cartSchema = new mongoose_1.Schema({
     cart_user_id: {
         type: mongoose_1.Schema.Types.ObjectId,

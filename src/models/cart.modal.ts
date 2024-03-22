@@ -94,6 +94,13 @@ export const cartProductSchema = new Schema<CartProductDoc>({
       cart_date: { type: Date, default: Date.now(), required: true }
 })
 
+cartProductSchema.virtual('product', {
+      ref: 'Product',
+      localField: 'product_id',
+      foreignField: '_id',
+      justOne: true
+})
+
 const cartSchema = new Schema<CartModelDoc>({
       cart_user_id: {
             type: Schema.Types.ObjectId,
