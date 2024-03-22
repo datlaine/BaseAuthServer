@@ -243,6 +243,8 @@ class ShopService {
             const result = await shopModel
                   .findOne({ _id: new Types.ObjectId(shop_id as string) })
                   .select('shop_order')
+                  .skip(SKIP)
+                  .limit(LIMIT)
                   .populate({
                         path: 'shop_order.product_id',
                         model: 'Product',
@@ -252,8 +254,7 @@ class ShopService {
                         //       limit: LIMIT
                         // }
                   })
-                  .skip(SKIP)
-                  .limit(LIMIT)
+
                   .exec()
             // const foundOrder = await orderModel
             //       .find(orderQuery)
