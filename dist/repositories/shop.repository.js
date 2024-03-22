@@ -48,24 +48,25 @@ class ShopRepository {
                     as: 'order_products.products' // Tên của mảng mới chứa kết quả từ lookup
                 }
             }
-            // {
-            //       $project: {
-            //             'order_products.products.shop_id': 1,
-            //             'order_products.products.product_id': 1,
-            //             'order_products.products.cart_state': 1,
-            //             'order_products.products.quantity': 1,
-            //             'order_products.products.new_quantity': 1,
-            //             'order_products.products.isSelect': 1,
-            //             'order_products.products.cart_address': 1,
-            //             'order_products.products.cart_date': 1
-            //       }
-            // }
-            // {
-            //       $addFields: {
-            //             'order_products.products': '$order_products.products'
-            //       }
-            // }
-        ]);
+        ]
+        // {
+        //       $project: {
+        //             'order_products.products.shop_id': 1,
+        //             'order_products.products.product_id': 1,
+        //             'order_products.products.cart_state': 1,
+        //             'order_products.products.quantity': 1,
+        //             'order_products.products.new_quantity': 1,
+        //             'order_products.products.isSelect': 1,
+        //             'order_products.products.cart_address': 1,
+        //             'order_products.products.cart_date': 1
+        //       }
+        // }
+        // {
+        //       $addFields: {
+        //             'order_products.products': '$order_products.products'
+        //       }
+        // }
+        );
         return result;
     }
 }
