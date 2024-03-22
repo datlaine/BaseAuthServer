@@ -7,6 +7,7 @@ import { orderModel } from '~/models/order.model'
 import productModel, { IProduct } from '~/models/product.model'
 import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
+import ShopRepository from '~/repositories/shop.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
 import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
@@ -234,17 +235,22 @@ class ShopService {
                         product_is_bought: 1
                   }
             }
-            const foundOrder = await orderModel
-                  .find(orderQuery)
-                  .populate({
-                        path: populatePath,
-                        options: populateOption
-                  })
-                  .skip(SKIP)
-                  .limit(LIMIT)
-            const PAGE_RESULT = PAGE - 1
-            const start = LIMIT * PAGE_RESULT
-            const end = start + LIMIT
+            const foundOrder = await ShopRepository.getMyOrderShop({
+                  shop_id: new Types.ObjectId(shop_id as string),
+                  limit: LIMIT,
+                  skip: SKIP
+            })
+            // const foundOrder = await orderModel
+            //       .find(orderQuery)
+            //       .populate({
+            //             path: populatePath,
+            //             options: populateOption
+            //       })
+            //       .skip(SKIP)
+            //       .limit(LIMIT)
+            // const PAGE_RESULT = PAGE - 1
+            // const start = LIMIT * PAGE_RESULT
+            // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
             // console.log({ start, end })
             return { orderShop: foundOrder[0] || { order_products: [] } }

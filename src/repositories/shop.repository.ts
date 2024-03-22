@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { orderModel } from '~/models/order.model'
 import { shopModel } from '~/models/shop.model'
 
 class ShopRepository {
@@ -26,6 +27,25 @@ class ShopRepository {
                         }
                   }
             ])
+            return result[0]
+      }
+
+      static async getMyOrderShop({ shop_id, skip, limit }: { shop_id: Types.ObjectId; skip: number; limit: number }) {
+            const result = await orderModel.aggregate([
+                  { $unwind: '$order_products' }, // Phân rã mảng order_products thành các tài liệu riêng lẻ
+                  { $match: { 'order_products.products.shop_id': shop_id } }, // Lọc các tài liệu dựa trên shop_id
+                  {
+                        $group: {
+                              _id: '$_id',
+                              order_user_id: { $first: '$order_user_id' },
+                              order_time: { $first: '$order_time' },
+                              order_products: { $push: '$order_products' }
+                        } // Nhóm lại các tài liệu để biến chúng trở lại dạng mảng order_products
+                  },
+                  { $skip: skip }, // Bỏ qua các tài liệu trên các trang trước
+                  { $limit: limit } // Giới hạn số lượng tài liệu trên trang
+            ])
+
             return result[0]
       }
 }
