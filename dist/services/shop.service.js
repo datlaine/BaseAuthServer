@@ -193,7 +193,7 @@ class ShopService {
         //       skip: SKIP
         // })
         const result = await order_model_1.orderModel
-            .find({ 'order_products.products.shop_id': shop_id })
+            .find({ 'order_products.products.shop_id': new mongoose_1.Types.ObjectId(shop_id) })
             .populate({
             path: 'order_products.products.product_id',
             model: 'Product',

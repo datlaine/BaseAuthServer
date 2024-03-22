@@ -241,7 +241,7 @@ class ShopService {
             //       skip: SKIP
             // })
             const result = await orderModel
-                  .find({ 'order_products.products.shop_id': shop_id })
+                  .find({ 'order_products.products.shop_id': new Types.ObjectId(shop_id as string) })
                   .populate({
                         path: 'order_products.products.product_id',
                         model: 'Product',
