@@ -47,6 +47,11 @@ class ShopRepository {
                     foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
                     as: 'order_products.products' // Tên của mảng mới chứa kết quả từ lookup
                 }
+            },
+            {
+                $addFields: {
+                    'order_products.products.product_details': '$order_products.products.product_details'
+                }
             }
         ]);
         return result[0];
