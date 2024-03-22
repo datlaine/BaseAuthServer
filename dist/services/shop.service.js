@@ -175,36 +175,17 @@ class ShopService {
         const PAGE = Number(page);
         const LIMIT = Number(limit);
         const SKIP = LIMIT * (PAGE - 1);
-        const populatePath = 'order_products.products.product_id';
-        // const populateSelect = { product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1, _id: 1 }
-        const populateOption = {
-            select: {
-                _id: 1,
-                product_name: 1,
-                product_price: 1,
-                product_thumb_image: 1,
-                product_votes: 1,
-                product_is_bought: 1
-            }
-        };
-        // const foundOrder = await ShopRepository.getMyOrderShop({
-        //       shop_id: new Types.ObjectId(shop_id as string),
-        //       limit: LIMIT,
-        //       skip: SKIP
-        // })
         const result = await shop_model_1.shopModel
             .findOne({ _id: new mongoose_1.Types.ObjectId(shop_id) })
             .select('shop_order')
-            .skip(SKIP)
-            .limit(LIMIT)
             .populate({
             path: 'shop_order.product_id',
             model: 'Product',
-            select: '_id product_thumb_image product_name product_votes product_price'
-            // options: {
-            //       skip: SKIP,
-            //       limit: LIMIT
-            // }
+            select: '_id product_thumb_image product_name product_votes product_price',
+            options: {
+                skip: SKIP,
+                limit: LIMIT
+            }
         })
             .exec();
         // const foundOrder = await orderModel
