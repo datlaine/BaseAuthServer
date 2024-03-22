@@ -240,17 +240,15 @@ class ShopService {
             //       limit: LIMIT,
             //       skip: SKIP
             // })
-            const result = await orderModel
-                  .find({ 'order_products.products.shop_id': new Types.ObjectId(shop_id as string) })
+            const result = await shopModel
+                  .find({ _id: new Types.ObjectId(shop_id as string) })
                   .populate({
-                        path: 'order_products.products',
-                        model: 'Cart',
-                        populate: {
-                              path: 'order_products.products.product_id',
-                              model: 'Product',
-                              select: '_id product_thumb_image product_name product_votes product_price'
-                        }
+                        path: 'shop_orders',
+                        model: 'Product',
+                        select: '_id product_thumb_image product_name product_votes product_price'
                   })
+                  .skip(SKIP)
+                  .limit(LIMIT)
                   .exec()
             // const foundOrder = await orderModel
             //       .find(orderQuery)

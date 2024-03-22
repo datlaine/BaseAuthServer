@@ -192,17 +192,15 @@ class ShopService {
         //       limit: LIMIT,
         //       skip: SKIP
         // })
-        const result = await order_model_1.orderModel
-            .find({ 'order_products.products.shop_id': new mongoose_1.Types.ObjectId(shop_id) })
+        const result = await shop_model_1.shopModel
+            .find({ _id: new mongoose_1.Types.ObjectId(shop_id) })
             .populate({
-            path: 'order_products.products',
-            model: 'Cart',
-            populate: {
-                path: 'order_products.products.product_id',
-                model: 'Product',
-                select: '_id product_thumb_image product_name product_votes product_price'
-            }
+            path: 'shop_orders',
+            model: 'Product',
+            select: '_id product_thumb_image product_name product_votes product_price'
         })
+            .skip(SKIP)
+            .limit(LIMIT)
             .exec();
         // const foundOrder = await orderModel
         //       .find(orderQuery)
