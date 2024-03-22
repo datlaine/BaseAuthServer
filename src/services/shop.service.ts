@@ -242,6 +242,7 @@ class ShopService {
             // })
             const result = await shopModel
                   .find({ _id: new Types.ObjectId(shop_id as string) })
+                  .select('shop_order')
                   .populate({
                         path: 'shop_order.product_id',
                         model: 'Product',
