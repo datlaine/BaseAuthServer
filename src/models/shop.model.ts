@@ -1,5 +1,6 @@
 import { Document, Schema, Types, model } from 'mongoose'
 import { IProductDoc } from './product.model'
+import { CartProduct, cartProductSchema } from './cart.modal'
 
 const DOCUMENT_NAME = 'Shop'
 const COLLECTION_NAME = 'shops'
@@ -19,7 +20,8 @@ export type TShop = {
       shop_vote: number
       shop_description: string
       shop_count_total_vote: number
-      shop_count_total_product: number
+      shop_count_product: number
+      shop_order: CartProduct[]
 }
 
 export type TShopDoc = TShop & Document
@@ -54,7 +56,7 @@ export const shopSchema = new Schema<TShopDoc>(
                   required: true
             },
 
-            shop_count_total_product: {
+            shop_count_product: {
                   type: Number,
                   default: 0,
                   required: true
@@ -64,6 +66,8 @@ export const shopSchema = new Schema<TShopDoc>(
                   default: 0,
                   required: true
             },
+
+            shop_order: [cartProductSchema],
 
             shop_description: {
                   type: String,

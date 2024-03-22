@@ -52,6 +52,7 @@ class OrderService {
             const updateOrder = { $addToSet: { order_products: { products: products, order_total } } }
             const optionOrder = { new: true, upsert: true, multi: true }
             const updateOrderDocument = await orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+
             // .populate({ path: 'order_products.products.product_id' })
             // .populate({ path: 'order_products.products.shop_id' })
 
@@ -120,14 +121,11 @@ class OrderService {
                   )
             }
 
-            // console.log({
-            //       updateNotificationUser,
-            //       length: products.length,
-            //       map: productId.length,
-            //       products,
-            //       orderLast: JSON.stringify(elementLast)
-            // })
-            // }
+            for (let index = 0; index < products.length; index++) {
+                  const queryFoundOwnerShop = { _id: elementLast?.products[index].shop_id }
+                  const updateShop = { $push: { shop_order: products[index] } }
+                  await shopModel.findOneAndUpdate(queryFoundOwnerShop, updateShop)
+            }
 
             //NOTIFICATION MODEL - SHOP MODEL
             for (let index = 0; index < products.length; index++) {

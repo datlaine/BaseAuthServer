@@ -105,14 +105,11 @@ class OrderService {
             const optionNotificationUser = { new: true, upsert: true };
             const updateNotificationUserDocument = await notification_model_1.notificationModel.findOneAndUpdate(queryNotificationUser, updateNotificationUser, optionNotificationUser);
         }
-        // console.log({
-        //       updateNotificationUser,
-        //       length: products.length,
-        //       map: productId.length,
-        //       products,
-        //       orderLast: JSON.stringify(elementLast)
-        // })
-        // }
+        for (let index = 0; index < products.length; index++) {
+            const queryFoundOwnerShop = { _id: elementLast?.products[index].shop_id };
+            const updateShop = { $push: { shop_order: products[index] } };
+            await shop_model_1.shopModel.findOneAndUpdate(queryFoundOwnerShop, updateShop);
+        }
         //NOTIFICATION MODEL - SHOP MODEL
         for (let index = 0; index < products.length; index++) {
             const queryFoundOwnerShop = { _id: elementLast?.products[index].shop_id };

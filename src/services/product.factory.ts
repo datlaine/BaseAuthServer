@@ -152,7 +152,12 @@ export class ProductBook extends Product implements IProductStrategy {
                               shop_id: new Types.ObjectId(product?.shop_id._id),
                               product_id: new Types.ObjectId(createProduct._id)
                         })
-                        const checkUser = await shopModel.findOne({ _id: new Types.ObjectId(this.shop_id) })
+
+                        const checkUser = await shopModel.findOneAndUpdate(
+                              { _id: new Types.ObjectId(this.shop_id) },
+                              { $inc: { shop_count_product: 1 } },
+                              { new: true, upsert: true }
+                        )
                         const query = { notification_user_id: new Types.ObjectId(checkUser?.owner) }
                         const update = {
                               $push: {
@@ -231,7 +236,11 @@ export class ProductFood extends Product implements IProductStrategy {
                               product_id: new Types.ObjectId(createProduct._id)
                         })
 
-                        const checkUser = await shopModel.findOne({ _id: new Types.ObjectId(this.shop_id) })
+                        const checkUser = await shopModel.findOneAndUpdate(
+                              { _id: new Types.ObjectId(this.shop_id) },
+                              { $inc: { shop_count_product: 1 } },
+                              { new: true, upsert: true }
+                        )
                         const query = { notification_user_id: new Types.ObjectId(checkUser?.owner) }
                         const update = {
                               $push: {

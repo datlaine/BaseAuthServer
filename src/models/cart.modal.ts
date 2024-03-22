@@ -26,9 +26,8 @@ export interface CartProduct {
       shop_id: Types.ObjectId
       product_id: Types.ObjectId
       cart_state: 'active' | 'pending' | 'complete'
-
+      cart_total: number
       quantity: number
-      new_quantity: number
       isSelect: boolean
       cart_date: Date
       cart_address: Address
@@ -88,7 +87,7 @@ export const cartProductSchema = new Schema<CartProductDoc>({
       product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
       cart_state: { type: String, enum: ['active', 'pending', 'complete'], default: 'active', required: true },
       quantity: { type: Number, require: true },
-      new_quantity: Number,
+
       isSelect: { type: Boolean, default: false },
       cart_address: cartAdressSchema,
       cart_date: { type: Date, default: Date.now(), required: true }

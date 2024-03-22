@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.shopModel = exports.productShopModel = exports.productShopSchema = exports.shopSchema = void 0;
 const mongoose_1 = require("mongoose");
+const cart_modal_1 = require("./cart.modal");
 const DOCUMENT_NAME = 'Shop';
 const COLLECTION_NAME = 'shops';
 exports.shopSchema = new mongoose_1.Schema({
@@ -31,7 +32,7 @@ exports.shopSchema = new mongoose_1.Schema({
         default: 0,
         required: true
     },
-    shop_count_total_product: {
+    shop_count_product: {
         type: Number,
         default: 0,
         required: true
@@ -41,6 +42,7 @@ exports.shopSchema = new mongoose_1.Schema({
         default: 0,
         required: true
     },
+    shop_order: [cart_modal_1.cartProductSchema],
     shop_description: {
         type: String,
         required: true

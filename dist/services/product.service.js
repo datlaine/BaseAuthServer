@@ -307,7 +307,7 @@ class ProductService {
         const deleteProduct = await product_model_1.default.findOneAndUpdate({ _id: product_id }, { $set: { product_state: false } }, { new: true, upsert: true });
         if (!deleteProduct)
             throw new response_error_1.BadRequestError({ detail: 'Xóa sản phẩm thất bại' });
-        const foundShop = await shop_model_1.shopModel.findOne({ owner: new mongoose_1.Types.ObjectId(user?._id) });
+        const foundShop = await shop_model_1.shopModel.findOneAndUpdate({ owner: new mongoose_1.Types.ObjectId(user?._id) }, { inc: { shop_count_product: -1 } }, { new: true, upsert: true });
         console.log({ foundShop, user: user?._id, product_id });
         if (foundShop) {
             const deleteProductShop = foundShop?.shop_products.filter((p) => p.toString() !== product_id.toString());

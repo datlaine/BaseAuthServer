@@ -356,7 +356,12 @@ class ProductService {
                   { new: true, upsert: true }
             )
             if (!deleteProduct) throw new BadRequestError({ detail: 'Xóa sản phẩm thất bại' })
-            const foundShop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
+
+            const foundShop = await shopModel.findOneAndUpdate(
+                  { owner: new Types.ObjectId(user?._id) },
+                  { inc: { shop_count_product: -1 } },
+                  { new: true, upsert: true }
+            )
             console.log({ foundShop, user: user?._id, product_id })
 
             if (foundShop) {

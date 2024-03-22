@@ -32,7 +32,6 @@ exports.cartProductSchema = new mongoose_1.Schema({
     product_id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Product', required: true },
     cart_state: { type: String, enum: ['active', 'pending', 'complete'], default: 'active', required: true },
     quantity: { type: Number, require: true },
-    new_quantity: Number,
     isSelect: { type: Boolean, default: false },
     cart_address: cartAdressSchema,
     cart_date: { type: Date, default: Date.now(), required: true }

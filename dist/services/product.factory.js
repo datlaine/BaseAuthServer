@@ -127,7 +127,7 @@ class ProductBook extends Product {
                     shop_id: new mongoose_1.Types.ObjectId(product?.shop_id._id),
                     product_id: new mongoose_1.Types.ObjectId(createProduct._id)
                 });
-                const checkUser = await shop_model_1.shopModel.findOne({ _id: new mongoose_1.Types.ObjectId(this.shop_id) });
+                const checkUser = await shop_model_1.shopModel.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(this.shop_id) }, { $inc: { shop_count_product: 1 } }, { new: true, upsert: true });
                 const query = { notification_user_id: new mongoose_1.Types.ObjectId(checkUser?.owner) };
                 const update = {
                     $push: {
@@ -188,7 +188,7 @@ class ProductFood extends Product {
                     shop_id: new mongoose_1.Types.ObjectId(product?.shop_id._id),
                     product_id: new mongoose_1.Types.ObjectId(createProduct._id)
                 });
-                const checkUser = await shop_model_1.shopModel.findOne({ _id: new mongoose_1.Types.ObjectId(this.shop_id) });
+                const checkUser = await shop_model_1.shopModel.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(this.shop_id) }, { $inc: { shop_count_product: 1 } }, { new: true, upsert: true });
                 const query = { notification_user_id: new mongoose_1.Types.ObjectId(checkUser?.owner) };
                 const update = {
                     $push: {
