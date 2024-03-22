@@ -49,7 +49,7 @@ class ShopRepository {
                               from: 'products', // Tên của collection bạn muốn tham chiếu đến
                               localField: 'order_products.products.product_id', // Trường trong bộ sưu tập hiện tại
                               foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
-                              as: 'product_details' // Tên của mảng mới chứa kết quả từ lookup
+                              as: 'order_products.products.product_id' // Tên của mảng mới chứa kết quả từ lookup
                         }
                   },
 
@@ -57,12 +57,12 @@ class ShopRepository {
                         $project: {
                               'order_products.products.shop_id': 1,
                               'order_products.products.product_id': 1,
-                              'order_products.products.cart_state': { $arrayElemAt: ['$product_details.cart_state', 0] },
-                              'order_products.products.quantity': { $arrayElemAt: ['$product_details.quantity', 0] },
-                              'order_products.products.new_quantity': { $arrayElemAt: ['$product_details.new_quantity', 0] },
-                              'order_products.products.isSelect': { $arrayElemAt: ['$product_details.isSelect', 0] },
-                              'order_products.products.cart_address': { $arrayElemAt: ['$product_details.cart_address', 0] },
-                              'order_products.products.cart_date': { $arrayElemAt: ['$product_details.cart_date', 0] }
+                              'order_products.products.cart_state': 1,
+                              'order_products.products.quantity': 1,
+                              'order_products.products.new_quantity': 1,
+                              'order_products.products.isSelect': 1,
+                              'order_products.products.cart_address': 1,
+                              'order_products.products.cart_date': 1
                         }
                   }
                   // {
