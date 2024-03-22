@@ -46,25 +46,25 @@ class ShopRepository {
                   { $limit: limit }, // Giới hạn số lượng tài liệu trên trang
                   {
                         $lookup: {
-                              from: 'products', // Tên của collection bạn muốn tham chiếu đến
-                              localField: 'order_products.products.product_id', // Trường trong bộ sưu tập hiện tại
+                              from: 'carts', // Tên của collection bạn muốn tham chiếu đến
+                              localField: 'order_products.products', // Trường trong bộ sưu tập hiện tại
                               foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
-                              as: 'order_products.products.product_id' // Tên của mảng mới chứa kết quả từ lookup
-                        }
-                  },
-
-                  {
-                        $project: {
-                              'order_products.products.shop_id': 1,
-                              'order_products.products.product_id': 1,
-                              'order_products.products.cart_state': 1,
-                              'order_products.products.quantity': 1,
-                              'order_products.products.new_quantity': 1,
-                              'order_products.products.isSelect': 1,
-                              'order_products.products.cart_address': 1,
-                              'order_products.products.cart_date': 1
+                              as: 'order_products.products' // Tên của mảng mới chứa kết quả từ lookup
                         }
                   }
+
+                  // {
+                  //       $project: {
+                  //             'order_products.products.shop_id': 1,
+                  //             'order_products.products.product_id': 1,
+                  //             'order_products.products.cart_state': 1,
+                  //             'order_products.products.quantity': 1,
+                  //             'order_products.products.new_quantity': 1,
+                  //             'order_products.products.isSelect': 1,
+                  //             'order_products.products.cart_address': 1,
+                  //             'order_products.products.cart_date': 1
+                  //       }
+                  // }
                   // {
                   //       $addFields: {
                   //             'order_products.products': '$order_products.products'
