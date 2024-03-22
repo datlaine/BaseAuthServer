@@ -49,12 +49,24 @@ class ShopRepository {
                 }
             },
             {
-                $addFields: {
-                    'order_products.products': '$order_products.products'
+                $project: {
+                    'order_products.products.shop_id': 1,
+                    'order_products.products': 1,
+                    'order_products.products.cart_state': { $arrayElemAt: ['$order_products.products.cart_state', 0] },
+                    'order_products.products.quantity': { $arrayElemAt: ['$order_products.products.quantity', 0] },
+                    'order_products.products.new_quantity': { $arrayElemAt: ['$order_products.products.new_quantity', 0] },
+                    'order_products.products.isSelect': { $arrayElemAt: ['$order_products.products.isSelect', 0] },
+                    'order_products.products.cart_address': { $arrayElemAt: ['$order_products.products.cart_address', 0] },
+                    'order_products.products.cart_date': { $arrayElemAt: ['$order_products.products.cart_date', 0] }
                 }
             }
+            // {
+            //       $addFields: {
+            //             'order_products.products': '$order_products.products'
+            //       }
+            // }
         ]);
-        return result[0];
+        return result;
     }
 }
 exports.default = ShopRepository;
