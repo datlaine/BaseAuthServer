@@ -241,15 +241,17 @@ class ShopService {
             //       skip: SKIP
             // })
             const result = await shopModel
-                  .find({ _id: new Types.ObjectId(shop_id as string) })
+                  .findOne({ _id: new Types.ObjectId(shop_id as string) })
                   .select('shop_order')
                   .populate({
                         path: 'shop_order.product_id',
                         model: 'Product',
-                        select: '_id product_thumb_image product_name product_votes product_price'
+                        options: {
+                              skip: SKIP,
+                              limit: LIMIT,
+                              select: '_id product_thumb_image product_name product_votes product_price'
+                        }
                   })
-                  .skip(SKIP)
-                  .limit(LIMIT)
                   .exec()
             // const foundOrder = await orderModel
             //       .find(orderQuery)

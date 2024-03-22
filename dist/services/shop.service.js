@@ -193,15 +193,17 @@ class ShopService {
         //       skip: SKIP
         // })
         const result = await shop_model_1.shopModel
-            .find({ _id: new mongoose_1.Types.ObjectId(shop_id) })
+            .findOne({ _id: new mongoose_1.Types.ObjectId(shop_id) })
             .select('shop_order')
             .populate({
             path: 'shop_order.product_id',
             model: 'Product',
-            select: '_id product_thumb_image product_name product_votes product_price'
+            options: {
+                skip: SKIP,
+                limit: LIMIT,
+                select: '_id product_thumb_image product_name product_votes product_price'
+            }
         })
-            .skip(SKIP)
-            .limit(LIMIT)
             .exec();
         // const foundOrder = await orderModel
         //       .find(orderQuery)
