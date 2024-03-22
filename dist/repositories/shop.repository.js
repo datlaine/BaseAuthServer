@@ -39,7 +39,15 @@ class ShopRepository {
                 } // Nhóm lại các tài liệu để biến chúng trở lại dạng mảng order_products
             },
             { $skip: skip }, // Bỏ qua các tài liệu trên các trang trước
-            { $limit: limit } // Giới hạn số lượng tài liệu trên trang
+            { $limit: limit }, // Giới hạn số lượng tài liệu trên trang
+            {
+                $lookup: {
+                    from: 'products', // Tên của collection bạn muốn tham chiếu đến
+                    localField: 'order_products.products.product_id', // Trường trong bộ sưu tập hiện tại
+                    foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
+                    as: 'order_products.products.product_id' // Tên của mảng mới chứa kết quả từ lookup
+                }
+            }
         ]);
         return result[0];
     }
