@@ -45,7 +45,7 @@ class ShopRepository {
                     from: 'products', // Tên của collection bạn muốn tham chiếu đến
                     localField: 'order_products.products.product_id', // Trường trong bộ sưu tập hiện tại
                     foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
-                    as: 'order_products.products.product_id' // Tên của mảng mới chứa kết quả từ lookup
+                    as: 'order_products.products' // Tên của mảng mới chứa kết quả từ lookup
                 }
             }
         ]);
