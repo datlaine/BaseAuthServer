@@ -252,6 +252,8 @@ class ShopService {
                         //       limit: LIMIT
                         // }
                   })
+                  .skip(SKIP)
+                  .limit(LIMIT)
                   .exec()
             // const foundOrder = await orderModel
             //       .find(orderQuery)
