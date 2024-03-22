@@ -49,20 +49,20 @@ class ShopRepository {
                               from: 'products', // Tên của collection bạn muốn tham chiếu đến
                               localField: 'order_products.products.product_id', // Trường trong bộ sưu tập hiện tại
                               foreignField: '_id', // Trường trong bộ sưu tập tham chiếu đến
-                              as: 'order_products.products' // Tên của mảng mới chứa kết quả từ lookup
+                              as: 'product_details' // Tên của mảng mới chứa kết quả từ lookup
                         }
                   },
 
                   {
                         $project: {
                               'order_products.products.shop_id': 1,
-                              'order_products.products': 1,
-                              'order_products.products.cart_state': { $arrayElemAt: ['$order_products.products.cart_state', 0] },
-                              'order_products.products.quantity': { $arrayElemAt: ['$order_products.products.quantity', 0] },
-                              'order_products.products.new_quantity': { $arrayElemAt: ['$order_products.products.new_quantity', 0] },
-                              'order_products.products.isSelect': { $arrayElemAt: ['$order_products.products.isSelect', 0] },
-                              'order_products.products.cart_address': { $arrayElemAt: ['$order_products.products.cart_address', 0] },
-                              'order_products.products.cart_date': { $arrayElemAt: ['$order_products.products.cart_date', 0] }
+                              'order_products.products.product_id': 1,
+                              'order_products.products.cart_state': { $arrayElemAt: ['$product_details.cart_state', 0] },
+                              'order_products.products.quantity': { $arrayElemAt: ['$product_details.quantity', 0] },
+                              'order_products.products.new_quantity': { $arrayElemAt: ['$product_details.new_quantity', 0] },
+                              'order_products.products.isSelect': { $arrayElemAt: ['$product_details.isSelect', 0] },
+                              'order_products.products.cart_address': { $arrayElemAt: ['$product_details.cart_address', 0] },
+                              'order_products.products.cart_date': { $arrayElemAt: ['$product_details.cart_date', 0] }
                         }
                   }
                   // {
