@@ -237,6 +237,12 @@ class ShopService {
                   })
 
                   .exec()
+
+            const startIndex = (PAGE - 1) * LIMIT
+            const endIndex = PAGE * LIMIT
+
+            const paginatedOrders = result?.shop_order.slice(startIndex, endIndex)
+
             // const foundOrder = await orderModel
             //       .find(orderQuery)
             //       .populate({
@@ -250,7 +256,7 @@ class ShopService {
             // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
             // console.log({ start, end })
-            return { orderShop: result || { order_products: [] } }
+            return { orderShop: paginatedOrders || { order_products: [] } }
       }
 
       static async getShopAdmin(req: IRequestCustom) {
