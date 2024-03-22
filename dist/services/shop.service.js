@@ -198,7 +198,7 @@ class ShopService {
             path: 'order_products.products',
             model: 'Cart',
             populate: {
-                path: 'order_product.products.product_id',
+                path: 'order_products.products.product_id',
                 model: 'Product',
                 select: '_id product_thumb_image product_name product_votes product_price'
             }
