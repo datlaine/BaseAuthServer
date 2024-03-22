@@ -54,7 +54,7 @@ class ShopRepository {
                   },
                   {
                         $addFields: {
-                              'order_products.products.product_details': '$order_products.products.product_details'
+                              'order_products.products': '$order_products.products'
                         }
                   }
             ])
