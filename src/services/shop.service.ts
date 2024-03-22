@@ -235,11 +235,19 @@ class ShopService {
                         product_is_bought: 1
                   }
             }
-            const foundOrder = await ShopRepository.getMyOrderShop({
-                  shop_id: new Types.ObjectId(shop_id as string),
-                  limit: LIMIT,
-                  skip: SKIP
-            })
+            // const foundOrder = await ShopRepository.getMyOrderShop({
+            //       shop_id: new Types.ObjectId(shop_id as string),
+            //       limit: LIMIT,
+            //       skip: SKIP
+            // })
+            const result = await orderModel
+                  .find({ 'order_products.products.shop_id': shop_id })
+                  .populate({
+                        path: 'order_products.products.product_id',
+                        model: 'Product',
+                        select: '_id product_thumb_image product_name product_votes product_price'
+                  })
+                  .exec()
             // const foundOrder = await orderModel
             //       .find(orderQuery)
             //       .populate({
@@ -253,7 +261,7 @@ class ShopService {
             // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
             // console.log({ start, end })
-            return { orderShop: foundOrder || { order_products: [] } }
+            return { orderShop: result || { order_products: [] } }
       }
 
       static async getShopAdmin(req: IRequestCustom) {
