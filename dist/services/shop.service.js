@@ -206,7 +206,7 @@ class ShopService {
         // const end = start + LIMIT
         // const pagination = foundOrder?.order_products.slice(start, end)
         // console.log({ start, end })
-        return { orderShop: foundOrder[0] || { order_products: [] } };
+        return { orderShop: foundOrder || { order_products: [] } };
     }
     static async getShopAdmin(req) {
         const admin = await user_model_1.default.findOne({ roles: 'admin' });
