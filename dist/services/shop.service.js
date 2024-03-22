@@ -195,7 +195,7 @@ class ShopService {
         const result = await shop_model_1.shopModel
             .find({ _id: new mongoose_1.Types.ObjectId(shop_id) })
             .populate({
-            path: 'shop_order',
+            path: 'shop_order.product_id',
             model: 'Product',
             select: '_id product_thumb_image product_name product_votes product_price'
         })
