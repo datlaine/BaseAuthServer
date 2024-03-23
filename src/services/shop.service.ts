@@ -229,8 +229,7 @@ class ShopService {
                   .populate({
                         path: 'shop_order.product_id',
                         model: 'Product',
-                        select: '_id product_thumb_image product_name product_votes product_price',
-                    
+                        select: '_id product_thumb_image product_name product_votes product_price'
                   })
 
                   .exec()
@@ -239,7 +238,7 @@ class ShopService {
             const endIndex = PAGE * LIMIT
 
             const paginatedOrders = result?.shop_order.slice(startIndex, endIndex)
-
+            const temp = await ShopRepository.getMyOrderShop({ shop_id: new Types.ObjectId(shop_id as string), limit: LIMIT, skip: SKIP })
             // const foundOrder = await orderModel
             //       .find(orderQuery)
             //       .populate({
@@ -253,7 +252,7 @@ class ShopService {
             // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
             console.log({ startIndex, endIndex })
-            return { orderShop: paginatedOrders || { order_products: [] } }
+            return paginatedOrders ? { orderShop: paginatedOrders, temp } : { order_products: [] }
       }
 
       static async getShopAdmin(req: IRequestCustom) {

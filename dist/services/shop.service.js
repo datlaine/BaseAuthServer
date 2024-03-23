@@ -11,6 +11,7 @@ const order_model_1 = require("../models/order.model");
 const product_model_1 = __importDefault(require("../models/product.model"));
 const shop_model_1 = require("../models/shop.model");
 const user_model_1 = __importDefault(require("../models/user.model"));
+const shop_repository_1 = __importDefault(require("../repositories/shop.repository"));
 const notification_util_1 = require("../utils/notification.util");
 const uploadCloudinary_1 = __importDefault(require("../utils/uploadCloudinary"));
 class ShopService {
@@ -181,16 +182,13 @@ class ShopService {
             .populate({
             path: 'shop_order.product_id',
             model: 'Product',
-            select: '_id product_thumb_image product_name product_votes product_price',
-            options: {
-                skip: SKIP,
-                limit: LIMIT
-            }
+            select: '_id product_thumb_image product_name product_votes product_price'
         })
             .exec();
         const startIndex = (PAGE - 1) * LIMIT;
         const endIndex = PAGE * LIMIT;
         const paginatedOrders = result?.shop_order.slice(startIndex, endIndex);
+        const temp = await shop_repository_1.default.getMyOrderShop({ shop_id: new mongoose_1.Types.ObjectId(shop_id), limit: LIMIT, skip: SKIP });
         // const foundOrder = await orderModel
         //       .find(orderQuery)
         //       .populate({
@@ -203,8 +201,8 @@ class ShopService {
         // const start = LIMIT * PAGE_RESULT
         // const end = start + LIMIT
         // const pagination = foundOrder?.order_products.slice(start, end)
-        // console.log({ start, end })
-        return { orderShop: paginatedOrders || { order_products: [] } };
+        console.log({ startIndex, endIndex });
+        return paginatedOrders ? { orderShop: paginatedOrders, temp } : { order_products: [] };
     }
     static async getShopAdmin(req) {
         const admin = await user_model_1.default.findOne({ roles: 'admin' });
