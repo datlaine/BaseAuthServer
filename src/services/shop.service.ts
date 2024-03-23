@@ -230,10 +230,7 @@ class ShopService {
                         path: 'shop_order.product_id',
                         model: 'Product',
                         select: '_id product_thumb_image product_name product_votes product_price',
-                        options: {
-                              skip: SKIP,
-                              limit: LIMIT
-                        }
+                    
                   })
 
                   .exec()
@@ -255,7 +252,7 @@ class ShopService {
             // const start = LIMIT * PAGE_RESULT
             // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
-            // console.log({ start, end })
+            console.log({ startIndex, endIndex })
             return { orderShop: paginatedOrders || { order_products: [] } }
       }
 
