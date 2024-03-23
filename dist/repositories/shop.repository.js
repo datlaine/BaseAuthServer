@@ -45,7 +45,11 @@ class ShopRepository {
                     'shop_order.product.product_thumb_image': 1,
                     'shop_order.product.product_name': 1,
                     'shop_order.product.product_votes': 1,
-                    'shop_order.product.product_price': 1
+                    'shop_order.product.product_price': 1,
+                    'shop_order.quantity': 1,
+                    'shop_order.cart_address': 1,
+                    'shop_order.cart_date': 1,
+                    'shop_order._id': 1
                 }
             },
             { $skip: skip },

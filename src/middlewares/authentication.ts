@@ -59,7 +59,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       if (req.originalUrl === '/v1/api/auth/rf') {
             // console.log({ refresf: req?.cookies['refresh_token'], keyStore })
             if (!req?.cookies['refresh_token']) {
-                  return next(new ForbiddenError({ detail: 'Token không đúng1' }))
+                  return next(new ForbiddenError({ detail: 'Token không đúng' }))
             }
 
             if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
@@ -68,7 +68,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                   jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
-                              return next(new ForbiddenError({ detail: 'Token không đúng12' }))
+                              return next(new ForbiddenError({ detail: 'Token không đúng' }))
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload
@@ -88,6 +88,11 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             jwt.verify(token, keyStore.public_key, (error, decode) => {
                   if (error) {
                         console.log({ error })
+                        if (req.originalUrl === '/v1/api/auth/rf') {
+                              req.user = user
+                              req.keyStore = keyStore
+                              return next()
+                        }
                         return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
                   // console.log('decode::', decode)
