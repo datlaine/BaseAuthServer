@@ -63,6 +63,7 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
             if (error) {
                 console.log({ error });
                 if (req.originalUrl === '/v1/api/auth/rf') {
+                    console.log('Logout');
                     req.user = user;
                     req.keyStore = keyStore;
                     return next();

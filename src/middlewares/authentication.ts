@@ -89,6 +89,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                   if (error) {
                         console.log({ error })
                         if (req.originalUrl === '/v1/api/auth/rf') {
+                              console.log('Logout')
                               req.user = user
                               req.keyStore = keyStore
                               return next()
