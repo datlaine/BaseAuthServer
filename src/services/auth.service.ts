@@ -66,7 +66,7 @@ class AuthService {
             )
             res.header(
                   'Set-Cookie',
-                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`
+                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=Strict;`
             )
 
             // res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
@@ -117,7 +117,7 @@ class AuthService {
                         // }
                   }
             }
-            res.header('Set-Cookie', `refresh_token=${new_rf};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`)
+            res.header('Set-Cookie', `refresh_token=${new_rf};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=Strict;`)
 
             // res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
@@ -189,7 +189,7 @@ class AuthService {
             // console.log({ update })
             res.header(
                   'Set-Cookie',
-                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`
+                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=Strict;`
             )
 
             // res.cookie('refresh_token', token.refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
