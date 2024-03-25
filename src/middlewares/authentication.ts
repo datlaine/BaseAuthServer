@@ -88,12 +88,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             jwt.verify(token, keyStore.public_key, (error, decode) => {
                   if (error) {
                         console.log({ error })
-                        if (req.originalUrl === '/v1/api/auth/logout') {
-                              console.log('Logout')
-                              req.user = user
-                              req.keyStore = keyStore
-                              return next()
-                        }
+
                         return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
                   // console.log('decode::', decode)

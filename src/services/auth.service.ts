@@ -64,8 +64,12 @@ class AuthService {
 
                   { new: true, upsert: true }
             )
+            res.header(
+                  'Set-Cookie',
+                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`
+            )
 
-            res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
+            // res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
             //return cho class Response ở controller
             return {
                   user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
@@ -113,7 +117,9 @@ class AuthService {
                         // }
                   }
             }
-            res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
+            res.header('Set-Cookie', `refresh_token=${new_rf};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`)
+
+            // res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
 
             const queryNotification = { notification_user_id: new Types.ObjectId(foundUser?._id) }
@@ -181,7 +187,12 @@ class AuthService {
                   )
                   .lean()
             // console.log({ update })
-            res.cookie('refresh_token', token.refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
+            res.header(
+                  'Set-Cookie',
+                  `refresh_token=${refresh_token};  maxAge: 1000 * 60 * 60 * 24 * 7,Path=/; HttpOnly; Secure; SameSite=None;`
+            )
+
+            // res.cookie('refresh_token', token.refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: 'none', secure: true })
             return { token: token.access_token, rf: token.refresh_token, user }
       }
 
