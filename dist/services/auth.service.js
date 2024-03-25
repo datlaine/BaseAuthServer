@@ -158,7 +158,7 @@ class AuthService {
         // console.log({ update })
         const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
         const expiryDate = new Date(Date.now() + oneWeek);
-        res.cookie('refresh_token', refresh_token, {
+        res.cookie('refresh_token', token.refresh_token, {
             maxAge: oneWeek,
             expires: expiryDate,
             secure: true,
