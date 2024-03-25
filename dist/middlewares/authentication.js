@@ -62,7 +62,7 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
         jsonwebtoken_1.default.verify(token, keyStore.public_key, (error, decode) => {
             if (error) {
                 console.log({ error });
-                if (req.originalUrl === '/v1/api/auth/rf') {
+                if (req.originalUrl === '/v1/api/auth/logout') {
                     console.log('Logout');
                     req.user = user;
                     req.keyStore = keyStore;
