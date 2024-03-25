@@ -44,11 +44,6 @@ app.use(
       })
 )
 
-app.use((req, res, next) => {
-      res.setHeader('Access-Control-Allow-Origin', 'https://tikiclone-v2024.onrender.com')
-      next()
-})
-
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
