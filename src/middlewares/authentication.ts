@@ -38,6 +38,10 @@ export interface IRequestCustom<T = any> extends Request {
 
 export const authentication = asyncHandler(async (req: IRequestCustom, res: Response, next: NextFunction) => {
       const client_id = req.headers[HEADER.CLIENT_ID]
+      const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
+
+      console.log({ refresh_token })
+
       if (!client_id) {
             // res.clearCookie('refresh_token')
             throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn client' })
@@ -63,8 +67,6 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             }
 
             if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
-                  const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
-                  console.log({ refresh_token })
                   jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
