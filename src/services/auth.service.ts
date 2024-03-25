@@ -72,7 +72,7 @@ class AuthService {
                   expires: expiryDate,
                   secure: true,
                   httpOnly: false,
-                  sameSite: 'strict'
+                  sameSite: 'none'
             })
 
             //return cho class Response ở controller
@@ -124,7 +124,7 @@ class AuthService {
             }
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
-            res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: false, sameSite: 'strict' })
+            res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: false, sameSite: 'none' })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
 
             const queryNotification = { notification_user_id: new Types.ObjectId(foundUser?._id) }
@@ -200,7 +200,7 @@ class AuthService {
                   expires: expiryDate,
                   secure: true,
                   httpOnly: false,
-                  sameSite: 'strict'
+                  sameSite: 'none'
             })
 
             return { token: token.access_token, rf: token.refresh_token, user }
