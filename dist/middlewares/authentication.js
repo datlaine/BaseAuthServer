@@ -40,10 +40,11 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
         }
         if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
             const refresh_token = req.cookies['refresh_token'] || 'none';
+            console.log({ refresh_token });
             jsonwebtoken_1.default.verify(refresh_token, keyStore.private_key, (error, decode) => {
                 if (error) {
                     // req.user = user
-                    return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng' }));
+                    return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng midlewares' }));
                 }
                 // console.log('decode::', decode)
                 const decodeType = decode;

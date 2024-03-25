@@ -64,11 +64,11 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
 
             if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
                   const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
-
+                  console.log({ refresh_token })
                   jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
-                              return next(new ForbiddenError({ detail: 'Token không đúng' }))
+                              return next(new ForbiddenError({ detail: 'Token không đúng midlewares' }))
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload

@@ -129,10 +129,10 @@ class AuthService {
         // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
         if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
             await keyStore_model_1.default.deleteOne({ user_id: user?._id });
-            throw new response_error_1.ForbiddenError({ detail: 'Token đã được sử dụng444' });
+            throw new response_error_1.ForbiddenError({ detail: 'Token đã được sử dụng' });
         }
         if (keyStore?.refresh_token !== refresh_token)
-            throw new response_error_1.ForbiddenError({ detail: 'Token không đúng' });
+            throw new response_error_1.ForbiddenError({ detail: 'Token không đúng router' });
         const public_key = (0, crypto_1.randomBytes)(64).toString('hex');
         const private_key = (0, crypto_1.randomBytes)(64).toString('hex');
         const token = (await provider_jwt_1.default.createPairToken({

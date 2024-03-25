@@ -160,10 +160,10 @@ class AuthService {
 
             if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
                   await keyStoreModel.deleteOne({ user_id: user?._id })
-                  throw new ForbiddenError({ detail: 'Token đã được sử dụng444' })
+                  throw new ForbiddenError({ detail: 'Token đã được sử dụng' })
             }
 
-            if (keyStore?.refresh_token !== refresh_token) throw new ForbiddenError({ detail: 'Token không đúng' })
+            if (keyStore?.refresh_token !== refresh_token) throw new ForbiddenError({ detail: 'Token không đúng router' })
             const public_key = randomBytes(64).toString('hex')
             const private_key = randomBytes(64).toString('hex')
             const token = (await ProviderJWT.createPairToken({
