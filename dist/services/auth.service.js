@@ -56,7 +56,9 @@ class AuthService {
             $inc: { notification_count: 1 },
             $push: { notifications_message: (0, notification_util_1.renderNotificationSystem)('Xin chào, cảm ơn bạn đã đăng kí tài khoản <3') }
         }, { new: true, upsert: true });
-        res.cookie('refresh_token', refresh_token, { maxAge: 1000 * 60 * 60 * 24 * 7, secure: true, httpOnly: true });
+        const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
+        const expiryDate = new Date(Date.now() + oneWeek);
+        res.cookie('refresh_token', refresh_token, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true });
         //return cho class Response ở controller
         return {
             user: SelectData_1.default.omit(convert_1.default.convertPlantObject(createUser), ['password', 'createdAt', 'updatedAt', '__v']),
@@ -91,7 +93,9 @@ class AuthService {
                 // }
             }
         }
-        res.cookie('refresh_token', new_rf, { maxAge: 1000 * 60 * 60 * 24 * 7, secure: true, httpOnly: true });
+        const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
+        const expiryDate = new Date(Date.now() + oneWeek);
+        res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true });
         await keyStore_model_1.default?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } });
         const queryNotification = { notification_user_id: new mongoose_1.Types.ObjectId(foundUser?._id) };
         const updateNotification = {
@@ -146,11 +150,9 @@ class AuthService {
         }, { upsert: true, new: true })
             .lean();
         // console.log({ update })
-        res.cookie('refresh_token', token.refresh_token, {
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-            secure: true,
-            httpOnly: true
-        });
+        const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
+        const expiryDate = new Date(Date.now() + oneWeek);
+        res.cookie('refresh_token', refresh_token, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true });
         return { token: token.access_token, rf: token.refresh_token, user };
     }
     static async loginWithGoogle(req) {
