@@ -67,7 +67,14 @@ class AuthService {
 
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
-            res.cookie('refresh_token', refresh_token, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true })
+            res.cookie('refresh_token', refresh_token, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: true,
+                  sameSite: 'strict'
+            })
+
             //return cho class Response ở controller
             return {
                   user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
@@ -117,7 +124,7 @@ class AuthService {
             }
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
-            res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true })
+            res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true, sameSite: 'strict' })
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
 
             const queryNotification = { notification_user_id: new Types.ObjectId(foundUser?._id) }
@@ -188,7 +195,13 @@ class AuthService {
 
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
-            res.cookie('refresh_token', refresh_token, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: true })
+            res.cookie('refresh_token', refresh_token, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: true,
+                  sameSite: 'strict'
+            })
 
             return { token: token.access_token, rf: token.refresh_token, user }
       }
