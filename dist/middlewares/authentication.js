@@ -7,8 +7,6 @@ exports.authentication = exports.HEADER = void 0;
 const keyStore_service_1 = __importDefault(require("../services/keyStore.service"));
 const user_service_1 = __importDefault(require("../services/user.service"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const mongoose_1 = require("mongoose");
-const keyStore_model_1 = __importDefault(require("../models/keyStore.model"));
 const asyncHandler_1 = require("../helpers/asyncHandler");
 const response_error_1 = require("../Core/response.error");
 exports.HEADER = {
@@ -43,13 +41,13 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
             return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng' }));
         }
         if (req?.cookies['refresh_token']) {
-            jsonwebtoken_1.default.verify(refresh_token, keyStore.private_key, async (error, decode) => {
-                if (req.originalUrl === '/v1/api/auth/logout') {
-                    const deleleKey = await keyStore_model_1.default.findOneAndDelete({ user_id: new mongoose_1.Types.ObjectId(user._id) });
-                    return { message: 'Logout thành công' };
-                }
+            jsonwebtoken_1.default.verify(refresh_token, keyStore.private_key, (error, decode) => {
                 if (error) {
                     // req.user = user
+                    if (req.originalUrl === '/v1/api/auth/logout') {
+                        req.user = user;
+                        return next();
+                    }
                     return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng midlewares' }));
                 }
                 // console.log('decode::', decode)

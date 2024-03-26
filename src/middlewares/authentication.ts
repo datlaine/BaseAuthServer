@@ -67,14 +67,13 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             }
 
             if (req?.cookies['refresh_token']) {
-                  jwt.verify(refresh_token, keyStore.private_key, async (error, decode) => {
-                        if (req.originalUrl === '/v1/api/auth/logout') {
-                              const deleleKey = await keyStoreModel.findOneAndDelete({ user_id: new Types.ObjectId(user._id) })
-                              return { message: 'Logout thành công' }
-                        }
-
+                  jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
                         if (error) {
                               // req.user = user
+                              if (req.originalUrl === '/v1/api/auth/logout') {
+                                    req.user = user
+                                    return next()
+                              }
                               return next(new ForbiddenError({ detail: 'Token không đúng midlewares' }))
                         }
                         // console.log('decode::', decode)
