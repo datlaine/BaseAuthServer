@@ -3,9 +3,9 @@ import { NextFunction, Request, Response } from 'express'
 import KeyStoreService from '~/services/keyStore.service'
 import UserService from '~/services/user.service'
 import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
-import { InferSchemaType } from 'mongoose'
+import { InferSchemaType, Types } from 'mongoose'
 import { userSchema } from '~/models/user.model'
-import { keyStoreSchema } from '~/models/keyStore.model'
+import keyStoreModel, { keyStoreSchema } from '~/models/keyStore.model'
 import { IJwtPayload } from '~/utils/provider.jwt'
 import { asyncHandler } from '~/helpers/asyncHandler'
 import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError } from '~/Core/response.error'
@@ -66,8 +66,13 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                   return next(new ForbiddenError({ detail: 'Token không đúng' }))
             }
 
-            if (req?.cookies['refresh_token'] || req.originalUrl === '/v1/api/auth/rf') {
-                  jwt.verify(refresh_token, keyStore.private_key, (error, decode) => {
+            if (req?.cookies['refresh_token']) {
+                  jwt.verify(refresh_token, keyStore.private_key, async (error, decode) => {
+                        if (req.originalUrl === '/v1/api/auth/logout') {
+                              const deleleKey = await keyStoreModel.findOneAndDelete({ user_id: new Types.ObjectId(user._id) })
+                              return { message: 'Logout thành công' }
+                        }
+
                         if (error) {
                               // req.user = user
                               return next(new ForbiddenError({ detail: 'Token không đúng midlewares' }))
