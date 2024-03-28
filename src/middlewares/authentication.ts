@@ -74,7 +74,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                                     req.user = user
                                     return next()
                               }
-                              return next(new ForbiddenError({ detail: 'Token không đúng midlewares' }))
+                              return next(new ForbiddenError({ detail: 'Token không đúng' }))
                         }
                         // console.log('decode::', decode)
                         const decodeType = decode as IJwtPayload
