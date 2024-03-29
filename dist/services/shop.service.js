@@ -24,7 +24,7 @@ class ShopService {
         if (state === 'Full') {
             if (!file)
                 throw new response_error_1.BadRequestError({ detail: 'Missing File' });
-            const folder = `user/${user?._id}/shop`;
+            const folder = `user/${user?._id}/shops`;
             const result = await (0, uploadCloudinary_1.default)(file, folder);
             update = {
                 $set: { shop_name, shop_avatar: { secure_url: result.secure_url, public_id: result.public_id }, shop_description }
@@ -60,7 +60,7 @@ class ShopService {
         if (!file)
             throw new response_error_1.BadRequestError({ detail: 'Không có file' });
         const { user } = req;
-        const folder = `user/${user?._id}/shop`;
+        const folder = `user/${user?._id}/shops`;
         const result = await (0, uploadCloudinary_1.default)(file, folder);
         const shopUpdate = await shop_model_1.shopModel.findOneAndUpdate({ owner: user?._id }, {
             $set: { shop_avatar: { secure_url: result.secure_url, public_id: result.public_id } }

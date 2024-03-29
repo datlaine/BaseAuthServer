@@ -80,7 +80,7 @@ class ProductService {
         const { product_id } = req.body;
         console.log({ product_id });
         if (file) {
-            const folder = `users/${user?.id}/product`;
+            const folder = `users/${user?.id}/products`;
             const result = await (0, uploadCloudinary_1.default)(file, folder);
             const productDemo = await product_model_1.default.findOneAndUpdate({
                 _id: new mongoose_1.default.Types.ObjectId(product_id)
@@ -115,7 +115,7 @@ class ProductService {
         const { product_id } = req.body;
         console.log({ user });
         if (file) {
-            const folder = `users/${user?.id}/product`;
+            const folder = `users/${user?.id}/products`;
             const result = await (0, uploadCloudinary_1.default)(file, folder);
             const productDemo = await product_model_1.default.findOneAndUpdate({
                 _id: new mongoose_1.default.Types.ObjectId(product_id)

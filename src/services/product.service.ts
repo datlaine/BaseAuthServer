@@ -74,7 +74,7 @@ class ProductService {
             const { product_id } = req.body
             console.log({ product_id })
             if (file) {
-                  const folder = `users/${user?.id}/product`
+                  const folder = `users/${user?.id}/products`
                   const result = await uploadToCloudinary(file, folder)
                   const productDemo = await productModel.findOneAndUpdate(
                         {
@@ -119,7 +119,7 @@ class ProductService {
             const { product_id } = req.body
             console.log({ user })
             if (file) {
-                  const folder = `users/${user?.id}/product`
+                  const folder = `users/${user?.id}/products`
                   const result = await uploadToCloudinary(file, folder)
                   const productDemo = await productModel.findOneAndUpdate(
                         {
