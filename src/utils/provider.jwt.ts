@@ -19,7 +19,7 @@ export interface IToken {
 class ProviderJWT {
       static createPairToken({ payload, key }: { payload: IJwtPayload; key: IKeySecret }): IToken | unknown {
             try {
-                  const access_token = jwt.sign(payload, key.public_key, { expiresIn: '15s' })
+                  const access_token = jwt.sign(payload, key.public_key, { expiresIn: '3d' })
                   const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })
                   // console.log({ refresh_token, access_token })
                   return { access_token, refresh_token }
