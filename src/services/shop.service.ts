@@ -17,7 +17,7 @@ class ShopService {
             const { shop_name, data, shop_description } = req.body.data
             const { user } = req
             const { file } = req
-            const { state, mode } = req.body.query
+            const { state, mode } = req.body
 
             let update = {}
             if (state === 'Full') {
