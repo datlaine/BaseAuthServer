@@ -14,6 +14,7 @@ const authentication_1 = __importDefault(require("../../middlewares/authenticati
 const accountRouter = (0, express_1.Router)();
 accountRouter.use(authentication_1.default);
 accountRouter.post('/getme', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.getMe));
+accountRouter.get('/getme', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.getMeQuery));
 accountRouter.post('/update-info', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updateInfo));
 accountRouter.post('/update-password', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updatePassword));
 accountRouter.post('/update-avatar', cloundinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updateAvatar));

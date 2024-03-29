@@ -18,6 +18,11 @@ const sleep_1 = __importDefault(require("../utils/sleep"));
 const convert_1 = __importDefault(require("../utils/convert"));
 (0, dotenv_1.config)();
 class AccountService {
+    static async getMeQuery(req) {
+        return {
+            user: SelectData_1.default.omit(convert_1.default.convertPlantObject(req.user), ['password', 'createdAt', 'updatedAt'])
+        };
+    }
     static async getMe(req) {
         return {
             user: SelectData_1.default.omit(convert_1.default.convertPlantObject(req.user), ['password', 'createdAt', 'updatedAt'])

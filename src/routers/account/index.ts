@@ -11,6 +11,8 @@ import authentication from '~/middlewares/authentication'
 const accountRouter = Router()
 accountRouter.use(authentication)
 accountRouter.post('/getme', asyncHandler(AccountController.getMe))
+accountRouter.get('/getme', asyncHandler(AccountController.getMeQuery))
+
 accountRouter.post('/update-info', asyncHandler(AccountController.updateInfo))
 accountRouter.post('/update-password', asyncHandler(AccountController.updatePassword))
 

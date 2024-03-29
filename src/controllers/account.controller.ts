@@ -4,6 +4,10 @@ import { IRequestCustom } from '~/middlewares/authentication'
 import AccountService from '~/services/account.service'
 
 class AccountController {
+      static async getMeQuery(req: IRequestCustom, res: Response, next: NextFunction) {
+            new OK({ metadata: await AccountService.getMe(req) }).send(res)
+      }
+
       static async getMe(req: IRequestCustom, res: Response, next: NextFunction) {
             new OK({ metadata: await AccountService.getMe(req) }).send(res)
       }

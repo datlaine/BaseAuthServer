@@ -15,6 +15,12 @@ import Convert from '~/utils/convert'
 
 config()
 class AccountService {
+      static async getMeQuery(req: IRequestCustom) {
+            return {
+                  user: SelectData.omit(Convert.convertPlantObject(req.user as object), ['password', 'createdAt', 'updatedAt'])
+            }
+      }
+
       static async getMe(req: IRequestCustom) {
             return {
                   user: SelectData.omit(Convert.convertPlantObject(req.user as object), ['password', 'createdAt', 'updatedAt'])

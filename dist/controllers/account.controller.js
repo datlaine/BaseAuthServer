@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const response_success_1 = require("../Core/response.success");
 const account_service_1 = __importDefault(require("../services/account.service"));
 class AccountController {
+    static async getMeQuery(req, res, next) {
+        new response_success_1.OK({ metadata: await account_service_1.default.getMe(req) }).send(res);
+    }
     static async getMe(req, res, next) {
         new response_success_1.OK({ metadata: await account_service_1.default.getMe(req) }).send(res);
     }

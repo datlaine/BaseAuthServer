@@ -48,7 +48,7 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
                         req.user = user;
                         return next();
                     }
-                    return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng midlewares' }));
+                    return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng' }));
                 }
                 // console.log('decode::', decode)
                 const decodeType = decode;
