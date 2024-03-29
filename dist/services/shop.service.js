@@ -16,10 +16,10 @@ const notification_util_1 = require("../utils/notification.util");
 const uploadCloudinary_1 = __importDefault(require("../utils/uploadCloudinary"));
 class ShopService {
     static async registerShop(req) {
-        const { shop_name, data, shop_description } = req.body.data;
+        const { shop_name, data, shop_description } = req.body;
         const { user } = req;
         const { file } = req;
-        const { state, mode } = req.body;
+        const { state, mode } = req.query;
         let update = {};
         if (state === 'Full') {
             if (!file)

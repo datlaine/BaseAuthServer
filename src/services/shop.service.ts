@@ -14,10 +14,10 @@ import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 class ShopService {
       static async registerShop(req: IRequestCustom) {
-            const { shop_name, data, shop_description } = req.body.data
+            const { shop_name, data, shop_description } = req.body
             const { user } = req
             const { file } = req
-            const { state, mode } = req.body
+            const { state, mode } = req.query
 
             let update = {}
             if (state === 'Full') {
