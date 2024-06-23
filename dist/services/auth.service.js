@@ -24,7 +24,6 @@ class AuthService {
         const { email, password } = req.body;
         //check email trong database
         const foundEmail = await user_service_1.default.findUserByEmail({ email });
-        console.log('email', foundEmail);
         if (foundEmail)
             throw new response_error_1.BadRequestError({ detail: 'Email đã được đăng kí' });
         //hash pass
@@ -49,7 +48,6 @@ class AuthService {
             access_token
         });
         const admin = await user_model_1.default.findOne({ roles: { $in: ['Admin'] } });
-        const updateNotification = {};
         const noti = await notification_model_1.notificationModel.findOneAndUpdate({
             notification_user_id: new mongoose_1.Types.ObjectId(createUser._id)
         }, {
@@ -65,10 +63,23 @@ class AuthService {
             httpOnly: false,
             sameSite: 'none'
         });
+        res.cookie('client_id', createUser._id, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
+        res.cookie('access_token', access_token, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
         //return cho class Response ở controller
         return {
-            user: SelectData_1.default.omit(convert_1.default.convertPlantObject(createUser), ['password', 'createdAt', 'updatedAt', '__v']),
-            access_token
+            user: SelectData_1.default.omit(convert_1.default.convertPlantObject(createUser), ['password', 'createdAt', 'updatedAt', '__v'])
         };
     }
     //LOGIN
@@ -83,6 +94,7 @@ class AuthService {
         const comparePass = await bcrypt_1.default.compareSync(password, foundUser.password);
         if (!comparePass)
             throw new response_error_1.AuthFailedError({ detail: 'Đăng nhập thất bại, vui lòng nhập thông tin hợp lệ' });
+        await keyStore_model_1.default.findOneAndDelete({ user_id: foundUser._id });
         const public_key = (0, crypto_1.randomBytes)(64).toString('hex');
         const private_key = (0, crypto_1.randomBytes)(64).toString('hex');
         const keyStore = await keyStore_model_1.default.findOneAndUpdate({ user_id: foundUser._id }, { $set: { public_key, private_key } }, { new: true, upsert: true });
@@ -99,9 +111,6 @@ class AuthService {
                 // }
             }
         }
-        const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
-        const expiryDate = new Date(Date.now() + oneWeek);
-        res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: false, sameSite: 'none' });
         await keyStore_model_1.default?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } });
         const queryNotification = { notification_user_id: new mongoose_1.Types.ObjectId(foundUser?._id) };
         const updateNotification = {
@@ -112,9 +121,31 @@ class AuthService {
         };
         const optionNotification = { new: true, upsert: true };
         await notification_model_1.notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification);
+        const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
+        const expiryDate = new Date(Date.now() + oneWeek);
+        res.cookie('refresh_token', new_rf, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
+        res.cookie('client_id', foundUser._id, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
+        res.cookie('access_token', access_token, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
         return {
-            user: SelectData_1.default.omit(convert_1.default.convertPlantObject(foundUser), ['password', 'createdAt', 'updatedAt', '__v']),
-            access_token
+            user: SelectData_1.default.omit(convert_1.default.convertPlantObject(foundUser), ['password', 'createdAt', 'updatedAt', '__v'])
         };
     }
     // logout
@@ -159,6 +190,20 @@ class AuthService {
         const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
         const expiryDate = new Date(Date.now() + oneWeek);
         res.cookie('refresh_token', token.refresh_token, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
+        res.cookie('client_id', user?._id, {
+            maxAge: oneWeek,
+            expires: expiryDate,
+            secure: true,
+            httpOnly: false,
+            sameSite: 'none'
+        });
+        res.cookie('access_token', token.access_token, {
             maxAge: oneWeek,
             expires: expiryDate,
             secure: true,

@@ -36,7 +36,7 @@ app.use(compression())
 app.use(
       cors({
             credentials: true,
-            origin: [process.env.CLIENT_URL as string],
+            origin: [process.env.MODE === 'DEV' ? 'http://localhost:3000' : (process.env.CLIENT_URL as string)],
             exposedHeaders: ['set-cookie']
 
             // origin: 'http://localhost:3000'
@@ -72,7 +72,9 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
-server.listen(process.env.PORT, () => {
+const PORT = process.env.MODE === 'DEV' ? 4000 : process.env.PORT
+
+server.listen(PORT!, () => {
       console.log('Server is runing')
 })
 

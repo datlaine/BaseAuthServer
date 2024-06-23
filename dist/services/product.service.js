@@ -184,9 +184,9 @@ class ProductService {
             .sort({ product_price: 1 })
             .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
             .lean();
-        const count = products.length;
+        const totalPage = Math.ceil(products.length / LIMIT);
         // await sleep(7000)
-        return { products: products, count };
+        return { products: products, totalPage };
     }
     static async getAllProductCare(req) {
         const products = await product_model_1.default

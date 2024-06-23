@@ -15,17 +15,12 @@ exports.HEADER = {
 };
 // type IParamsAuthentication = {}
 exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
-    const client_id = req.headers[exports.HEADER.CLIENT_ID];
-    const refresh_token = req.cookies['refresh_token'] || 'none';
-    console.log({ refresh_token });
-    if (!client_id) {
-        // res.clearCookie('refresh_token')
+    const client_id = req.cookies['client_id'];
+    const access_token = req.cookies['access_token'];
+    const refresh_token = req.cookies['refresh_token'];
+    if (!client_id || !access_token) {
         throw new response_error_1.ForbiddenError({ detail: 'Phiên đăng nhập hết hạn client' });
     }
-    const access_token = req.headers[exports.HEADER.AUTHORIZATION];
-    // eslint-disable-next-line no-extra-boolean-cast
-    if (!access_token)
-        throw new response_error_1.AuthFailedError({ detail: 'Not found token' });
     // tim user
     const user = await user_service_1.default.findUserById({ _id: client_id });
     if (!user)
@@ -62,14 +57,11 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
     }
     // case authentication thông thường
     if (access_token) {
-        const token = access_token.split(' ')[1];
-        console.log('at');
-        jsonwebtoken_1.default.verify(token, keyStore.public_key, (error, decode) => {
+        jsonwebtoken_1.default.verify(access_token, keyStore.public_key, (error, decode) => {
             if (error) {
                 console.log({ error });
                 return next(new response_error_1.AuthFailedError({ detail: 'Token hết hạn' }));
             }
-            // console.log('decode::', decode)
             const decodeType = decode;
             if (decodeType._id !== client_id)
                 throw new response_error_1.AuthFailedError({ detail: 'client-id not match user' });

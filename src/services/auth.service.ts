@@ -21,7 +21,6 @@ class AuthService {
             const { email, password } = req.body
             //check email trong database
             const foundEmail = await UserService.findUserByEmail({ email })
-            console.log('email', foundEmail)
             if (foundEmail) throw new BadRequestError({ detail: 'Email đã được đăng kí' })
 
             //hash pass
@@ -51,8 +50,6 @@ class AuthService {
 
             const admin = await userModel.findOne({ roles: { $in: ['Admin'] } })
 
-            const updateNotification = {}
-
             const noti = await notificationModel.findOneAndUpdate(
                   {
                         notification_user_id: new Types.ObjectId(createUser._id)
@@ -75,10 +72,25 @@ class AuthService {
                   sameSite: 'none'
             })
 
+            res.cookie('client_id', createUser._id, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
+            res.cookie('access_token', access_token, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
             //return cho class Response ở controller
             return {
-                  user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
-                  access_token
+                  user: SelectData.omit(Convert.convertPlantObject(createUser as object), ['password', 'createdAt', 'updatedAt', '__v'])
             }
       }
 
@@ -95,6 +107,8 @@ class AuthService {
 
             const comparePass = await bcrypt.compareSync(password, foundUser.password)
             if (!comparePass) throw new AuthFailedError({ detail: 'Đăng nhập thất bại, vui lòng nhập thông tin hợp lệ' })
+
+            await keyStoreModel.findOneAndDelete({ user_id: foundUser._id })
 
             const public_key = randomBytes(64).toString('hex')
             const private_key = randomBytes(64).toString('hex')
@@ -122,9 +136,7 @@ class AuthService {
                         // }
                   }
             }
-            const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
-            const expiryDate = new Date(Date.now() + oneWeek)
-            res.cookie('refresh_token', new_rf, { maxAge: oneWeek, expires: expiryDate, secure: true, httpOnly: false, sameSite: 'none' })
+
             await keyStoreModel?.findOneAndUpdate({ user_id: foundUser._id }, { $set: { refresh_token: new_rf } })
 
             const queryNotification = { notification_user_id: new Types.ObjectId(foundUser?._id) }
@@ -138,9 +150,34 @@ class AuthService {
             const optionNotification = { new: true, upsert: true }
             await notificationModel.findOneAndUpdate(queryNotification, updateNotification, optionNotification)
 
+            const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
+            const expiryDate = new Date(Date.now() + oneWeek)
+            res.cookie('refresh_token', new_rf, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
+            res.cookie('client_id', foundUser._id, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
+            res.cookie('access_token', access_token, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
             return {
-                  user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v']),
-                  access_token
+                  user: SelectData.omit(Convert.convertPlantObject(foundUser as object), ['password', 'createdAt', 'updatedAt', '__v'])
             }
       }
 
@@ -196,6 +233,22 @@ class AuthService {
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
             res.cookie('refresh_token', token.refresh_token, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
+            res.cookie('client_id', user?._id, {
+                  maxAge: oneWeek,
+                  expires: expiryDate,
+                  secure: true,
+                  httpOnly: false,
+                  sameSite: 'none'
+            })
+
+            res.cookie('access_token', token.access_token, {
                   maxAge: oneWeek,
                   expires: expiryDate,
                   secure: true,

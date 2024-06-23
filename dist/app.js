@@ -32,7 +32,7 @@ app.use((0, helmet_1.default)());
 app.use((0, compression_1.default)());
 app.use((0, cors_1.default)({
     credentials: true,
-    origin: [process.env.CLIENT_URL],
+    origin: [process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL],
     exposedHeaders: ['set-cookie']
     // origin: 'http://localhost:3000'
     // origin: '*'
@@ -53,7 +53,8 @@ app.use(((error, req, res, next) => {
     const detail = error.detail ? error.detail : null;
     return res.status(code).send({ code, message, detail });
 }));
-server.listen(process.env.PORT, () => {
+const PORT = process.env.MODE === 'DEV' ? 4000 : process.env.PORT;
+server.listen(PORT, () => {
     console.log('Server is runing');
 });
 exports.default = app;

@@ -37,18 +37,13 @@ export interface IRequestCustom<T = any> extends Request {
 // type IParamsAuthentication = {}
 
 export const authentication = asyncHandler(async (req: IRequestCustom, res: Response, next: NextFunction) => {
-      const client_id = req.headers[HEADER.CLIENT_ID]
-      const refresh_token = (req.cookies['refresh_token'] as string) || 'none'
+      const client_id = req.cookies['client_id'] as string
+      const access_token = req.cookies['access_token'] as string
 
-      console.log({ refresh_token })
-
-      if (!client_id) {
-            // res.clearCookie('refresh_token')
+      const refresh_token = req.cookies['refresh_token'] as string
+      if (!client_id || !access_token) {
             throw new ForbiddenError({ detail: 'Phiên đăng nhập hết hạn client' })
       }
-      const access_token = req.headers[HEADER.AUTHORIZATION] as string
-      // eslint-disable-next-line no-extra-boolean-cast
-      if (!access_token) throw new AuthFailedError({ detail: 'Not found token' })
 
       // tim user
       const user = await UserService.findUserById({ _id: client_id as string })
@@ -88,16 +83,12 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       }
       // case authentication thông thường
       if (access_token) {
-            const token = access_token.split(' ')[1]
-
-            console.log('at')
-            jwt.verify(token, keyStore.public_key, (error, decode) => {
+            jwt.verify(access_token, keyStore.public_key, (error, decode) => {
                   if (error) {
                         console.log({ error })
 
                         return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
-                  // console.log('decode::', decode)
                   const decodeType = decode as IJwtPayload
                   if (decodeType._id !== client_id) throw new AuthFailedError({ detail: 'client-id not match user' })
                   req.user = user
