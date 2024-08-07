@@ -21,9 +21,7 @@ class NotificationRepository {
             }
         ]);
         const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
-        console.log(...JSON.stringify(arguments));
         const numberDocument = limit * (page - 1);
-        console.log({ numberDocument, limit });
         const result = await notification_model_1.notificationModel.aggregate([
             {
                 $match: { notification_user_id: user_id }
@@ -53,7 +51,6 @@ class NotificationRepository {
         ]);
         let nameCount = `total_notification_type`;
         let totalPage = Math.ceil(totalCount / limit);
-        console.log(Math.ceil(totalCount / limit), totalCount, limit);
         return { notification: result[0] ? result[0] : { notifications_message: [] }, [nameCount]: totalCount, totalPage };
     }
 }

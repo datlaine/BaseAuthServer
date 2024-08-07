@@ -26,7 +26,6 @@ class KeyStoreService {
     static async updateKey() { }
     static async deleteKeyStore({ user_id }) {
         const del = await keyStore_model_1.default.deleteOne({ user_id });
-        console.log('del', del);
         return del;
     }
     static async findKeyByRf({ refresh_token }) {

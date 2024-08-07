@@ -59,7 +59,6 @@ class OrderRepository {
                 }
             }
         ]);
-        console.log({ product: orderProductsId });
         return orderProductsId;
     }
 }

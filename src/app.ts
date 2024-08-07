@@ -1,21 +1,20 @@
-import express, { NextFunction, Request, Response, request, ErrorRequestHandler } from 'express'
+import express, { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 //middlwares
-import helmet from 'helmet'
 import compression from 'compression'
-import morgan from 'morgan'
-import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import helmet from 'helmet'
+import morgan from 'morgan'
 // .env
 import { config } from 'dotenv'
 // mongosose
-import router from './routers'
-import MongoConnect from './Database/mongo.connect'
-import { reasonCode, statusCode } from './Core/httpStatusCode'
 import bodyParser from 'body-parser'
-import productModel from './models/product.model'
 import { createServer } from 'http'
-import { Server } from 'socket.io'
 import { DefaultEventsMap } from 'node_modules/socket.io/dist/typed-events'
+import { Server } from 'socket.io'
+import { reasonCode, statusCode } from './Core/httpStatusCode'
+import MongoConnect from './Database/mongo.connect'
+import router from './routers'
 import { renderNotificationSystem } from './utils/notification.util'
 
 config()
@@ -36,7 +35,11 @@ app.use(compression())
 app.use(
       cors({
             credentials: true,
-            origin: [process.env.MODE === 'DEV' ? 'http://localhost:3000' : (process.env.CLIENT_URL as string), 'http://localhost:3000', process.env.CLIENT_URL as string],
+            origin: [
+                  process.env.MODE === 'DEV' ? 'http://localhost:3001' : (process.env.CLIENT_URL as string),
+                  'http://localhost:3001',
+                  process.env.CLIENT_URL as string
+            ],
             exposedHeaders: ['set-cookie']
 
             // origin: 'http://localhost:3000'
@@ -49,7 +52,6 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-console.log(renderNotificationSystem('Xin chào'))
 //Connect -> Database -> Mongo
 MongoConnect.Connect()
 
@@ -72,7 +74,7 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
-const PORT = process.env.MODE === 'DEV' ? 4000 : process.env.PORT
+const PORT = process.env.MODE === 'DEV' ? 4001 : process.env.PORT
 
 server.listen(PORT!, () => {
       console.log('Server is runing')

@@ -51,7 +51,6 @@ class CartService {
         if (checkProduct.product_available < product.quantity) {
             throw new response_error_1.BadRequestError({ detail: 'Số lượng sản phẩm được chọn nhiều hơn số lượng trong kho' });
         }
-        console.log(checkProduct?.product_available, product.quantity);
         const userCart = await cart_modal_1.cartModel.findOne({ cart_user_id: new mongoose_1.Types.ObjectId(user?._id) });
         // const
         if (!userCart) {
@@ -71,7 +70,6 @@ class CartService {
             const update = { $addToSet: { cart_products: product }, $inc: { cart_count_product: 1 } };
             const option = { new: true, upsert: true };
             const cart = await cart_modal_1.cartModel.findOneAndUpdate(query, update, option);
-            console.log({ cart, product });
             return { cart };
         }
         const query = { cart_user_id: new mongoose_1.Types.ObjectId(user?._id), 'cart_products.product_id': product.product_id };
@@ -112,7 +110,6 @@ class CartService {
     static async changeQuantityProductCart(req) {
         const { user } = req;
         const { mode, quantity, product_id } = req.body;
-        console.log({ body: req.body });
         const query = { cart_user_id: new mongoose_1.Types.ObjectId(user?._id), 'cart_products.product_id': product_id };
         const option = { new: true, upsert: true };
         if (mode === 'DECREASE') {
@@ -150,7 +147,6 @@ class CartService {
         const option = { new: true, upsert: true };
         const updateCart = await cart_modal_1.cartModel.findOneAndUpdate(query, update, option);
         const result = updateCart?.cart_products.find((product) => product.product_id.toString() === product_id.toString());
-        console.log({ updateCart: JSON.stringify(updateCart) });
         return { cartUpdateItem: result };
     }
     static async getCartWithId(req) {
@@ -181,7 +177,6 @@ class CartService {
     }
     static async updateAddressCart(req) {
         const { payload } = req.body;
-        console.log({ body: req.body });
         const { product_id, address_full } = payload;
         const { user } = req;
         const query = { cart_user_id: new mongoose_1.Types.ObjectId(user?._id), 'cart_products.product_id': product_id };

@@ -1,11 +1,9 @@
-import mongoose, { Schema, Types } from 'mongoose'
+import mongoose, { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { CartProduct, cartModel } from '~/models/cart.modal'
-import { notificationModel } from '~/models/notification.model'
-import productModel, { IProductDoc } from '~/models/product.model'
+import productModel from '~/models/product.model'
 import userModel from '~/models/user.model'
-import { renderNotificationProduct } from '~/utils/notification.util'
 
 type TModeChangeCartQuantity = 'INCREASE' | 'DECREASE' | 'INPUT'
 
@@ -34,8 +32,6 @@ class CartService {
                   throw new BadRequestError({ detail: 'Số lượng sản phẩm được chọn nhiều hơn số lượng trong kho' })
             }
 
-            console.log(checkProduct?.product_available, product.quantity)
-
             const userCart = await cartModel.findOne({ cart_user_id: new Types.ObjectId(user?._id) })
 
             // const
@@ -62,7 +58,6 @@ class CartService {
                   const option = { new: true, upsert: true }
 
                   const cart = await cartModel.findOneAndUpdate(query, update, option)
-                  console.log({ cart, product })
 
                   return { cart }
             }
@@ -112,7 +107,6 @@ class CartService {
       static async changeQuantityProductCart(req: IRequestCustom) {
             const { user } = req
             const { mode, quantity, product_id } = req.body
-            console.log({ body: req.body })
             const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }
             const option = { new: true, upsert: true }
             if (mode === 'DECREASE') {
@@ -165,7 +159,6 @@ class CartService {
             const option = { new: true, upsert: true }
             const updateCart = await cartModel.findOneAndUpdate(query, update, option)
             const result = updateCart?.cart_products.find((product) => product.product_id.toString() === product_id.toString())
-            console.log({ updateCart: JSON.stringify(updateCart) })
             return { cartUpdateItem: result }
       }
 
@@ -204,7 +197,6 @@ class CartService {
 
       static async updateAddressCart(req: IRequestCustom) {
             const { payload } = req.body
-            console.log({ body: req.body })
             const { product_id, address_full } = payload
             const { user } = req
             const query = { cart_user_id: new Types.ObjectId(user?._id), 'cart_products.product_id': product_id }

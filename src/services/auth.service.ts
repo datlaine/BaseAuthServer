@@ -1,19 +1,19 @@
+import bcrypt from 'bcrypt'
+import { randomBytes } from 'crypto'
 import { Request, Response } from 'express'
-import UserService from './user.service'
+import { Types } from 'mongoose'
+import { AuthFailedError, BadRequestError, ForbiddenError, ResponseError } from '~/Core/response.error'
+import { IRequestCustom } from '~/middlewares/authentication'
+import keyStoreModel from '~/models/keyStore.model'
+import { notificationModel } from '~/models/notification.model'
+import userModel, { UserDocument } from '~/models/user.model'
 import SelectData from '~/utils/SelectData'
 import Convert from '~/utils/convert'
-import { randomBytes } from 'crypto'
-import ProviderJWT, { IToken } from '~/utils/provider.jwt'
-import keyStoreModel, { IKeyStoreDoc } from '~/models/keyStore.model'
-import KeyStoreService from './keyStore.service'
-import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError, ResponseError } from '~/Core/response.error'
-import bcrypt from 'bcrypt'
-import { IRequestCustom } from '~/middlewares/authentication'
-import userModel, { UserDocument } from '~/models/user.model'
 import { getGoogleUser, getOautGoogleToken } from '~/utils/google.oauth'
-import { Types } from 'mongoose'
-import { notificationModel } from '~/models/notification.model'
 import { renderNotificationSystem } from '~/utils/notification.util'
+import ProviderJWT, { IToken } from '~/utils/provider.jwt'
+import KeyStoreService from './keyStore.service'
+import UserService from './user.service'
 class AuthService {
       //REGISTER
       static async register(req: Request, res: Response) {
@@ -203,8 +203,8 @@ class AuthService {
 
       static async refresh_token(req: IRequestCustom, res: Response) {
             const { refresh_token, keyStore, user } = req
-            // console.log('gọi api')
-            // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
+            //console.log(([^)]+))
+            //console.log(([^)]+))
 
             if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
                   await keyStoreModel.deleteOne({ user_id: user?._id })
@@ -228,7 +228,7 @@ class AuthService {
                         { upsert: true, new: true }
                   )
                   .lean()
-            // console.log({ update })
+            //console.log(([^)]+))
 
             const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
             const expiryDate = new Date(Date.now() + oneWeek)
@@ -260,14 +260,14 @@ class AuthService {
       }
 
       static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {
-            // console.log('query', req.query.code)
+            //console.log(([^)]+))
             // return req.query.code
             const { code } = req.query
             const token = await getOautGoogleToken(code)
             // eslint-disable-next-line prettier/prettier
             const { id_token, access_token } = token
             const googleUser: any = await getGoogleUser({ id_token, access_token })
-            // console.log(googleUser)
+            //console.log(([^)]+))
             const user = googleUser.data
             if ('verified_email' in googleUser) {
                   if (!googleUser.verified_email) {

@@ -1,5 +1,4 @@
-import { ObjectId, Types } from 'mongoose'
-import { BadRequestError } from '~/Core/response.error'
+import { Types } from 'mongoose'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { CartProduct, CartProductWithId, cartModel } from '~/models/cart.modal'
 import { notificationModel } from '~/models/notification.model'
@@ -7,7 +6,7 @@ import { orderModel } from '~/models/order.model'
 import productModel from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
 import { checkQuanity } from '~/utils/checkQuantity.util'
-import { renderNotificationProduct, renderNotificationShop, renderNotificationSystem } from '~/utils/notification.util'
+import { renderNotificationProduct, renderNotificationShop } from '~/utils/notification.util'
 
 class OrderService {
       static async orderAddProduct(req: IRequestCustom<{ orders: { products: CartProductWithId[]; order_total: number } }>) {
@@ -55,10 +54,8 @@ class OrderService {
                   .populate('order_products.products.product_id')
                   .populate('order_products.products.shop_id')
 
-
             // .populate({ path: 'order_products.products.product_id' })
             // .populate({ path: 'order_products.products.shop_id' })
-
 
             //CART MODEL
 
@@ -208,7 +205,6 @@ class OrderService {
                   .populate({ path: 'order_products.products.shop_id' })
 
                   .lean()
-            console.log({ order_id: getOrderInfo?.order_products.map((order) => order._id) })
 
             const orderInfo = getOrderInfo?.order_products.filter((order) => {
                   if (order._id.toString() === order_id) {

@@ -1,27 +1,20 @@
-import { Response } from 'express'
 import mongoose, { Types } from 'mongoose'
 import { BadRequestError, ForbiddenError } from '~/Core/response.error'
-import { OK } from '~/Core/response.success'
 import cloudinary from '~/configs/cloundinary.config'
 import { HEADER, IRequestCustom } from '~/middlewares/authentication'
-import { commentModel } from '~/models/comment.model'
 import { notificationModel } from '~/models/notification.model'
 import productModel, { ProductType } from '~/models/product.model'
-import { TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
-import userModel from '~/models/user.model'
+import { TShopDoc, shopModel } from '~/models/shop.model'
 import CommentRepository from '~/repositories/comment.repository'
 import ProductRepository from '~/repositories/product.repository'
 import ShopRepository from '~/repositories/shop.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
-import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 import { userProductSeeUnique } from '~/utils/user.utils'
 
 class ProductService {
       static async searchQuery(req: IRequestCustom) {
             const { text } = req.query
-
-            console.log({ text })
 
             const products = await productModel
                   .find({ $text: { $search: text as string } })
@@ -43,8 +36,6 @@ class ProductService {
             const PAGE = Number(page)
             const LIMIT = Number(limit)
             const SKIP = LIMIT * (PAGE - 1)
-
-            console.log({ text })
 
             const products = await productModel
                   .find({ $text: { $search: text as string } })
@@ -72,7 +63,6 @@ class ProductService {
             const file = req.file
             const { user } = req
             const { product_id } = req.body
-            console.log({ product_id })
             if (file) {
                   const folder = `users/${user?.id}/products`
                   const result = await uploadToCloudinary(file, folder)
@@ -117,7 +107,6 @@ class ProductService {
             const file = req.file
             const { user } = req
             const { product_id } = req.body
-            console.log({ user })
             if (file) {
                   const folder = `users/${user?.id}/products`
                   const result = await uploadToCloudinary(file, folder)
@@ -202,9 +191,8 @@ class ProductService {
                   .sort({ product_price: 1 })
                   .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
                   .lean()
-            const totalPage = Math.ceil(products.length / LIMIT)
-
-            // await sleep(7000)
+            const totalProduct = await productModel.find({ isProductFull: true })
+            const totalPage = Math.ceil(totalProduct.length / LIMIT)
 
             return { products: products, totalPage }
       }
@@ -228,8 +216,6 @@ class ProductService {
                   .find(productQuery)
                   .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
                   .limit(35)
-
-            console.log({ products: JSON.stringify(products) })
 
             return { products }
       }
@@ -322,7 +308,6 @@ class ProductService {
 
       static async getProductWithIdUpdate(req: IRequestCustom) {
             const id = req.params.id
-            console.log({ id })
             const product = await productModel.findById({ _id: new mongoose.Types.ObjectId(id) }).populate('shop_id', 'shop_name')
             const { user } = req
             const foundShop = await shopModel.findOne({ owner: user?._id })
@@ -362,7 +347,6 @@ class ProductService {
                   { inc: { shop_count_product: -1 } },
                   { new: true, upsert: true }
             )
-            console.log({ foundShop, user: user?._id, product_id })
 
             if (foundShop) {
                   const deleteProductShop = foundShop?.shop_products.filter((p) => p.toString() !== product_id.toString())
@@ -374,7 +358,6 @@ class ProductService {
                   foundShop.shop_vote = calcShop?.shop_vote || 4.5
                   foundShop.shop_count_total_vote = calcShop?.shop_total_comment || 0
                   await foundShop.save()
-                  console.log({ foundShop, user: user?._id, calcShop })
             }
 
             // const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
@@ -396,7 +379,6 @@ class ProductService {
       }
 
       static async getAllProductWithType(req: IRequestCustom) {
-            console.log('OK')
             const { product_type, minVote = 1, maxVote = 5, minPrice = 1, maxPrice = 1000000000, page } = req.query
             const limit = 2
             const skipDocument = limit * (Number(page) - 1)
@@ -434,7 +416,6 @@ class ProductService {
             const { page = 1, maxPrice, minPrice, product_type, vote } = req.query
             const LIMIT = 2
             const getDocument = LIMIT * (Number(page) - 1)
-            console.log({ LIMIT, getDocument })
             const products = await productModel
                   .find({
                         product_type,

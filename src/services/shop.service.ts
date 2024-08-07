@@ -1,15 +1,14 @@
-import { SortOrder, Types } from 'mongoose'
+import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloundinary.config'
 import { IRequestCustom } from '~/middlewares/authentication'
 import { notificationModel } from '~/models/notification.model'
 import { orderModel } from '~/models/order.model'
 import productModel, { IProduct } from '~/models/product.model'
-import { TShop, TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
+import { TShopDoc, productShopModel, shopModel } from '~/models/shop.model'
 import userModel from '~/models/user.model'
 import ShopRepository from '~/repositories/shop.repository'
 import { renderNotificationSystem } from '~/utils/notification.util'
-import sleep from '~/utils/sleep'
 import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 class ShopService {
@@ -40,7 +39,6 @@ class ShopService {
                   upsert: true
             })
 
-            console.log({ shop: JSON.stringify(registerShop), _id: registerShop?._id })
 
             const productShop = await productShopModel.findOneAndUpdate(
                   { shop_id: registerShop._id },
@@ -66,13 +64,11 @@ class ShopService {
             const optionNotification = { new: true, upsert: true }
 
             const result = await notificationModel.findOneAndUpdate(queryNotification, updateNotifcation, optionNotification)
-            console.log({ notifiaction: result })
             return { shop: registerShop, user: updateUser }
       }
 
       static async UploadAvatarShop(req: IRequestCustom) {
             const file = req.file
-            console.log({ file })
             if (!file) throw new BadRequestError({ detail: 'Không có file' })
             const { user } = req
             const folder = `user/${user?._id}/shops`
@@ -93,7 +89,6 @@ class ShopService {
             const { shop_id, public_id } = req.body
             const resultRemove = await cloudinary.uploader.destroy(public_id)
             const removeDocument = await shopModel.findOneAndUpdate({ _id: new Types.ObjectId(shop_id) }, { $unset: { shop_avatar: 1 } })
-            console.log({ removeDocument, resultRemove })
             return { message: 'Xóa thành công' }
       }
 
@@ -119,7 +114,6 @@ class ShopService {
                   })
                   .populate({ path: 'order_products.products.product_id', select: { product_name: 1, product_price: 1 } })
 
-            console.log({ foundOrder })
 
             const shop = await shopModel.findOne(shopQuery).populate({
                   path: 'shop_products',
@@ -142,7 +136,7 @@ class ShopService {
             // const shop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
             // const foundProductMyShop = await productModel.find({ shop_id: shop?._id, product_state: true })
 
-            // console.log({ foundProductMyShop })
+            //console.log(([^)]+))
             return { shop: shop, order: foundOrder }
       }
 
@@ -207,7 +201,6 @@ class ShopService {
                   }
             })
 
-            console.log({ SKIP, LIMIT, page, limit, sort })
             return { shop: shop || { shop_products: [] } }
       }
 
@@ -251,7 +244,6 @@ class ShopService {
             // const start = LIMIT * PAGE_RESULT
             // const end = start + LIMIT
             // const pagination = foundOrder?.order_products.slice(start, end)
-            console.log({ startIndex, endIndex })
             return paginatedOrders ? { orderShop: paginatedOrders, temp } : { order_products: [] }
       }
 

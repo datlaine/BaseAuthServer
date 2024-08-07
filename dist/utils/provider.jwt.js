@@ -12,7 +12,6 @@ class ProviderJWT {
             return { access_token, refresh_token };
         }
         catch (e) {
-            console.log('e:', e);
             return e;
         }
     }

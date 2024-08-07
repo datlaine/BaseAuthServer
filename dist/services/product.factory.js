@@ -62,7 +62,6 @@ class Product {
         this.product_votes = product_votes;
     }
     async createProduct() {
-        console.log({ shop_id: this.shop_id });
         const product = await product_model_1.default.findOneAndUpdate({ _id: this._id }, {
             $set: {
                 shop_id: this.shop_id,
@@ -111,11 +110,8 @@ class ProductBook extends Product {
             description: this.attribute.description,
             book_type: this.attribute.type
         });
-        console.log({ book: createProductBook });
         const createProduct = await super.createProduct();
-        console.log('Book');
         if (createProduct) {
-            console.log('system');
             if (this.mode === 'UPLOAD') {
                 const productShopQuery = { _id: new mongoose_1.Types.ObjectId(createProduct.shop_id?._id) };
                 const product = await product_model_1.default
@@ -173,10 +169,8 @@ class ProductFood extends Product {
             description: this.attribute.description,
             product_food_type: this.attribute.type
         });
-        console.log({ food: createProductFood });
         const createProduct = await super.createProduct();
         if (createProduct) {
-            console.log('system');
             if (this.mode === 'UPLOAD') {
                 const productShopQuery = { _id: new mongoose_1.Types.ObjectId(createProduct.shop_id?._id) };
                 const product = await product_model_1.default

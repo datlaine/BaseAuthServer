@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId, Schema, Types, UpdateWriteOpResult } from 'mongoose'
+import mongoose, { Types } from 'mongoose'
 import { notificationModel } from '~/models/notification.model'
 import productModel, { IProduct, IProductBook, IProductDoc, IProductFood, productBookModel, productFoodModel } from '~/models/product.model'
 import { shopModel } from '~/models/shop.model'
@@ -62,8 +62,6 @@ class Product implements IProductStrategy {
       }
 
       async createProduct() {
-            console.log({ shop_id: this.shop_id })
-
             const product = await productModel.findOneAndUpdate(
                   { _id: this._id },
                   {
@@ -135,12 +133,9 @@ export class ProductBook extends Product implements IProductStrategy {
                   book_type: this.attribute.type
             })
 
-            console.log({ book: createProductBook })
             const createProduct = await super.createProduct()
-            console.log('Book')
 
             if (createProduct) {
-                  console.log('system')
                   if (this.mode === 'UPLOAD') {
                         const productShopQuery = { _id: new Types.ObjectId(createProduct.shop_id?._id) }
                         const product = await productModel
@@ -220,10 +215,8 @@ export class ProductFood extends Product implements IProductStrategy {
                   product_food_type: this.attribute.type
             })
 
-            console.log({ food: createProductFood })
             const createProduct = await super.createProduct()
             if (createProduct) {
-                  console.log('system')
                   if (this.mode === 'UPLOAD') {
                         const productShopQuery = { _id: new Types.ObjectId(createProduct.shop_id?._id) }
                         const product = await productModel

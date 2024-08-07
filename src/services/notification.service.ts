@@ -1,9 +1,6 @@
 import { Types } from 'mongoose'
 import { IRequestCustom } from '~/middlewares/authentication'
-import { NotificationMessage, notificationModel } from '~/models/notification.model'
-import { orderModel } from '~/models/order.model'
-import { shopModel } from '~/models/shop.model'
-import userModel from '~/models/user.model'
+import { notificationModel } from '~/models/notification.model'
 import NotificationRepository from '~/repositories/notification.repository'
 import OrderRepository from '~/repositories/order.repo'
 
@@ -38,7 +35,6 @@ class NotificationService {
                   type: 'PRODUCT'
             })
 
-            console.log({ result })
             return result
       }
 
@@ -51,7 +47,6 @@ class NotificationService {
             // const query = {_id: new Types.ObjectId(user?._id)}
             // const foundUser = await userModel.findOne(query)
             const result = await OrderRepository.getOrderWitId({ order_products_products_id: product_id })
-            console.log({ result, product_id })
 
             return { myNotificationShop: { product_sell: result } }
       }
@@ -85,7 +80,6 @@ class NotificationService {
             const option = { new: true, upsert: true }
 
             const result = await notificationModel.findOneAndUpdate(query, update, option)
-            console.log({ result123: result })
             return { message: `Đã xóa thông báo có id: ${notification_id}` }
       }
 }

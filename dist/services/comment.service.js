@@ -197,7 +197,6 @@ class CommentService {
     static async getAllCommentProduct(req) {
         const { product_id, page, limit } = req.query;
         const client_id = req.headers[authentication_1.HEADER.CLIENT_ID];
-        console.log({ client_id });
         const LIMIT = Number(limit);
         const skip = LIMIT * (Number(page) - 1);
         const commentPopulate = {
@@ -331,7 +330,6 @@ class CommentService {
             minVote: MIN_VOTE,
             maxVote: MAX_VOTE
         }));
-        console.log({ result });
         return { comments: result, total: total?.total || 0 };
     }
     static async getAllCommentImage(req) {

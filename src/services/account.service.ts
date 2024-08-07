@@ -1,17 +1,17 @@
-import { IRequestCustom } from '~/middlewares/authentication'
-import SelectData from '~/utils/SelectData'
-import userModel from '~/models/user.model'
-import cloudinary from '~/configs/cloundinary.config'
-import { config } from 'dotenv'
-import uploadToCloudinary from '~/utils/uploadCloudinary'
-import AccountRepository from '~/repositories/account.repositort'
-import { Types } from 'mongoose'
-import { renderNotificationSystem, renderNotificationUser } from '~/utils/notification.util'
-import { notificationModel } from '~/models/notification.model'
 import bcrypt from 'bcrypt'
+import { config } from 'dotenv'
+import { Types } from 'mongoose'
+import cloudinary from '~/configs/cloundinary.config'
 import { BadRequestError, NotFoundError } from '~/Core/response.error'
-import sleep from '~/utils/sleep'
+import { IRequestCustom } from '~/middlewares/authentication'
+import { notificationModel } from '~/models/notification.model'
+import userModel from '~/models/user.model'
+import AccountRepository from '~/repositories/account.repositort'
 import Convert from '~/utils/convert'
+import { renderNotificationUser } from '~/utils/notification.util'
+import SelectData from '~/utils/SelectData'
+import sleep from '~/utils/sleep'
+import uploadToCloudinary from '~/utils/uploadCloudinary'
 
 config()
 class AccountService {
@@ -34,8 +34,6 @@ class AccountService {
                   { new: true, upsert: true }
             )
 
-            console.log({ update })
-
             const queryNotification = { notification_user_id: new Types.ObjectId(user?._id) }
             const updateNotification = {
                   $push: {
@@ -56,7 +54,6 @@ class AccountService {
 
             if (!user?.avatar.secure_url) {
                   const result = await uploadToCloudinary(req?.file as Express.Multer.File, user?._id)
-                  console.log({ result })
                   const update = await userModel.findOneAndUpdate(
                         {
                               _id: user?._id
@@ -82,7 +79,6 @@ class AccountService {
             } else {
                   const folder = `users/${user.id}/avatar`
                   const result = await uploadToCloudinary(req?.file as Express.Multer.File, folder)
-                  console.log({ result })
                   const update = await userModel.findOneAndUpdate(
                         {
                               _id: user?._id
@@ -118,7 +114,6 @@ class AccountService {
       static async getAllAvatar(req: IRequestCustom) {
             const user = req.user
             const foundAllAvatar = await userModel.find({ _id: user?._id }, { avatar_used: 1 })
-            console.log({ foundAllAvatar })
             return { avatar_used: foundAllAvatar[0].avatar_used }
       }
 
@@ -188,7 +183,6 @@ class AccountService {
       static async addAddress(req: IRequestCustom) {
             const { user } = req
             const { addressPayload } = req.body
-            console.log({ body: req.body })
 
             const query = { _id: new Types.ObjectId(user?._id) }
             const update = { $addToSet: { user_address: addressPayload } }

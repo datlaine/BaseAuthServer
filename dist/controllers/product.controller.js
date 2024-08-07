@@ -42,7 +42,6 @@ class ProductController {
     static async uploadProductBook(req, res, next) {
         const user_id = req.user?._id;
         const foundShop = await shop_model_1.shopModel.findOne({ owner: user_id });
-        console.log({ body: req.body });
         const { product_name, product_price, product_type, product_available } = req.body.uploadProduct;
         const { product_id, mode } = req.body;
         const { author, type, description, page_number, publishing } = req.body.product_attribute;
@@ -71,7 +70,6 @@ class ProductController {
         new response_success_1.OK({ metadata: await product_factory_1.ProductFactory.createProduct(book) }).send(res);
     }
     static async uploadProductFood(req, res, next) {
-        console.log({ body: req.body });
         const user_id = req.user?._id;
         const foundShop = await shop_model_1.shopModel.findOne({ owner: user_id });
         const { product_name, product_price, product_type, product_available } = req.body.uploadProduct;

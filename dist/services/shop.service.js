@@ -39,7 +39,6 @@ class ShopService {
             new: true,
             upsert: true
         });
-        console.log({ shop: JSON.stringify(registerShop), _id: registerShop?._id });
         const productShop = await shop_model_1.productShopModel.findOneAndUpdate({ shop_id: registerShop._id }, { $set: { shop_id: registerShop._id } }, { new: true, upsert: true });
         const updateUser = await user_model_1.default.findOneAndUpdate({ _id: user?._id }, { $set: { isOpenShop: true } }, { new: true, upsert: true });
         const queryNotification = { notification_user_id: new mongoose_1.Types.ObjectId(user?._id) };
@@ -51,12 +50,10 @@ class ShopService {
         };
         const optionNotification = { new: true, upsert: true };
         const result = await notification_model_1.notificationModel.findOneAndUpdate(queryNotification, updateNotifcation, optionNotification);
-        console.log({ notifiaction: result });
         return { shop: registerShop, user: updateUser };
     }
     static async UploadAvatarShop(req) {
         const file = req.file;
-        console.log({ file });
         if (!file)
             throw new response_error_1.BadRequestError({ detail: 'Không có file' });
         const { user } = req;
@@ -71,7 +68,6 @@ class ShopService {
         const { shop_id, public_id } = req.body;
         const resultRemove = await cloundinary_config_1.default.uploader.destroy(public_id);
         const removeDocument = await shop_model_1.shopModel.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(shop_id) }, { $unset: { shop_avatar: 1 } });
-        console.log({ removeDocument, resultRemove });
         return { message: 'Xóa thành công' };
     }
     static async getMyShop(req) {
@@ -93,7 +89,6 @@ class ShopService {
             'order_products.products.shop_id': new mongoose_1.Types.ObjectId(shop_id)
         })
             .populate({ path: 'order_products.products.product_id', select: { product_name: 1, product_price: 1 } });
-        console.log({ foundOrder });
         const shop = await shop_model_1.shopModel.findOne(shopQuery).populate({
             path: 'shop_products',
             options: {
@@ -113,7 +108,7 @@ class ShopService {
         });
         // const shop = await shopModel.findOne({ owner: new Types.ObjectId(user?._id) })
         // const foundProductMyShop = await productModel.find({ shop_id: shop?._id, product_state: true })
-        // console.log({ foundProductMyShop })
+        //console.log(([^)]+))
         return { shop: shop, order: foundOrder };
     }
     static async foundShopHasProductType(req) {
@@ -164,7 +159,6 @@ class ShopService {
                 }
             }
         });
-        console.log({ SKIP, LIMIT, page, limit, sort });
         return { shop: shop || { shop_products: [] } };
     }
     static async getOrderMyShop(req) {
@@ -201,7 +195,6 @@ class ShopService {
         // const start = LIMIT * PAGE_RESULT
         // const end = start + LIMIT
         // const pagination = foundOrder?.order_products.slice(start, end)
-        console.log({ startIndex, endIndex });
         return paginatedOrders ? { orderShop: paginatedOrders, temp } : { order_products: [] };
     }
     static async getShopAdmin(req) {

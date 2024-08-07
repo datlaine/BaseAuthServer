@@ -231,7 +231,6 @@ class CommentService {
       static async getAllCommentProduct(req: IRequestCustom) {
             const { product_id, page, limit } = req.query
             const client_id = req.headers[HEADER.CLIENT_ID]
-            console.log({ client_id })
             const LIMIT = Number(limit)
             const skip = LIMIT * (Number(page) - 1)
 
@@ -384,8 +383,6 @@ class CommentService {
                   minVote: MIN_VOTE,
                   maxVote: MAX_VOTE
             })) as unknown as TotalPage
-
-            console.log({ result })
 
             return { comments: result, total: total?.total || 0 }
       }

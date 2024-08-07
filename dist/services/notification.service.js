@@ -31,7 +31,6 @@ class NotificationService {
             page,
             type: 'PRODUCT'
         });
-        console.log({ result });
         return result;
     }
     static async getMyShopNotifications(req) {
@@ -43,7 +42,6 @@ class NotificationService {
         // const query = {_id: new Types.ObjectId(user?._id)}
         // const foundUser = await userModel.findOne(query)
         const result = await order_repo_1.default.getOrderWitId({ order_products_products_id: product_id });
-        console.log({ result, product_id });
         return { myNotificationShop: { product_sell: result } };
     }
     static async readNotification(req) {
@@ -70,7 +68,6 @@ class NotificationService {
         };
         const option = { new: true, upsert: true };
         const result = await notification_model_1.notificationModel.findOneAndUpdate(query, update, option);
-        console.log({ result123: result });
         return { message: `Đã xóa thông báo có id: ${notification_id}` };
     }
 }

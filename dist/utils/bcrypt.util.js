@@ -7,10 +7,8 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const response_error_1 = require("../Core/response.error");
 class ProviderBcrypt {
     static async comparePass({ password, hashPassword }) {
-        console.log('params::', password, hashPassword);
         try {
             const compare = await bcrypt_1.default.compare(password, hashPassword.trim());
-            console.log(compare);
             return compare;
         }
         catch (e) {

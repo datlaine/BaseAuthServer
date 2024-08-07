@@ -42,7 +42,6 @@ const getGoogleUser = async ({ id_token, access_token }) => {
         params: { access_token, alt: 'json' },
         headers: { Authorization: `Bearer ${id_token}` }
     });
-    console.log('data', data);
     return data;
 };
 exports.getGoogleUser = getGoogleUser;

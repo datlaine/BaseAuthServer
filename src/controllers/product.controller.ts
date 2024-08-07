@@ -1,14 +1,13 @@
 import { NextFunction, Response } from 'express'
-import { ObjectId, Types } from 'mongoose'
+import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import { OK } from '~/Core/response.success'
 import { product_default_vote } from '~/constant/product.constant'
 import { IRequestCustom } from '~/middlewares/authentication'
 import productModel, { IProduct, IProductBook, IProductFoodDoc } from '~/models/product.model'
-import { productShopModel, shopModel } from '~/models/shop.model'
+import { shopModel } from '~/models/shop.model'
 import { ProductBook, ProductFactory, ProductFood } from '~/services/product.factory'
 import ProductService from '~/services/product.service'
-import { shopProductUnique } from '~/utils/shop.utils'
 
 class ProductController {
       static async searchQuery(req: IRequestCustom, res: Response, next: NextFunction) {
@@ -58,7 +57,6 @@ class ProductController {
       ) {
             const user_id = req.user?._id
             const foundShop = await shopModel.findOne({ owner: user_id })
-            console.log({ body: req.body })
 
             const { product_name, product_price, product_type, product_available } = req.body.uploadProduct
 
@@ -102,7 +100,6 @@ class ProductController {
             res: Response,
             next: NextFunction
       ) {
-            console.log({ body: req.body })
             const user_id = req.user?._id
             const foundShop = await shopModel.findOne({ owner: user_id })
 

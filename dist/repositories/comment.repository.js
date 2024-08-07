@@ -13,7 +13,6 @@ class CommentRepository {
                 }
             }
         ]);
-        console.log({ result: result[0] });
         return result[0];
     }
     static async getCommentDetail({ product_id }) {

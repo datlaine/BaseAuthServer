@@ -175,7 +175,6 @@ class OrderService {
             .populate({ path: 'order_products.products.product_id' })
             .populate({ path: 'order_products.products.shop_id' })
             .lean();
-        console.log({ order_id: getOrderInfo?.order_products.map((order) => order._id) });
         const orderInfo = getOrderInfo?.order_products.filter((order) => {
             if (order._id.toString() === order_id) {
                 return order;

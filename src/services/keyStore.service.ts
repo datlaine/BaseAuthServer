@@ -43,7 +43,6 @@ class KeyStoreService {
 
       static async deleteKeyStore({ user_id }: Pick<IKeyStore, 'user_id'>) {
             const del = await keyStoreModel.deleteOne({ user_id })
-            console.log('del', del)
             return del
       }
 

@@ -42,7 +42,6 @@ const user_utils_1 = require("../utils/user.utils");
 class ProductService {
     static async searchQuery(req) {
         const { text } = req.query;
-        console.log({ text });
         const products = await product_model_1.default
             .find({ $text: { $search: text } })
             .select('product_name _id product_thumb_image product_votes')
@@ -60,7 +59,6 @@ class ProductService {
         const PAGE = Number(page);
         const LIMIT = Number(limit);
         const SKIP = LIMIT * (PAGE - 1);
-        console.log({ text });
         const products = await product_model_1.default
             .find({ $text: { $search: text } })
             .select('product_name _id product_thumb_image product_votes')
@@ -78,7 +76,6 @@ class ProductService {
         const file = req.file;
         const { user } = req;
         const { product_id } = req.body;
-        console.log({ product_id });
         if (file) {
             const folder = `users/${user?.id}/products`;
             const result = await (0, uploadCloudinary_1.default)(file, folder);
@@ -113,7 +110,6 @@ class ProductService {
         const file = req.file;
         const { user } = req;
         const { product_id } = req.body;
-        console.log({ user });
         if (file) {
             const folder = `users/${user?.id}/products`;
             const result = await (0, uploadCloudinary_1.default)(file, folder);
@@ -184,8 +180,8 @@ class ProductService {
             .sort({ product_price: 1 })
             .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
             .lean();
-        const totalPage = Math.ceil(products.length / LIMIT);
-        // await sleep(7000)
+        const totalProduct = await product_model_1.default.find({ isProductFull: true });
+        const totalPage = Math.ceil(totalProduct.length / LIMIT);
         return { products: products, totalPage };
     }
     static async getAllProductCare(req) {
@@ -203,7 +199,6 @@ class ProductService {
             .find(productQuery)
             .select({ _id: 1, product_name: 1, product_price: 1, product_thumb_image: 1, product_votes: 1 })
             .limit(35);
-        console.log({ products: JSON.stringify(products) });
         return { products };
     }
     static async getProductBestBought(req) {
@@ -281,7 +276,6 @@ class ProductService {
     }
     static async getProductWithIdUpdate(req) {
         const id = req.params.id;
-        console.log({ id });
         const product = await product_model_1.default.findById({ _id: new mongoose_1.default.Types.ObjectId(id) }).populate('shop_id', 'shop_name');
         const { user } = req;
         const foundShop = await shop_model_1.shopModel.findOne({ owner: user?._id });
@@ -308,7 +302,6 @@ class ProductService {
         if (!deleteProduct)
             throw new response_error_1.BadRequestError({ detail: 'Xóa sản phẩm thất bại' });
         const foundShop = await shop_model_1.shopModel.findOneAndUpdate({ owner: new mongoose_1.Types.ObjectId(user?._id) }, { inc: { shop_count_product: -1 } }, { new: true, upsert: true });
-        console.log({ foundShop, user: user?._id, product_id });
         if (foundShop) {
             const deleteProductShop = foundShop?.shop_products.filter((p) => p.toString() !== product_id.toString());
             foundShop.shop_products = deleteProductShop;
@@ -319,7 +312,6 @@ class ProductService {
             foundShop.shop_vote = calcShop?.shop_vote || 4.5;
             foundShop.shop_count_total_vote = calcShop?.shop_total_comment || 0;
             await foundShop.save();
-            console.log({ foundShop, user: user?._id, calcShop });
         }
         // const productShopQuery = { shop_id: new Types.ObjectId(foundShop?._id) }
         // const productShopUpdate = { $set: { products: { state: 'Delete' } } }
@@ -337,7 +329,6 @@ class ProductService {
         return { message: 'Xóa thành công' };
     }
     static async getAllProductWithType(req) {
-        console.log('OK');
         const { product_type, minVote = 1, maxVote = 5, minPrice = 1, maxPrice = 1000000000, page } = req.query;
         const limit = 2;
         const skipDocument = limit * (Number(page) - 1);
@@ -369,7 +360,6 @@ class ProductService {
         const { page = 1, maxPrice, minPrice, product_type, vote } = req.query;
         const LIMIT = 2;
         const getDocument = LIMIT * (Number(page) - 1);
-        console.log({ LIMIT, getDocument });
         const products = await product_model_1.default
             .find({
             product_type,

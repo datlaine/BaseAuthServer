@@ -1,6 +1,5 @@
-import userModel, { UserDocument } from '~/models/user.model'
-import bcrypt from 'bcrypt'
-import mongoose, { Types } from 'mongoose'
+import mongoose from 'mongoose'
+import userModel from '~/models/user.model'
 
 type UserInfo = {
       email: string
@@ -16,7 +15,6 @@ class UserService {
       }
 
       static async findUserByEmail({ email }: Pick<UserInfo, 'email'>) {
-            console.log(email)
             const foundEmail = await userModel.findOne({ email }).lean()
             return foundEmail
       }

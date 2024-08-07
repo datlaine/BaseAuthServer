@@ -13,7 +13,6 @@ const userProductSeeUnique = async ({ user_id, product_id }) => {
         }
         else {
             const foundProductId = userDocument.product_see.findIndex((p) => p.toString() === product_id.toString());
-            console.log({ foundProductId });
             if (foundProductId === -1) {
                 const user = await user_model_1.default.findOneAndUpdate({ _id: user_id }, { $push: { product_see: product_id } });
             }

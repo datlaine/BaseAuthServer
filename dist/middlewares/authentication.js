@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authentication = exports.HEADER = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const response_error_1 = require("../Core/response.error");
+const asyncHandler_1 = require("../helpers/asyncHandler");
 const keyStore_service_1 = __importDefault(require("../services/keyStore.service"));
 const user_service_1 = __importDefault(require("../services/user.service"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const asyncHandler_1 = require("../helpers/asyncHandler");
-const response_error_1 = require("../Core/response.error");
 exports.HEADER = {
     CLIENT_ID: 'x-client-id',
     AUTHORIZATION: 'authorization'
@@ -31,7 +31,7 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
         throw new response_error_1.ForbiddenError({ detail: 'Phiên đăng nhập hết hạn key' });
     // case: refresh_token
     if (req.originalUrl === '/v1/api/auth/rf') {
-        // console.log({ refresf: req?.cookies['refresh_token'], keyStore })
+        //console.log(([^)]+))
         if (!req?.cookies['refresh_token']) {
             return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng' }));
         }
@@ -45,7 +45,7 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
                     }
                     return next(new response_error_1.ForbiddenError({ detail: 'Token không đúng' }));
                 }
-                // console.log('decode::', decode)
+                //console.log(([^)]+))
                 const decodeType = decode;
                 // if (decodeType._id !== client_id) throw new AuthFailedError({})
                 req.user = user;
@@ -59,7 +59,6 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
     if (access_token) {
         jsonwebtoken_1.default.verify(access_token, keyStore.public_key, (error, decode) => {
             if (error) {
-                console.log({ error });
                 return next(new response_error_1.AuthFailedError({ detail: 'Token hết hạn' }));
             }
             const decodeType = decode;
@@ -70,7 +69,6 @@ exports.authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next)
         });
         return next();
     }
-    console.log('...');
     return next();
 });
 exports.default = exports.authentication;

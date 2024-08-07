@@ -40,6 +40,5 @@ export const getGoogleUser = async ({ id_token, access_token }: { id_token: stri
             params: { access_token, alt: 'json' },
             headers: { Authorization: `Bearer ${id_token}` }
       })
-      console.log('data', data)
       return data
 }

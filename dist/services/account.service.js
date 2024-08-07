@@ -3,19 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const SelectData_1 = __importDefault(require("../utils/SelectData"));
-const user_model_1 = __importDefault(require("../models/user.model"));
-const cloundinary_config_1 = __importDefault(require("../configs/cloundinary.config"));
-const dotenv_1 = require("dotenv");
-const uploadCloudinary_1 = __importDefault(require("../utils/uploadCloudinary"));
-const account_repositort_1 = __importDefault(require("../repositories/account.repositort"));
-const mongoose_1 = require("mongoose");
-const notification_util_1 = require("../utils/notification.util");
-const notification_model_1 = require("../models/notification.model");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const dotenv_1 = require("dotenv");
+const mongoose_1 = require("mongoose");
+const cloundinary_config_1 = __importDefault(require("../configs/cloundinary.config"));
 const response_error_1 = require("../Core/response.error");
-const sleep_1 = __importDefault(require("../utils/sleep"));
+const notification_model_1 = require("../models/notification.model");
+const user_model_1 = __importDefault(require("../models/user.model"));
+const account_repositort_1 = __importDefault(require("../repositories/account.repositort"));
 const convert_1 = __importDefault(require("../utils/convert"));
+const notification_util_1 = require("../utils/notification.util");
+const SelectData_1 = __importDefault(require("../utils/SelectData"));
+const sleep_1 = __importDefault(require("../utils/sleep"));
+const uploadCloudinary_1 = __importDefault(require("../utils/uploadCloudinary"));
 (0, dotenv_1.config)();
 class AccountService {
     static async getMeQuery(req) {
@@ -31,7 +31,6 @@ class AccountService {
     static async updateInfo(req) {
         const { user } = req;
         const update = await user_model_1.default.findOneAndUpdate({ _id: user?._id }, { $set: { bob: req.body.birth, gender: req.body.gender, fullName: req.body.fullName, nickName: req.body.nickName } }, { new: true, upsert: true });
-        console.log({ update });
         const queryNotification = { notification_user_id: new mongoose_1.Types.ObjectId(user?._id) };
         const updateNotification = {
             $push: {
@@ -49,7 +48,6 @@ class AccountService {
         const user = req.user;
         if (!user?.avatar.secure_url) {
             const result = await (0, uploadCloudinary_1.default)(req?.file, user?._id);
-            console.log({ result });
             const update = await user_model_1.default.findOneAndUpdate({
                 _id: user?._id
             }, {
@@ -69,7 +67,6 @@ class AccountService {
         else {
             const folder = `users/${user.id}/avatar`;
             const result = await (0, uploadCloudinary_1.default)(req?.file, folder);
-            console.log({ result });
             const update = await user_model_1.default.findOneAndUpdate({
                 _id: user?._id
             }, {
@@ -97,7 +94,6 @@ class AccountService {
     static async getAllAvatar(req) {
         const user = req.user;
         const foundAllAvatar = await user_model_1.default.find({ _id: user?._id }, { avatar_used: 1 });
-        console.log({ foundAllAvatar });
         return { avatar_used: foundAllAvatar[0].avatar_used };
     }
     static async deleteAvatarUsed(req) {
@@ -149,7 +145,6 @@ class AccountService {
     static async addAddress(req) {
         const { user } = req;
         const { addressPayload } = req.body;
-        console.log({ body: req.body });
         const query = { _id: new mongoose_1.Types.ObjectId(user?._id) };
         const update = { $addToSet: { user_address: addressPayload } };
         const option = { new: true, upsert: true };

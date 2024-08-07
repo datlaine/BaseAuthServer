@@ -3,20 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_service_1 = __importDefault(require("./user.service"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const crypto_1 = require("crypto");
+const mongoose_1 = require("mongoose");
+const response_error_1 = require("../Core/response.error");
+const keyStore_model_1 = __importDefault(require("../models/keyStore.model"));
+const notification_model_1 = require("../models/notification.model");
+const user_model_1 = __importDefault(require("../models/user.model"));
 const SelectData_1 = __importDefault(require("../utils/SelectData"));
 const convert_1 = __importDefault(require("../utils/convert"));
-const crypto_1 = require("crypto");
-const provider_jwt_1 = __importDefault(require("../utils/provider.jwt"));
-const keyStore_model_1 = __importDefault(require("../models/keyStore.model"));
-const keyStore_service_1 = __importDefault(require("./keyStore.service"));
-const response_error_1 = require("../Core/response.error");
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const user_model_1 = __importDefault(require("../models/user.model"));
 const google_oauth_1 = require("../utils/google.oauth");
-const mongoose_1 = require("mongoose");
-const notification_model_1 = require("../models/notification.model");
 const notification_util_1 = require("../utils/notification.util");
+const provider_jwt_1 = __importDefault(require("../utils/provider.jwt"));
+const keyStore_service_1 = __importDefault(require("./keyStore.service"));
+const user_service_1 = __importDefault(require("./user.service"));
 class AuthService {
     //REGISTER
     static async register(req, res) {
@@ -166,8 +166,8 @@ class AuthService {
     }
     static async refresh_token(req, res) {
         const { refresh_token, keyStore, user } = req;
-        // console.log('gọi api')
-        // console.log({ old: keyStore?.refresh_token, token: refresh_token, used: keyStore?.refresh_token_used, keyStore })
+        //console.log(([^)]+))
+        //console.log(([^)]+))
         if (keyStore?.refresh_token_used.includes(keyStore.refresh_token)) {
             await keyStore_model_1.default.deleteOne({ user_id: user?._id });
             throw new response_error_1.ForbiddenError({ detail: 'Token đã được sử dụng' });
@@ -186,7 +186,7 @@ class AuthService {
             $addToSet: { refresh_token_used: refresh_token }
         }, { upsert: true, new: true })
             .lean();
-        // console.log({ update })
+        //console.log(([^)]+))
         const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng miligiây
         const expiryDate = new Date(Date.now() + oneWeek);
         res.cookie('refresh_token', token.refresh_token, {
@@ -213,14 +213,14 @@ class AuthService {
         return { token: token.access_token, rf: token.refresh_token, user };
     }
     static async loginWithGoogle(req) {
-        // console.log('query', req.query.code)
+        //console.log(([^)]+))
         // return req.query.code
         const { code } = req.query;
         const token = await (0, google_oauth_1.getOautGoogleToken)(code);
         // eslint-disable-next-line prettier/prettier
         const { id_token, access_token } = token;
         const googleUser = await (0, google_oauth_1.getGoogleUser)({ id_token, access_token });
-        // console.log(googleUser)
+        //console.log(([^)]+))
         const user = googleUser.data;
         if ('verified_email' in googleUser) {
             if (!googleUser.verified_email) {

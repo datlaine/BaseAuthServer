@@ -1,14 +1,14 @@
 /* eslint-disable no-extra-boolean-cast */
 import { NextFunction, Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
+import { InferSchemaType } from 'mongoose'
+import { AuthFailedError, ForbiddenError } from '~/Core/response.error'
+import { asyncHandler } from '~/helpers/asyncHandler'
+import { keyStoreSchema } from '~/models/keyStore.model'
+import { userSchema } from '~/models/user.model'
 import KeyStoreService from '~/services/keyStore.service'
 import UserService from '~/services/user.service'
-import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
-import { InferSchemaType, Types } from 'mongoose'
-import { userSchema } from '~/models/user.model'
-import keyStoreModel, { keyStoreSchema } from '~/models/keyStore.model'
 import { IJwtPayload } from '~/utils/provider.jwt'
-import { asyncHandler } from '~/helpers/asyncHandler'
-import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError } from '~/Core/response.error'
 interface IHEADER {
       CLIENT_ID: string
       AUTHORIZATION: string
@@ -56,7 +56,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       // case: refresh_token
 
       if (req.originalUrl === '/v1/api/auth/rf') {
-            // console.log({ refresf: req?.cookies['refresh_token'], keyStore })
+            //console.log(([^)]+))
             if (!req?.cookies['refresh_token']) {
                   return next(new ForbiddenError({ detail: 'Token không đúng' }))
             }
@@ -71,7 +71,7 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
                               }
                               return next(new ForbiddenError({ detail: 'Token không đúng' }))
                         }
-                        // console.log('decode::', decode)
+                        //console.log(([^)]+))
                         const decodeType = decode as IJwtPayload
                         // if (decodeType._id !== client_id) throw new AuthFailedError({})
                         req.user = user
@@ -85,8 +85,6 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
       if (access_token) {
             jwt.verify(access_token, keyStore.public_key, (error, decode) => {
                   if (error) {
-                        console.log({ error })
-
                         return next(new AuthFailedError({ detail: 'Token hết hạn' }))
                   }
                   const decodeType = decode as IJwtPayload
@@ -98,7 +96,6 @@ export const authentication = asyncHandler(async (req: IRequestCustom, res: Resp
             return next()
       }
 
-      console.log('...')
       return next()
 })
 
