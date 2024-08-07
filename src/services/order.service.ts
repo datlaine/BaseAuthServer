@@ -18,7 +18,6 @@ class OrderService {
             if (!checkQuanityProduct) {
                   return checkQuanityProduct
             }
-            console.log('flag orders', user)
 
             /*
                   B1: Update Order -> Mảng order từ client gửi lên
@@ -51,12 +50,15 @@ class OrderService {
             const queryOrder = { order_user_id: new Types.ObjectId(user?._id) }
             const updateOrder = { $addToSet: { order_products: { products: products, order_total } } }
             const optionOrder = { new: true, upsert: true, multi: true }
-            const updateOrderDocument = await orderModel.findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+            const updateOrderDocument = await orderModel
+                  .findOneAndUpdate(queryOrder, updateOrder, optionOrder)
+                  .populate('order_products.products.product_id')
+                  .populate('order_products.products.shop_id')
+
 
             // .populate({ path: 'order_products.products.product_id' })
             // .populate({ path: 'order_products.products.shop_id' })
 
-            console.log({ order: updateOrderDocument, flag: true })
 
             //CART MODEL
 
@@ -206,9 +208,15 @@ class OrderService {
                   .populate({ path: 'order_products.products.shop_id' })
 
                   .lean()
-            // .select('order_products.products.quantity')
-            console.log({ getOrderInfo, user, order_id })
-            return { getOrderInfo }
+            console.log({ order_id: getOrderInfo?.order_products.map((order) => order._id) })
+
+            const orderInfo = getOrderInfo?.order_products.filter((order) => {
+                  if (order._id.toString() === order_id) {
+                        return order
+                  }
+                  return null
+            })
+            return { getOrderInfo: orderInfo }
       }
 }
 

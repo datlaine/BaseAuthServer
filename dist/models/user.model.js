@@ -40,7 +40,7 @@ exports.userSchema = new mongoose_1.Schema({
     },
     avatar_url_default: {
         type: String,
-        default: 'https://res.cloudinary.com/demonodejs/image/upload/v1705389477/static/o5gxkgehijtg9auirdje.jpg'
+        default: 'https://res.cloudinary.com/cloud304/image/upload/v1722613508/tiki-project/avatar-default.png'
     },
     avatar_used: {
         type: [

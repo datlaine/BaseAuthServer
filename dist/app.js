@@ -32,7 +32,7 @@ app.use((0, helmet_1.default)());
 app.use((0, compression_1.default)());
 app.use((0, cors_1.default)({
     credentials: true,
-    origin: [process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL],
+    origin: [process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, 'http://localhost:3000', process.env.CLIENT_URL],
     exposedHeaders: ['set-cookie']
     // origin: 'http://localhost:3000'
     // origin: '*'
