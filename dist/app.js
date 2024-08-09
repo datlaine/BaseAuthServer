@@ -14,8 +14,6 @@ const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = require("dotenv");
 // mongosose
 const body_parser_1 = __importDefault(require("body-parser"));
-const http_1 = require("http");
-const socket_io_1 = require("socket.io");
 const httpStatusCode_1 = require("./Core/httpStatusCode");
 const mongo_connect_1 = __importDefault(require("./Database/mongo.connect"));
 const routers_1 = __importDefault(require("./routers"));
@@ -23,9 +21,9 @@ const routers_1 = __importDefault(require("./routers"));
 //////START//////
 //khởi tạo express
 const app = (0, express_1.default)();
-const server = (0, http_1.createServer)(app);
-const io = new socket_io_1.Server(server);
-global._io = io; // cach 2
+// const server = createServer(app)
+// const io = new Server(server)
+// global._io = io // cach 2
 //midlewares
 app.use((0, helmet_1.default)());
 app.use((0, compression_1.default)());
@@ -56,7 +54,7 @@ app.use(((error, req, res, next) => {
     return res.status(code).send({ code, message, detail });
 }));
 const PORT = process.env.MODE === 'DEV' ? 4001 : process.env.PORT;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log('Server is runing');
 });
 exports.default = app;

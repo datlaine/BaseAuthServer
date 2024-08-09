@@ -25,9 +25,9 @@ declare global {
 //////START//////
 //khởi tạo express
 const app = express()
-const server = createServer(app)
-const io = new Server(server)
-global._io = io // cach 2
+// const server = createServer(app)
+// const io = new Server(server)
+// global._io = io // cach 2
 
 //midlewares
 app.use(helmet())
@@ -76,7 +76,7 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
 
 const PORT = process.env.MODE === 'DEV' ? 4001 : process.env.PORT
 
-server.listen(PORT!, () => {
+app.listen(PORT!, () => {
       console.log('Server is runing')
 })
 
