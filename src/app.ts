@@ -18,16 +18,10 @@ import router from './routers'
 import { renderNotificationSystem } from './utils/notification.util'
 
 config()
-declare global {
-      var _io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
-}
 
 //////START//////
 //khởi tạo express
 const app = express()
-// const server = createServer(app)
-// const io = new Server(server)
-// global._io = io // cach 2
 
 //midlewares
 app.use(helmet())

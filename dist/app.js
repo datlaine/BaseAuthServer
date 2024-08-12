@@ -21,9 +21,6 @@ const routers_1 = __importDefault(require("./routers"));
 //////START//////
 //khởi tạo express
 const app = (0, express_1.default)();
-// const server = createServer(app)
-// const io = new Server(server)
-// global._io = io // cach 2
 //midlewares
 app.use((0, helmet_1.default)());
 app.use((0, compression_1.default)());
