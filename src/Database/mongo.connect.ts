@@ -7,7 +7,7 @@ class MongoConnect {
 
       static async Connect() {
             if (!MongoConnect.connect) {
-                  const connectString = process.env.MODE === 'DEV' ? process.env.MONGO_URI_LOCAL : process.env.MONGO_URI_PRO
+                  const connectString =  process.env.MONGO_URI_PRO
                   MongoConnect.connect = mongoose.connect(connectString!)
 
                   MongoConnect.connect

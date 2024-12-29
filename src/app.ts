@@ -30,7 +30,7 @@ app.use(
       cors({
             credentials: true,
             origin: [
-                  process.env.MODE === 'DEV' ? 'http://localhost:3001' : (process.env.CLIENT_URL as string),
+                  process.env.MODE === 'DEV' ? 'http://localhost:3001' : 'https://kurotiki.io.vn',
                   'http://localhost:3001',
                   process.env.CLIENT_URL as string
             ],
@@ -68,10 +68,11 @@ app.use(((error: IError, req: Request, res: Response, next: NextFunction) => {
       return res.status(code).send({ code, message, detail })
 }) as ErrorRequestHandler)
 
-const PORT = process.env.MODE === 'DEV' ? 4001 : process.env.PORT
+const PORT = process.env.MODE === 'DEV' ? 4000 : process.env.PORT
 
 app.listen(PORT!, () => {
-      console.log('Server is runing')
+      console.log({PORT})
+      console.log('Server is runing', )
 })
 
 export default app
